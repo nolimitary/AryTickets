@@ -2,7 +2,13 @@ using AryTickets.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Text.Json;
-using YourAppName.Models; 
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using YourAppName.Models;
 
 namespace AryTickets.Controllers
 {
@@ -16,11 +22,13 @@ namespace AryTickets.Controllers
         {
             _logger = logger;
             _httpClientFactory = httpClientFactory;
-            _apiKey = configuration["TMDb:ApiKey"]; 
+            _apiKey = configuration["TMDb:ApiKey"];
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string region = "US")
         {
+            ViewData["CurrentRegion"] = region;
+
             if (string.IsNullOrEmpty(_apiKey))
             {
                 _logger.LogWarning("TMDb API Key is not configured.");
@@ -28,11 +36,10 @@ namespace AryTickets.Controllers
             }
 
             var httpClient = _httpClientFactory.CreateClient();
-            var countryCode = "US"; 
 
-            var nowShowingUrl = $"https://api.themoviedb.org/3/movie/now_playing?api_key={_apiKey}&language=en-US&page=1&region={countryCode}";
+            var nowShowingUrl = $"https://api.themoviedb.org/3/movie/now_playing?api_key={_apiKey}&language=en-US&page=1&region={region}";
             var nowShowingResponse = await httpClient.GetAsync(nowShowingUrl);
-            List<Movie> nowShowingMovies = new();
+            List<Movie> nowShowingMovies = new List<Movie>();
             if (nowShowingResponse.IsSuccessStatusCode)
             {
                 var jsonResponse = await nowShowingResponse.Content.ReadAsStringAsync();
@@ -40,9 +47,9 @@ namespace AryTickets.Controllers
                 nowShowingMovies = apiResult?.Results ?? new List<Movie>();
             }
 
-            var comingSoonUrl = $"https://api.themoviedb.org/3/movie/upcoming?api_key={_apiKey}&language=en-US&page=1&region={countryCode}";
+            var comingSoonUrl = $"https://api.themoviedb.org/3/movie/upcoming?api_key={_apiKey}&language=en-US&page=1&region={region}";
             var comingSoonResponse = await httpClient.GetAsync(comingSoonUrl);
-            List<Movie> comingSoonMovies = new();
+            List<Movie> comingSoonMovies = new List<Movie>();
             if (comingSoonResponse.IsSuccessStatusCode)
             {
                 var jsonResponse = await comingSoonResponse.Content.ReadAsStringAsync();
@@ -51,14 +58,12 @@ namespace AryTickets.Controllers
             }
 
             var nowShowingIds = new HashSet<int>(nowShowingMovies.Select(m => m.Id));
-
             var filteredComingSoonMovies = comingSoonMovies.Where(m => !nowShowingIds.Contains(m.Id)).ToList();
-
 
             var viewModel = new HomeViewModel
             {
                 NowShowingMovies = nowShowingMovies,
-                ComingSoonMovies = filteredComingSoonMovies 
+                ComingSoonMovies = filteredComingSoonMovies
             };
 
             return View(viewModel);

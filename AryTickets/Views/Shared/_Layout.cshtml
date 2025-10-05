@@ -8,14 +8,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
     @await RenderSectionAsync("Styles", required: false)
-
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #111827; /* bg-gray-900 */
-            color: #F3F4F6; /* text-gray-100 */
+            background-color: #111827;
+            color: #F3F4F6;
         }
 
         ::-webkit-scrollbar {
@@ -23,31 +21,50 @@
         }
 
         ::-webkit-scrollbar-track {
-            background: #1F2937; /* bg-gray-800 */
+            background: #1F2937;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #4F46E5; /* bg-indigo-600 */
+            background: #4F46E5;
             border-radius: 10px;
         }
 
             ::-webkit-scrollbar-thumb:hover {
-                background: #6366F1; /* bg-indigo-500 */
+                background: #6366F1;
             }
 
         .nav-scrolled {
-            background-color: rgba(17, 24, 39, 0.8); /* bg-gray-900 with opacity */
+            background-color: rgba(17, 24, 39, 0.8);
             backdrop-filter: blur(10px);
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .dropdown-menu {
+            transition: opacity 0.2s, transform 0.2s;
         }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100">
     <header id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <a href="/" class="text-3xl font-bold text-white">
-                <span class="text-indigo-500">Ary</span>Tix
-            </a>
+            <div class="flex items-center space-x-6">
+                <a asp-area="" asp-controller="Home" asp-action="Index" class="text-3xl font-bold text-white">
+                    <span class="text-indigo-500">Ary</span>Tix
+                </a>
+                <div class="relative" id="regionDropdownContainer">
+                    <button id="regionDropdownButton" class="flex items-center space-x-2 px-4 py-2 bg-gray-800 rounded-lg hover:bg-gray-700 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        <span id="currentRegionText">@ViewData["CurrentRegion"]</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div id="regionDropdownMenu" class="dropdown-menu absolute mt-2 w-48 bg-gray-800 rounded-lg shadow-xl opacity-0 transform scale-95 pointer-events-none">
+                        <a href="/Home/Index?region=US" class="block px-4 py-2 text-sm text-gray-300 hover:bg-indigo-600 rounded-t-lg">United States</a>
+                        <a href="/Home/Index?region=GB" class="block px-4 py-2 text-sm text-gray-300 hover:bg-indigo-600">United Kingdom</a>
+                        <a href="/Home/Index?region=CA" class="block px-4 py-2 text-sm text-gray-300 hover:bg-indigo-600">Canada</a>
+                        <a href="/Home/Index?region=AU" class="block px-4 py-2 text-sm text-gray-300 hover:bg-indigo-600 rounded-b-lg">Australia</a>
+                    </div>
+                </div>
+            </div>
             <div class="hidden md:flex items-center space-x-8">
                 <a asp-area="" asp-controller="Home" asp-action="Index" class="hover:text-indigo-400 transition-colors">Home</a>
                 <a href="#" class="hover:text-indigo-400 transition-colors">Movies</a>
@@ -61,7 +78,7 @@
         </nav>
     </header>
 
-    <main role="main" class="pt-24">
+    <main role="main">
         @RenderBody()
     </main>
 
@@ -87,15 +104,25 @@
     <script>
         window.addEventListener('scroll', function () {
             const navbar = document.getElementById('navbar');
-            if (window.scrollY > 50) {
-                navbar.classList.add('nav-scrolled');
-            } else {
-                navbar.classList.remove('nav-scrolled');
-            }
+            if (window.scrollY > 50) navbar.classList.add('nav-scrolled');
+            else navbar.classList.remove('nav-scrolled');
         });
+
+        const regionDropdownButton = document.getElementById('regionDropdownButton');
+        const regionDropdownMenu = document.getElementById('regionDropdownMenu');
+        if (regionDropdownButton) {
+            regionDropdownButton.addEventListener('click', () => {
+                regionDropdownMenu.classList.toggle('opacity-0');
+                regionDropdownMenu.classList.toggle('scale-95');
+                regionDropdownMenu.classList.toggle('pointer-events-none');
+            });
+            window.addEventListener('click', function (e) {
+                if (!document.getElementById('regionDropdownContainer').contains(e.target)) {
+                    regionDropdownMenu.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+                }
+            });
+        }
     </script>
-
     @await RenderSectionAsync("Scripts", required: false)
-
 </body>
 </html>
