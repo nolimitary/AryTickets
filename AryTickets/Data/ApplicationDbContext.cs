@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using AryTickets.Models; 
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace AryTickets.Data
@@ -9,5 +10,7 @@ namespace AryTickets.Data
             : base(options)
         {
         }
+
+        public DbSet<UserFavorite> UserFavorites { get; set; } 
     }
 }
