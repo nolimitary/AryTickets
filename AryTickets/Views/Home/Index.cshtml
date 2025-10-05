@@ -3,24 +3,120 @@
     ViewData["Title"] = "Home Page";
 }
 
+@section Styles {
+<style>
+    /* 1. PARALLAX EFFECT 🌌 */
+    .parallax-bg {
+        transition: transform 0.2s ease-out;
+    }
+
+    /* 2. CINEMATIC HERO TEXT REVEAL 🎬 */
+    @@keyframes fadeUpBlur {
+        from {
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+            filter: blur(5px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: blur(0);
+        }
+    }
+    /* Adding the animation to the hero elements */
+    .hero-animate {
+        animation: fadeUpBlur 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+    }
+    .hero-animate.h1 { animation-delay: 0.2s; }
+    .hero-animate.p { animation-delay: 0.4s; }
+    .hero-animate.a { animation-delay: 0.6s; }
+
+    /* 3. SCROLL DOWN ARROW 🔽 */
+    .scroll-down-arrow {
+        position: absolute;
+        bottom: 2rem;
+        left: 50%;
+        transform: translateX(-50%);
+        animation: bounce 2s infinite;
+        opacity: 0;
+        animation: fadeUpBlur 1s 1.5s forwards; /* Also fades in */
+    }
+    .scroll-down-arrow svg {
+        width: 2rem;
+        height: 2rem;
+        color: white;
+    }
+    @@keyframes bounce {
+        0%, 20%, 50%, 80%, 100% { transform: translate(-50%, 0); }
+        40% { transform: translate(-50%, -20px); }
+        60% { transform: translate(-50%, -10px); }
+    }
+
+    /* 4. MOVIE CARD HOVER EFFECTS (3D TILT + SPOTLIGHT) ✨ */
+    .movie-card {
+        position: relative;
+        transform-style: preserve-3d;
+        transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+    .movie-card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    }
+    .poster-container {
+        transform-style: preserve-3d;
+        transition: transform 0.5s;
+        transform: perspective(1000px);
+    }
+    .movie-card .spotlight {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), transparent 40%, rgba(0, 0, 0, 0.7) 100%);
+        opacity: 0;
+        transition: opacity 0.4s;
+        border-radius: 0.75rem; /* rounded-xl */
+    }
+    .movie-card:hover .spotlight {
+        opacity: 1;
+    }
+    .movie-card img {
+        transform: translateZ(20px); /* Lifts the poster slightly */
+    }
+
+    /* 5. CASCADING GRID ENTRANCE 💥 */
+    .reveal.active .movie-card {
+        animation: fadeUpBlur 0.8s forwards;
+    }
+    /* We'll use JS to add staggered delays for the cool cascade effect */
+
+</style>
+}
+
 <section class="relative h-screen flex items-center justify-center overflow-hidden">
     <div class="absolute inset-0 z-0">
         <img src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=2525&auto=format&fit=crop"
              alt="Cinematic background"
-             class="w-full h-full object-cover opacity-30">
+             class="parallax-bg w-full h-full object-cover opacity-30">
     </div>
     <div class="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/50 to-gray-900/90 z-10"></div>
-    <div class="relative z-20 text-center px-4 reveal">
-        <h1 class="text-5xl md:text-7xl font-extrabold mb-4 leading-tight text-white">
+    <div class="relative z-20 text-center px-4">
+        <h1 class="hero-animate h1 text-5xl md:text-7xl font-extrabold mb-4 leading-tight text-white">
             Experience Movies Like Never Before
         </h1>
-        <p class="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto mb-8">
+        <p class="hero-animate p text-lg md:text-xl text-gray-300 max-w-3xl mx-auto mb-8">
             Book tickets for the latest movies, trending plays, and live events. Your next adventure is just a click away.
         </p>
-        <a href="#now-showing" class="bg-indigo-600 text-white font-bold py-3 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-110 hover:bg-indigo-700 shadow-lg shadow-indigo-500/50">
+        <a href="#now-showing" class="hero-animate a bg-indigo-600 text-white font-bold py-3 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-110 hover:bg-indigo-700 shadow-lg shadow-indigo-500/50">
             Explore Now
         </a>
     </div>
+    <a href="#now-showing" class="scroll-down-arrow">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5" />
+        </svg>
+    </a>
 </section>
 
 <section id="now-showing" class="container mx-auto px-6 py-16">
@@ -32,7 +128,10 @@
         @foreach (var movie in Model.NowShowingMovies)
         {
             <div class="movie-card bg-gray-800 rounded-xl overflow-hidden reveal">
-                <img src="@movie.FullPosterPath" alt="@movie.Title" class="w-full h-auto aspect-[2/3] object-cover">
+                <div class="poster-container">
+                    <img src="@movie.FullPosterPath" alt="@movie.Title" class="w-full h-auto aspect-[2/3] object-cover">
+                    <div class="spotlight"></div>
+                </div>
                 <div class="p-4">
                     <h3 class="font-bold text-lg text-white truncate">@movie.Title</h3>
                 </div>
@@ -42,17 +141,7 @@
 </section>
 
 <section class="bg-gray-800 py-20">
-    <div class="container mx-auto px-6 text-center reveal">
-        <h2 class="text-4xl font-bold mb-4 text-white">Special Theatre Offers</h2>
-        <p class="text-gray-300 max-w-2xl mx-auto mb-8">
-            Enjoy exclusive discounts on tickets and concessions at partner theatres.
-            Don't miss our Tuesday specials and couple combos!
-        </p>
-        <button class="bg-transparent border-2 border-indigo-500 text-indigo-400 font-bold py-3 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-110 hover:bg-indigo-500 hover:text-white">
-            View All Offers
-        </button>
-    </div>
-</section>
+    </section>
 
 <section class="container mx-auto px-6 py-16">
     <div class="reveal">
@@ -63,7 +152,10 @@
         @foreach (var movie in Model.ComingSoonMovies)
         {
             <div class="movie-card bg-gray-800 rounded-xl overflow-hidden reveal">
-                <img src="@movie.FullPosterPath" alt="@movie.Title" class="w-full h-auto aspect-[2/3] object-cover">
+                <div class="poster-container">
+                    <img src="@movie.FullPosterPath" alt="@movie.Title" class="w-full h-auto aspect-[2/3] object-cover">
+                    <div class="spotlight"></div>
+                </div>
                 <div class="p-4">
                     <h3 class="font-bold text-lg text-white truncate">@movie.Title</h3>
                     <p class="text-sm text-gray-400">Releasing Soon</p>
@@ -75,6 +167,7 @@
 
 @section Scripts {
     <script>
+        // Your existing reveal function - it's perfect!
         function reveal() {
             var reveals = document.querySelectorAll('.reveal');
             for (var i = 0; i < reveals.length; i++) {
@@ -82,11 +175,61 @@
                 var elementTop = reveals[i].getBoundingClientRect().top;
                 var elementVisible = 100;
                 if (elementTop < windowHeight - elementVisible) {
-                    reveals[i].classList.add('active');
+                    if (!reveals[i].classList.contains('active')) {
+                        reveals[i].classList.add('active');
+                        // NEW: Trigger cascading effect for movie cards inside
+                        cascadeGridItems(reveals[i]);
+                    }
                 }
             }
         }
         window.addEventListener('scroll', reveal);
-        reveal();
+        reveal(); // Initial call
+
+        // --- ALL THE NEW JAVASCRIPT MAGIC HAPPENS HERE ---
+
+        // 1. PARALLAX EFFECT 🌌
+        const parallaxBg = document.querySelector('.parallax-bg');
+        window.addEventListener('scroll', () => {
+            const offset = window.pageYOffset;
+            parallaxBg.style.transform = `translateY(${offset * 0.4}px)`;
+        });
+
+        // 2. 3D TILT + SPOTLIGHT HOVER 💡
+        const movieCards = document.querySelectorAll('.movie-card');
+        movieCards.forEach(card => {
+            const posterContainer = card.querySelector('.poster-container');
+            const spotlight = card.querySelector('.spotlight');
+
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const width = rect.width;
+                const height = rect.height;
+
+                // For the spotlight
+                card.style.setProperty('--x', `${(x / width) * 100}%`);
+                card.style.setProperty('--y', `${(y / height) * 100}%`);
+
+                // For the 3D tilt
+                const rotateX = (y / height - 0.5) * -30; // Rotate on X-axis
+                const rotateY = (x / width - 0.5) * 30; // Rotate on Y-axis
+                posterContainer.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
+            });
+
+            card.addEventListener('mouseleave', () => {
+                posterContainer.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
+            });
+        });
+
+        // 3. CASCADING GRID ENTRANCE 💥
+        function cascadeGridItems(container) {
+            const items = container.querySelectorAll('.movie-card');
+            items.forEach((item, index) => {
+                // Stagger the animation delay for each card
+                item.style.animationDelay = `${index * 100}ms`;
+            });
+        }
     </script>
 }
