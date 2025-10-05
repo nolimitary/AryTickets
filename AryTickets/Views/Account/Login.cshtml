@@ -1,0 +1,61 @@
+﻿@model LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+    Layout = "_Layout";
+}
+
+@section Styles {
+    <style>
+        .form-container {
+            background-color: rgba(31, 41, 55, 0.6);
+            backdrop-filter: blur(10px);
+            animation: fadeUpBlur 0.8s forwards;
+        }
+    </style>
+}
+
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8" style="background-image: url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=2525&auto=format&fit=crop'); background-size: cover; background-position: center;">
+    <div class="absolute inset-0 bg-gray-900/80"></div>
+    <div class="form-container max-w-md w-full space-y-8 p-10 rounded-xl border border-gray-700">
+        <div>
+            <h2 class="mt-6 text-center text-3xl font-extrabold text-white">
+                Sign in to your account
+            </h2>
+        </div>
+        <form class="mt-8 space-y-6" asp-action="Login" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-red-500"></div>
+            <div class="rounded-md shadow-sm -space-y-px">
+                <div>
+                    <label asp-for="Email" class="sr-only">Email address</label>
+                    <input asp-for="Email" class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-700 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm rounded-t-md" placeholder="Email address">
+                    <span asp-validation-for="Email" class="text-red-500 text-xs"></span>
+                </div>
+                <div>
+                    <label asp-for="Password" class="sr-only">Password</label>
+                    <input asp-for="Password" class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-700 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm rounded-b-md" placeholder="Password">
+                    <span asp-validation-for="Password" class="text-red-500 text-xs"></span>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <input asp-for="RememberMe" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-600 bg-gray-700 rounded">
+                    <label asp-for="RememberMe" class="ml-2 block text-sm text-gray-300">
+                        @Html.DisplayNameFor(m => m.RememberMe)
+                    </label>
+                </div>
+            </div>
+
+            <div>
+                <button type="submit" class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-gray-900 transition-all duration-300 transform hover:scale-105">
+                    Sign in
+                </button>
+            </div>
+            <div class="text-sm text-center">
+                <a asp-action="Register" class="font-medium text-indigo-400 hover:text-indigo-300">
+                    You aren't registered? Sign up
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
