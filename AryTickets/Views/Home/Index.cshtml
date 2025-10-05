@@ -12,7 +12,7 @@
             transition: opacity 0.6s ease, transform 0.6s ease;
         }
 
-        .reveal.active .section-header {
+        .reveal.section-header.active {
             opacity: 1;
             transform: translateY(0);
         }
@@ -366,9 +366,10 @@
         //     });
         // }
 
-        document.querySelectorAll('.movie-card').forEach(card => {
-            const posterContainer = card.closest('.poster-container'); // Corrected to get parent poster-container
-            card.addEventListener('mousemove', (e) => {
+        document.querySelectorAll('.movie-link').forEach(link => {
+            const card = link.querySelector('.movie-card');
+            const posterContainer = card.querySelector('.poster-container');
+            link.addEventListener('mousemove', (e) => {
                 const rect = card.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
@@ -376,14 +377,10 @@
                 const height = rect.height;
                 const rotateX = (y / height - 0.5) * -20;
                 const rotateY = (x / width - 0.5) * 20;
-                if (posterContainer) {
-                    posterContainer.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
-                }
+                posterContainer.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
             });
-            card.addEventListener('mouseleave', () => {
-                if (posterContainer) {
-                    posterContainer.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
-                }
+            link.addEventListener('mouseleave', () => {
+                posterContainer.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
             });
         });
 

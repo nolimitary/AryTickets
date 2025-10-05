@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace YourAppName.Models;
+namespace AryTickets.Models;
 
 public class ApiResult
 {

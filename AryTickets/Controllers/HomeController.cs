@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using YourAppName.Models;
+using AryTickets.Models;
 
 namespace AryTickets.Controllers
 {

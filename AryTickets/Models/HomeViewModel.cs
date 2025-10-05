@@ -2,7 +2,7 @@
 
 namespace AryTickets.Models;
 using AryTickets.Models;
-using YourAppName.Models;
+using AryTickets.Models;
 
 public class HomeViewModel
 {

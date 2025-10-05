@@ -1,0 +1,230 @@
+﻿@model Movie
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+@section Styles {
+    <style>
+        .movie-hero {
+            position: relative;
+            background-image: url('@Model.FullBackdropPath');
+            background-size: cover;
+            background-position: center;
+            padding-top: 10rem;
+            padding-bottom: 5rem;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(17,24,39,1) 5%, rgba(17,24,39,0.7) 50%, rgba(17,24,39,1) 100%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+        }
+
+        .movie-poster-details {
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .rating-circle {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: conic-gradient(#4f46e5 @Model.RatingPercentage, #374151 0);
+        }
+
+        .trailer-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+            .trailer-modal.active {
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+        .trailer-modal-content {
+            position: relative;
+            width: 90%;
+            max-width: 900px;
+            aspect-ratio: 16 / 9;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            font-size: 2rem;
+            color: white;
+            cursor: pointer;
+        }
+
+        .tab-button.active {
+            background-color: #4F46E5;
+            color: white;
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+            .tab-panel.active {
+                display: block;
+            }
+    </style>
+}
+
+<div class="movie-hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content container mx-auto">
+        <div class="grid md:grid-cols-3 gap-12 items-center">
+            <div class="md:col-span-1">
+                <img src="@Model.FullPosterPath" alt="@Model.Title Poster" class="movie-poster-details mx-auto">
+            </div>
+            <div class="md:col-span-2 text-white">
+                <h1 class="text-5xl md:text-6xl font-extrabold">@Model.Title</h1>
+                <div class="flex items-center space-x-4 my-4 text-gray-300">
+                    <span>@Model.ReleaseDate.Split('-')[0]</span>
+                    <span>&bull;</span>
+                    <span>@string.Join(", ", Model.Genres.Select(g => g.Name))</span>
+                    <span>&bull;</span>
+                    <span>@Model.FormattedRuntime</span>
+                </div>
+                <div class="flex items-center space-x-6 my-6">
+                    <div class="rating-circle">
+                        <span class="text-white font-bold text-xl">@Model.RatingPercentage</span>
+                    </div>
+                    @if (Model.FirstTrailer != null)
+                    {
+                        <button id="playTrailerBtn" class="flex items-center space-x-2 text-lg font-semibold hover:text-indigo-400 transition">
+                            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
+                            <span>Play Trailer</span>
+                        </button>
+                    }
+                </div>
+                <h3 class="text-2xl font-semibold mb-2">Overview</h3>
+                <p class="text-gray-300 max-w-2xl leading-relaxed">@Model.Overview</p>
+                <div class="flex space-x-4 mt-8">
+                    <a href="#" class="bg-indigo-600 text-white font-bold py-3 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-110 hover:bg-indigo-700">Book Tickets</a>
+                    <button class="bg-gray-700/50 text-white p-3 rounded-full hover:bg-gray-700 transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg></button>
+                    <button class="bg-gray-700/50 text-white p-3 rounded-full hover:bg-gray-700 transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mx-auto px-6 py-16">
+    <div class="mb-16">
+        <h2 class="text-3xl font-bold mb-8">Top Billed Cast</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8">
+            @foreach (var castMember in Model.Credits.Cast.Take(6))
+            {
+                <div class="text-center">
+                    <img src="@castMember.FullProfilePath" alt="@castMember.Name" class="rounded-lg mb-2">
+                    <h4 class="font-bold">@castMember.Name</h4>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div>
+        <h2 class="text-3xl font-bold mb-8">Reviews</h2>
+        <div class="flex space-x-2 border-b border-gray-700 mb-6">
+            <button class="tab-button active py-2 px-4 font-semibold" data-tab="user-reviews">User Reviews</button>
+            <button class="tab-button py-2 px-4 font-semibold" data-tab="critic-reviews">Critic Reviews</button>
+        </div>
+        <div id="user-reviews" class="tab-panel active space-y-6">
+            @foreach (var review in Model.Reviews.Results.Take(5))
+            {
+                <div class="bg-gray-800 p-6 rounded-lg">
+                    <div class="flex items-center mb-2">
+                        <h4 class="font-bold text-lg">@review.Author</h4>
+                        @if (review.AuthorDetails.Rating.HasValue)
+                        {
+                            <span class="ml-4 bg-indigo-600 text-xs font-bold px-2 py-1 rounded-full">@review.AuthorDetails.Rating / 10</span>
+                        }
+                    </div>
+                    <p class="text-gray-400">@review.Content.Substring(0, Math.Min(review.Content.Length, 400))... </p>
+                </div>
+            }
+        </div>
+        <div id="critic-reviews" class="tab-panel">
+            <p class="text-gray-400">Critic reviews are not yet available for this title.</p>
+        </div>
+    </div>
+</div>
+
+@if (Model.FirstTrailer != null)
+{
+    <div id="trailerModal" class="trailer-modal">
+        <div class="trailer-modal-content">
+            <span id="closeModalBtn" class="close-modal">&times;</span>
+            <iframe id="youtube-player" class="w-full h-full" src="" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        const playTrailerBtn = document.getElementById('playTrailerBtn');
+        const trailerModal = document.getElementById('trailerModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const player = document.getElementById('youtube-player');
+        const trailerUrl = "@Model.FirstTrailer?.YouTubeUrl";
+
+        if (playTrailerBtn) {
+            playTrailerBtn.addEventListener('click', () => {
+                player.src = trailerUrl;
+                trailerModal.classList.add('active');
+            });
+        }
+
+        if (closeModalBtn) {
+            const stopVideo = () => {
+                trailerModal.classList.remove('active');
+                player.src = "";
+            }
+            closeModalBtn.addEventListener('click', stopVideo);
+            trailerModal.addEventListener('click', (e) => {
+                if (e.target === trailerModal) stopVideo();
+            });
+        }
+
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabPanels = document.querySelectorAll('.tab-panel');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                const targetTab = button.getAttribute('data-tab');
+                tabPanels.forEach(panel => {
+                    if (panel.id === targetTab) {
+                        panel.classList.add('active');
+                    } else {
+                        panel.classList.remove('active');
+                    }
+                });
+            });
+        });
+    </script>
+}
