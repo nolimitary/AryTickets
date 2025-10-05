@@ -89,7 +89,6 @@
     .reveal.active .movie-card {
         animation: fadeUpBlur 0.8s forwards;
     }
-    /* We'll use JS to add staggered delays for the cool cascade effect */
 
 </style>
 }
@@ -118,7 +117,6 @@
         </svg>
     </a>
 </section>
-
 <section id="now-showing" class="container mx-auto px-6 py-16">
     <div class="reveal">
         <h2 class="text-4xl font-bold mb-2 text-white">Now Showing</h2>
@@ -167,8 +165,7 @@
 
 @section Scripts {
     <script>
-        // Your existing reveal function - it's perfect!
-        function reveal() {
+                function reveal() {
             var reveals = document.querySelectorAll('.reveal');
             for (var i = 0; i < reveals.length; i++) {
                 var windowHeight = window.innerHeight;
@@ -177,26 +174,22 @@
                 if (elementTop < windowHeight - elementVisible) {
                     if (!reveals[i].classList.contains('active')) {
                         reveals[i].classList.add('active');
-                        // NEW: Trigger cascading effect for movie cards inside
-                        cascadeGridItems(reveals[i]);
+                                                cascadeGridItems(reveals[i]);
                     }
                 }
             }
         }
         window.addEventListener('scroll', reveal);
-        reveal(); // Initial call
+        reveal(); 
 
-        // --- ALL THE NEW JAVASCRIPT MAGIC HAPPENS HERE ---
 
-        // 1. PARALLAX EFFECT 🌌
-        const parallaxBg = document.querySelector('.parallax-bg');
-        window.addEventListener('scroll', () => {
-            const offset = window.pageYOffset;
-            parallaxBg.style.transform = `translateY(${offset * 0.4}px)`;
-        });
+        // const parallaxBg = document.querySelector('.parallax-bg');
+        // window.addEventListener('scroll', () => {
+        //     const offset = window.pageYOffset;
+        //     parallaxBg.style.transform = `translateY(${offset * 0.4}px)`;
+        // });
 
-        // 2. 3D TILT + SPOTLIGHT HOVER 💡
-        const movieCards = document.querySelectorAll('.movie-card');
+                const movieCards = document.querySelectorAll('.movie-card');
         movieCards.forEach(card => {
             const posterContainer = card.querySelector('.poster-container');
             const spotlight = card.querySelector('.spotlight');
@@ -208,14 +201,10 @@
                 const width = rect.width;
                 const height = rect.height;
 
-                // For the spotlight
-                card.style.setProperty('--x', `${(x / width) * 100}%`);
+                                card.style.setProperty('--x', `${(x / width) * 100}%`);
                 card.style.setProperty('--y', `${(y / height) * 100}%`);
 
-                // For the 3D tilt
-                const rotateX = (y / height - 0.5) * -30; // Rotate on X-axis
-                const rotateY = (x / width - 0.5) * 30; // Rotate on Y-axis
-                posterContainer.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
+                                const rotateX = (y / height - 0.5) * -30;                 const rotateY = (x / width - 0.5) * 30;                 posterContainer.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
             });
 
             card.addEventListener('mouseleave', () => {
@@ -223,12 +212,10 @@
             });
         });
 
-        // 3. CASCADING GRID ENTRANCE 💥
-        function cascadeGridItems(container) {
+                function cascadeGridItems(container) {
             const items = container.querySelectorAll('.movie-card');
             items.forEach((item, index) => {
-                // Stagger the animation delay for each card
-                item.style.animationDelay = `${index * 100}ms`;
+                                item.style.animationDelay = `${index * 100}ms`;
             });
         }
     </script>

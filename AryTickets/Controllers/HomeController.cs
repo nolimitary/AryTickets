@@ -24,17 +24,13 @@ namespace AryTickets.Controllers
             if (string.IsNullOrEmpty(_apiKey))
             {
                 _logger.LogWarning("TMDb API Key is not configured.");
-                var emptyViewModel = new HomeViewModel
-                {
-                    NowShowingMovies = new List<Movie>(),
-                    ComingSoonMovies = new List<Movie>()
-                };
-                return View(emptyViewModel);
+                return View(new HomeViewModel { NowShowingMovies = new List<Movie>(), ComingSoonMovies = new List<Movie>() });
             }
 
             var httpClient = _httpClientFactory.CreateClient();
+            var countryCode = "US"; 
 
-            var nowShowingUrl = $"https://api.themoviedb.org/3/movie/now_playing?api_key={_apiKey}&language=en-US&page=1";
+            var nowShowingUrl = $"https://api.themoviedb.org/3/movie/now_playing?api_key={_apiKey}&language=en-US&page=1&region={countryCode}";
             var nowShowingResponse = await httpClient.GetAsync(nowShowingUrl);
             List<Movie> nowShowingMovies = new();
             if (nowShowingResponse.IsSuccessStatusCode)
@@ -43,12 +39,8 @@ namespace AryTickets.Controllers
                 var apiResult = JsonSerializer.Deserialize<ApiResult>(jsonResponse);
                 nowShowingMovies = apiResult?.Results ?? new List<Movie>();
             }
-            else
-            {
-                _logger.LogError("Failed to fetch 'Now Showing' movies from TMDb.");
-            }
 
-           var comingSoonUrl = $"https://api.themoviedb.org/3/movie/upcoming?api_key={_apiKey}&language=en-US&page=1";
+            var comingSoonUrl = $"https://api.themoviedb.org/3/movie/upcoming?api_key={_apiKey}&language=en-US&page=1&region={countryCode}";
             var comingSoonResponse = await httpClient.GetAsync(comingSoonUrl);
             List<Movie> comingSoonMovies = new();
             if (comingSoonResponse.IsSuccessStatusCode)
@@ -57,15 +49,16 @@ namespace AryTickets.Controllers
                 var apiResult = JsonSerializer.Deserialize<ApiResult>(jsonResponse);
                 comingSoonMovies = apiResult?.Results ?? new List<Movie>();
             }
-            else
-            {
-                _logger.LogError("Failed to fetch 'Coming Soon' movies from TMDb.");
-            }
+
+            var nowShowingIds = new HashSet<int>(nowShowingMovies.Select(m => m.Id));
+
+            var filteredComingSoonMovies = comingSoonMovies.Where(m => !nowShowingIds.Contains(m.Id)).ToList();
+
 
             var viewModel = new HomeViewModel
             {
                 NowShowingMovies = nowShowingMovies,
-                ComingSoonMovies = comingSoonMovies
+                ComingSoonMovies = filteredComingSoonMovies 
             };
 
             return View(viewModel);
