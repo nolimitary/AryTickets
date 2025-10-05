@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace AryTickets.Controllers
 {
-    [Authorize] 
+    [Authorize]
     public class BookingController : Controller
     {
         public IActionResult SelectSeats(int movieId)
@@ -30,16 +30,23 @@ namespace AryTickets.Controllers
             for (int i = 0; i < rows.Length; i++)
             {
                 var row = new List<Seat>();
-                for (int j = 1; j <= 12; j++)
+                int seatCounter = 1; 
+
+                for (int j = 1; j <= 14; j++)
                 {
-                    var status = random.Next(1, 10) > 7 ? SeatStatus.Taken : SeatStatus.Available;
-                    if (j == 3 || j == 10)
+                    if (j == 7 || j == 8)
+                    {
+                        row.Add(null);
+                    }
+                  
+                    else if (rows[i] == 'H' && (j <= 2 || j >= 13))
                     {
                         row.Add(null); 
                     }
                     else
                     {
-                        row.Add(new Seat { SeatNumber = $"{rows[i]}{j}", Status = status });
+                        var status = random.Next(1, 10) > 8 ? SeatStatus.Taken : SeatStatus.Available;
+                        row.Add(new Seat { SeatNumber = $"{rows[i]}{seatCounter++}", Status = status });
                     }
                 }
                 chart.Add(row);
