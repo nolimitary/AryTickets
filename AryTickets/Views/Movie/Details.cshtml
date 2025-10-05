@@ -291,7 +291,25 @@
                     <div class="flex space-x-4 mt-8 detail-animate" style="animation-delay: 1.2s;">
                         <a href="#" class="bg-indigo-600 text-white font-bold py-3 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-110 hover:bg-indigo-700">Book Tickets</a>
                         <button class="bg-gray-700/50 text-white p-3 rounded-full hover:bg-gray-700 transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg></button>
-                        <button class="bg-gray-700/50 text-white p-3 rounded-full hover:bg-gray-700 transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg></button>
+
+                        <form asp-controller="UserFavorites" asp-action="ToggleFavorite" method="post">
+                            <input type="hidden" name="movieId" value="@Model.Id" />
+                            <input type="hidden" name="movieTitle" value="@Model.Title" />
+                            <input type="hidden" name="posterPath" value="@Model.PosterPath" />
+
+                            @if ((bool)ViewData["IsFavorite"])
+                            {
+                                <button type="submit" class="bg-indigo-600 text-white p-3 rounded-full hover:bg-indigo-700 transition" title="Remove from Favorites">
+                                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="submit" class="bg-gray-700/50 text-white p-3 rounded-full hover:bg-gray-700 transition" title="Add to Favorites">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                                </button>
+                            }
+                        </form>
                     </div>
                 </div>
             </div>

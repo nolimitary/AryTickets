@@ -1,7 +1,11 @@
-﻿using AryTickets.Models;
+﻿using AryTickets.Data;
+using AryTickets.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -12,18 +16,26 @@ namespace AryTickets.Controllers
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly ApplicationDbContext _context;
 
-        public ProfileController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+        public ProfileController(
+            UserManager<IdentityUser> userManager,
+            SignInManager<IdentityUser> signInManager,
+            ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _context = context;
         }
 
         private async Task SetUserViewData()
         {
             var user = await _userManager.GetUserAsync(User);
-            ViewData["Username"] = user?.UserName;
-            ViewData["Email"] = user?.Email;
+            if (user != null)
+            {
+                ViewData["Username"] = user.UserName;
+                ViewData["Email"] = user.Email;
+            }
         }
 
         public async Task<IActionResult> Index()
@@ -35,20 +47,28 @@ namespace AryTickets.Controllers
         public async Task<IActionResult> Reviews()
         {
             await SetUserViewData();
-            return View();
+            var reviews = new List<object>();
+            return View(reviews);
         }
 
         public async Task<IActionResult> Favorites()
         {
             await SetUserViewData();
-            return View();
+            var userId = _userManager.GetUserId(User);
+            var favoriteMovies = await _context.UserFavorites
+                                            .Where(f => f.UserId == userId)
+                                            .ToListAsync();
+            return View(favoriteMovies);
         }
 
         [HttpGet]
         public async Task<IActionResult> Settings()
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return NotFound();
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
 
             var model = new SettingsViewModel
             {
@@ -119,11 +139,11 @@ namespace AryTickets.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return NotFound();
 
-            await _signInManager.SignOutAsync();
             var result = await _userManager.DeleteAsync(user);
 
             if (result.Succeeded)
             {
+                await _signInManager.SignOutAsync();
                 return RedirectToAction("Index", "Home");
             }
 
