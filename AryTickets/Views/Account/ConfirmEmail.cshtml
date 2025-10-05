@@ -1,0 +1,39 @@
+﻿@model ConfirmEmailViewModel
+@{
+    ViewData["Title"] = "Confirm Email";
+}
+
+@section Styles {
+     <style>
+                          .form-container {
+                              background-color: rgba(31, 41, 55, 0.6);
+                              backdrop-filter: blur(10px);
+                              animation: fadeUpBlur 0.8s forwards;
+                          }
+    </style>
+}
+
+<div class="min-h-screen flex items-center justify-center py-12 px-4" style="background-image: url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=2525&auto=format&fit=crop'); background-size: cover; background-position: center;">
+    <div class="absolute inset-0 bg-gray-900/80"></div>
+    <div class="form-container max-w-md w-full space-y-8 p-10 rounded-xl border border-gray-700">
+        <div><h2 class="mt-6 text-center text-3xl font-extrabold text-white">Verify Your Account</h2></div>
+        <form class="mt-8 space-y-6" asp-action="ConfirmEmail" method="post">
+            <div asp-validation-summary="All" class="text-red-400 list-disc pl-5 text-sm"></div>
+            <input type="hidden" asp-for="Email" />
+            <div class="rounded-md shadow-sm space-y-4">
+                <div>
+                    <label asp-for="Email" class="text-gray-400">Email Address</label>
+                    <input asp-for="Email" class="mt-1 appearance-none relative block w-full px-3 py-3 border border-gray-700 bg-gray-800 text-white rounded-md" disabled>
+                </div>
+                <div>
+                    <label asp-for="Code" class="text-gray-400">Verification Code</label>
+                    <input asp-for="Code" class="mt-1 appearance-none relative block w-full px-3 py-3 border border-gray-700 bg-gray-800 text-white placeholder-gray-400 rounded-md" placeholder="Enter code from email">
+                    <span asp-validation-for="Code" class="text-red-400 text-xs pt-1"></span>
+                </div>
+            </div>
+            <div>
+                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">Verify Account</button>
+            </div>
+        </form>
+    </div>
+</div>
