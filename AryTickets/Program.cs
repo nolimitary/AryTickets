@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using AryTickets.Data; 
-
+using AryTickets.Data;
+using AryTickets.Services;
 var builder = WebApplication.CreateBuilder(args);
 
-
+builder.Services.AddTransient<IEmailSender, FileEmailSender>();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
