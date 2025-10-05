@@ -1,15 +1,178 @@
 ﻿@model Movie
 @{
     ViewData["Title"] = Model.Title;
+    var releaseDate = DateTime.Parse(Model.ReleaseDate);
 }
 
 @section Styles {
     <style>
+        .hero-text-panel {
+            background-color: rgba(17, 24, 39, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @@keyframes slowPan {
+            0% {
+                transform: scale(1.1) translate(2%, -2%);
+            }
+
+            100% {
+                transform: scale(1.2) translate(-2%, 2%);
+            }
+        }
+
+        .movie-hero-bg {
+            animation: slowPan 40s ease-in-out infinite alternate;
+        }
+
+        .detail-animate {
+            opacity: 0;
+            animation: fadeUpBlur 1s forwards;
+        }
+
+        .reviews-coming-soon {
+            text-align: center;
+            padding: 4rem 2rem;
+            background-color: rgba(31, 41, 55, 0.5);
+            border-radius: 1rem;
+            border: 1px dashed #4B5563;
+        }
+
+        .section-header {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .reveal.active .section-header {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-header h2::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, #6366F1, #8B5CF6);
+            margin-top: 1rem;
+            transform: scaleX(0);
+            transition: transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+            transform-origin: left;
+        }
+
+        .reveal.active .section-header h2::after {
+            transform: scaleX(1);
+        }
+
+        .parallax-bg {
+            transition: transform 0.2s ease-out;
+        }
+
+        @@keyframes fadeUpBlur {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+                filter: blur(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: blur(0);
+            }
+        }
+
+        .hero-animate {
+            animation: fadeUpBlur 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+        }
+
+            .hero-animate.h1 {
+                animation-delay: 0.2s;
+            }
+
+            .hero-animate.p {
+                animation-delay: 0.4s;
+            }
+
+            .hero-animate.a {
+                animation-delay: 0.6s;
+            }
+
+        .scroll-down-arrow {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite, fadeUpBlur 1s 1.5s forwards;
+            opacity: 0;
+        }
+
+            .scroll-down-arrow svg {
+                width: 2rem;
+                height: 2rem;
+                color: white;
+            }
+
+        @@keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translate(-50%, 0);
+            }
+
+            40% {
+                transform: translate(-50%, -20px);
+            }
+
+            60% {
+                transform: translate(-50%, -10px);
+            }
+        }
+
+        .movie-card {
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            cursor: pointer;
+        }
+
+            .movie-card:hover {
+                transform: scale(1.05);
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            }
+
+        .poster-container {
+            transform-style: preserve-3d;
+            transition: transform 0.5s;
+            transform: perspective(1000px);
+            position: relative;
+            overflow: hidden;
+            border-radius: 0.75rem;
+        }
+
+        .movie-card img {
+            transform: translateZ(20px);
+        }
+
+        .movie-card .shimmer {
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        .movie-card:hover .shimmer {
+            transform: translateX(250%);
+        }
+
         .movie-hero {
             position: relative;
-            background-image: url('@Model.FullBackdropPath');
-            background-size: cover;
-            background-position: center;
             padding-top: 10rem;
             padding-bottom: 5rem;
         }
@@ -17,7 +180,6 @@
         .hero-overlay {
             position: absolute;
             inset: 0;
-            background: linear-gradient(to top, rgba(17,24,39,1) 5%, rgba(17,24,39,0.7) 50%, rgba(17,24,39,1) 100%);
         }
 
         .hero-content {
@@ -94,38 +256,43 @@
 
 <div class="movie-hero">
     <div class="hero-overlay"></div>
+    <div class="absolute inset-0 overflow-hidden">
+        <div class="movie-hero-bg h-full w-full" style="background-image: url('@Model.FullBackdropPath'); background-size: cover; background-position: center;"></div>
+    </div>
     <div class="hero-content container mx-auto">
         <div class="grid md:grid-cols-3 gap-12 items-center">
-            <div class="md:col-span-1">
+            <div class="md:col-span-1 reveal">
                 <img src="@Model.FullPosterPath" alt="@Model.Title Poster" class="movie-poster-details mx-auto">
             </div>
             <div class="md:col-span-2 text-white">
-                <h1 class="text-5xl md:text-6xl font-extrabold">@Model.Title</h1>
-                <div class="flex items-center space-x-4 my-4 text-gray-300">
-                    <span>@Model.ReleaseDate.Split('-')[0]</span>
-                    <span>&bull;</span>
-                    <span>@string.Join(", ", Model.Genres.Select(g => g.Name))</span>
-                    <span>&bull;</span>
-                    <span>@Model.FormattedRuntime</span>
-                </div>
-                <div class="flex items-center space-x-6 my-6">
-                    <div class="rating-circle">
-                        <span class="text-white font-bold text-xl">@Model.RatingPercentage</span>
+                <div class="hero-text-panel">
+                    <h1 class="text-5xl md:text-6xl font-extrabold detail-animate" style="animation-delay: 0.2s;">@Model.Title</h1>
+                    <div class="flex items-center flex-wrap space-x-4 my-4 text-gray-300 detail-animate" style="animation-delay: 0.4s;">
+                        <span>@Model.ReleaseDate.Split('-')[0]</span>
+                        <span>&bull;</span>
+                        <span>@string.Join(", ", Model.Genres.Select(g => g.Name))</span>
+                        <span>&bull;</span>
+                        <span>@Model.FormattedRuntime</span>
                     </div>
-                    @if (Model.FirstTrailer != null)
-                    {
-                        <button id="playTrailerBtn" class="flex items-center space-x-2 text-lg font-semibold hover:text-indigo-400 transition">
-                            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
-                            <span>Play Trailer</span>
-                        </button>
-                    }
-                </div>
-                <h3 class="text-2xl font-semibold mb-2">Overview</h3>
-                <p class="text-gray-300 max-w-2xl leading-relaxed">@Model.Overview</p>
-                <div class="flex space-x-4 mt-8">
-                    <a href="#" class="bg-indigo-600 text-white font-bold py-3 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-110 hover:bg-indigo-700">Book Tickets</a>
-                    <button class="bg-gray-700/50 text-white p-3 rounded-full hover:bg-gray-700 transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg></button>
-                    <button class="bg-gray-700/50 text-white p-3 rounded-full hover:bg-gray-700 transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg></button>
+                    <div class="flex items-center space-x-6 my-6 detail-animate" style="animation-delay: 0.6s;">
+                        <div class="rating-circle">
+                            <span class="text-white font-bold text-xl">@Model.RatingPercentage</span>
+                        </div>
+                        @if (Model.FirstTrailer != null)
+                        {
+                            <button id="playTrailerBtn" class="flex items-center space-x-2 text-lg font-semibold hover:text-indigo-400 transition">
+                                <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
+                                <span>Play Trailer</span>
+                            </button>
+                        }
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-2 detail-animate" style="animation-delay: 0.8s;">Overview</h3>
+                    <p class="text-gray-300 max-w-2xl leading-relaxed detail-animate" style="animation-delay: 1s;">@Model.Overview</p>
+                    <div class="flex space-x-4 mt-8 detail-animate" style="animation-delay: 1.2s;">
+                        <a href="#" class="bg-indigo-600 text-white font-bold py-3 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-110 hover:bg-indigo-700">Book Tickets</a>
+                        <button class="bg-gray-700/50 text-white p-3 rounded-full hover:bg-gray-700 transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg></button>
+                        <button class="bg-gray-700/50 text-white p-3 rounded-full hover:bg-gray-700 transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg></button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -133,12 +300,12 @@
 </div>
 
 <div class="container mx-auto px-6 py-16">
-    <div class="mb-16">
+    <div class="mb-16 reveal">
         <h2 class="text-3xl font-bold mb-8">Top Billed Cast</h2>
         <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8">
             @foreach (var castMember in Model.Credits.Cast.Take(6))
             {
-                <div class="text-center">
+                <div class="text-center cast-member">
                     <img src="@castMember.FullProfilePath" alt="@castMember.Name" class="rounded-lg mb-2">
                     <h4 class="font-bold">@castMember.Name</h4>
                 </div>
@@ -146,30 +313,56 @@
         </div>
     </div>
 
-    <div>
-        <h2 class="text-3xl font-bold mb-8">Reviews</h2>
-        <div class="flex space-x-2 border-b border-gray-700 mb-6">
-            <button class="tab-button active py-2 px-4 font-semibold" data-tab="user-reviews">User Reviews</button>
-            <button class="tab-button py-2 px-4 font-semibold" data-tab="critic-reviews">Critic Reviews</button>
+    <div class="reveal">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-3xl font-bold">Reviews</h2>
+            <button class="bg-transparent border-2 border-indigo-500 text-indigo-400 font-bold py-2 px-6 rounded-full text-md transition-all duration-300 transform hover:scale-110 hover:bg-indigo-500 hover:text-white">
+                Write a Review
+            </button>
         </div>
-        <div id="user-reviews" class="tab-panel active space-y-6">
-            @foreach (var review in Model.Reviews.Results.Take(5))
-            {
-                <div class="bg-gray-800 p-6 rounded-lg">
-                    <div class="flex items-center mb-2">
-                        <h4 class="font-bold text-lg">@review.Author</h4>
-                        @if (review.AuthorDetails.Rating.HasValue)
-                        {
-                            <span class="ml-4 bg-indigo-600 text-xs font-bold px-2 py-1 rounded-full">@review.AuthorDetails.Rating / 10</span>
-                        }
+
+        @if (releaseDate > DateTime.Now)
+        {
+            <div class="reviews-coming-soon">
+                <h3 class="text-2xl font-bold mb-2">This movie is coming soon!</h3>
+                <p class="text-gray-400">Reviews will be available after the release date. Check back then!</p>
+            </div>
+        }
+        else if (!Model.Reviews.Results.Any())
+        {
+            <div class="reviews-coming-soon">
+                <h3 class="text-2xl font-bold mb-2">No Reviews Yet</h3>
+                <p class="text-gray-400">Be the first one to share your thoughts!</p>
+            </div>
+        }
+        else
+        {
+            <div class="flex space-x-2 border-b border-gray-700 mb-6">
+                <button class="tab-button active py-2 px-4 font-semibold" data-tab="user-reviews">User Reviews</button>
+                <button class="tab-button py-2 px-4 font-semibold" data-tab="critic-reviews">Critic Reviews</button>
+            </div>
+            <div id="user-reviews" class="tab-panel active space-y-6">
+                @foreach (var review in Model.Reviews.Results.Take(5))
+                {
+                    <div class="bg-gray-800 p-6 rounded-lg">
+                        <div class="flex items-center mb-2">
+                            <h4 class="font-bold text-lg">@review.Author</h4>
+                            @if (review.AuthorDetails.Rating.HasValue)
+                            {
+                                <span class="ml-4 bg-indigo-600 text-xs font-bold px-2 py-1 rounded-full">@review.AuthorDetails.Rating / 10</span>
+                            }
+                        </div>
+                        <p class="text-gray-400 line-clamp-4">@review.Content</p>
                     </div>
-                    <p class="text-gray-400">@review.Content.Substring(0, Math.Min(review.Content.Length, 400))... </p>
+                }
+            </div>
+            <div id="critic-reviews" class="tab-panel">
+                <div class="reviews-coming-soon">
+                    <h3 class="text-2xl font-bold mb-2">No Critic Reviews Yet</h3>
+                    <p class="text-gray-400">Professional critic reviews will be added as they become available.</p>
                 </div>
-            }
-        </div>
-        <div id="critic-reviews" class="tab-panel">
-            <p class="text-gray-400">Critic reviews are not yet available for this title.</p>
-        </div>
+            </div>
+        }
     </div>
 </div>
 
@@ -185,6 +378,30 @@
 
 @section Scripts {
     <script>
+        function revealDetails() {
+            const reveals = document.querySelectorAll('.reveal');
+            reveals.forEach(el => {
+                const windowHeight = window.innerHeight;
+                const elementTop = el.getBoundingClientRect().top;
+                const elementVisible = 100;
+
+                if (elementTop < windowHeight - elementVisible) {
+                    if (!el.classList.contains('active')) {
+                        el.classList.add('active');
+                        const castMembers = el.querySelectorAll('.cast-member');
+                        if (castMembers.length > 0) {
+                            castMembers.forEach((member, index) => {
+                                member.classList.add('detail-animate');
+                                member.style.animationDelay = `${index * 100}ms`;
+                            });
+                        }
+                    }
+                }
+            });
+        }
+        window.addEventListener('scroll', revealDetails);
+        document.addEventListener('DOMContentLoaded', revealDetails);
+
         const playTrailerBtn = document.getElementById('playTrailerBtn');
         const trailerModal = document.getElementById('trailerModal');
         const closeModalBtn = document.getElementById('closeModalBtn');
