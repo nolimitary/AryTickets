@@ -5,66 +5,76 @@
 }
 
 @section Styles {
-<style>
-    .screen {
-        position: relative;
-        width: 70%;
-        height: 8px;
-        background-color: #111827;
-        margin: 0 auto 4rem auto;
-        border-radius: 4px;
-    }
-    .screen::before {
-        content: '';
-        position: absolute;
-        top: -10px;
-        left: 0;
-        width: 100%;
-        height: 20px;
-        border-radius: 50%;
-        box-shadow: 0 0 25px 5px rgba(255, 255, 255, 0.6);
-    }
+    <style>
+        .screen {
+            position: relative;
+            width: 70%;
+            height: 8px;
+            background-color: #111827;
+            margin: 0 auto 4rem auto;
+            border-radius: 4px;
+        }
 
-    .seat-grid {
-        display: grid;
-        grid-template-columns: repeat(14, 1fr);
-        gap: 0.5rem;
-        perspective: 1000px;
-    }
-    .seat {
-        aspect-ratio: 1 / 1;
-        transition: all 0.2s ease-in-out;
-        position: relative;
-    }
-    .seat svg {
-        width: 100%;
-        height: 100%;
-        transition: fill 0.2s;
-    }
-    .seat.available svg {
-        fill: #374151;
-    }
-    .seat.available:hover {
-        transform: scale(1.2);
-        cursor: pointer;
-    }
-    .seat.available:hover svg {
-         fill: #6366F1;
-    }
-    .seat.taken svg {
-        fill: #9CA3AF;
-    }
-    .seat.taken {
-         cursor: not-allowed;
-    }
-    .seat.selected {
-        transform: scale(1.1);
-    }
-    .seat.selected svg {
-        fill: #4F46E5;
-        filter: drop-shadow(0 0 5px #6366F1);
-    }
-</style>
+            .screen::before {
+                content: '';
+                position: absolute;
+                top: -10px;
+                left: 0;
+                width: 100%;
+                height: 20px;
+                border-radius: 50%;
+                box-shadow: 0 0 25px 5px rgba(255, 255, 255, 0.6);
+            }
+
+        .seat-grid {
+            display: grid;
+            grid-template-columns: repeat(14, 1fr);
+            gap: 0.5rem;
+            perspective: 1000px;
+        }
+
+        .seat {
+            aspect-ratio: 1 / 1;
+            transition: all 0.2s ease-in-out;
+            position: relative;
+        }
+
+            .seat svg {
+                width: 100%;
+                height: 100%;
+                transition: fill 0.2s;
+            }
+
+            .seat.available svg {
+                fill: #374151;
+            }
+
+            .seat.available:hover {
+                transform: scale(1.2);
+                cursor: pointer;
+            }
+
+                .seat.available:hover svg {
+                    fill: #6366F1;
+                }
+
+            .seat.taken svg {
+                fill: #9CA3AF;
+            }
+
+            .seat.taken {
+                cursor: not-allowed;
+            }
+
+            .seat.selected {
+                transform: scale(1.1);
+            }
+
+                .seat.selected svg {
+                    fill: #4F46E5;
+                    filter: drop-shadow(0 0 5px #6366F1);
+                }
+    </style>
 }
 
 <div class="container mx-auto px-6 py-16">
@@ -89,7 +99,7 @@
                         var statusClass = seat.Status.ToString().ToLower();
                         <div class="seat @statusClass" data-seat-number="@seat.SeatNumber" data-price="@seat.Price">
                             <svg viewBox="0 0 24 24">
-                                <path d="M4 18v3h16v-3h-2v-5H6v5H4zM6 6c0-1.1.9-2 2-2h8a2 2 0 012 2v7H6V6z"/>
+                                <path d="M4 18v3h16v-3h-2v-5H6v5H4zM6 6c0-1.1.9-2 2-2h8a2 2 0 012 2v7H6V6z" />
                             </svg>
                         </div>
                     }
@@ -103,9 +113,17 @@
             <div class="flex items-center space-x-2"><div class="w-4 h-4 rounded" style="background-color: #9CA3AF;"></div><span class="text-sm">Taken</span></div>
         </div>
     </div>
+</div>
 
+<form asp-action="Checkout" asp-controller="Booking" method="post">
     <div class="fixed bottom-0 left-0 right-0 bg-gray-800/80 backdrop-filter backdrop-blur-sm border-t border-gray-700 p-6">
         <div class="container mx-auto flex justify-between items-center">
+
+            <input type="hidden" name="movieTitle" value="@Model.MovieTitle" />
+            <input type="hidden" name="showtime" value="@Model.Showtime" />
+            <input type="hidden" id="hidden-seats" name="selectedSeats" />
+            <input type="hidden" id="hidden-price" name="totalPrice" />
+
             <div>
                 <h4 class="font-bold">Selected Seats</h4>
                 <p id="selected-seats" class="text-gray-400">None</p>
@@ -114,53 +132,63 @@
                 <h4 class="font-bold">Total Price</h4>
                 <p id="total-price" class="text-2xl font-bold text-indigo-400">$0.00</p>
             </div>
-            <button id="checkout-button" class="bg-indigo-600 text-white font-bold py-3 px-8 rounded-full text-lg opacity-50 cursor-not-allowed" disabled>
+            <button id="checkout-button" type="submit" class="bg-indigo-600 text-white font-bold py-3 px-8 rounded-full text-lg opacity-50 cursor-not-allowed" disabled>
                 Proceed to Checkout
             </button>
         </div>
     </div>
-</div>
+</form>
+
 
 @section Scripts {
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const seatGrid = document.querySelector('.seat-grid');
-        const selectedSeatsEl = document.getElementById('selected-seats');
-        const totalPriceEl = document.getElementById('total-price');
-        const checkoutButton = document.getElementById('checkout-button');
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const seatGrid = document.querySelector('.seat-grid');
+            const selectedSeatsEl = document.getElementById('selected-seats');
+            const totalPriceEl = document.getElementById('total-price');
+            const checkoutButton = document.getElementById('checkout-button');
+            const hiddenSeatsInput = document.getElementById('hidden-seats');
+            const hiddenPriceInput = document.getElementById('hidden-price');
 
-        seatGrid.addEventListener('click', (e) => {
-            const seatDiv = e.target.closest('.seat');
-            if (!seatDiv) return;
+            seatGrid.addEventListener('click', (e) => {
+                const seatDiv = e.target.closest('.seat');
+                if (!seatDiv) return;
 
-            if (seatDiv.classList.contains('available')) {
-                seatDiv.classList.toggle('selected');
-                seatDiv.classList.toggle('available');
-                updateSummary();
-            } else if (seatDiv.classList.contains('selected')) {
-                 seatDiv.classList.toggle('selected');
-                 seatDiv.classList.toggle('available');
-                 updateSummary();
+                if (seatDiv.classList.contains('available')) {
+                    seatDiv.classList.toggle('selected');
+                    seatDiv.classList.toggle('available');
+                    updateSummary();
+                } else if (seatDiv.classList.contains('selected')) {
+                    seatDiv.classList.toggle('selected');
+                    seatDiv.classList.toggle('available');
+                    updateSummary();
+                }
+            });
+
+            function updateSummary() {
+                const selectedSeats = document.querySelectorAll('.seat.selected');
+                const seatNumbers = [...selectedSeats].map(seat => seat.dataset.seatNumber);
+                const totalPrice = [...selectedSeats].reduce((total, seat) => total + parseFloat(seat.dataset.price), 0);
+
+                if (seatNumbers.length > 0) {
+                    const seatsText = seatNumbers.join(', ');
+                    selectedSeatsEl.innerText = seatsText;
+                    checkoutButton.disabled = false;
+                    checkoutButton.classList.remove('opacity-50', 'cursor-not-allowed');
+
+                    hiddenSeatsInput.value = seatsText;
+                    hiddenPriceInput.value = totalPrice;
+                } else {
+                    selectedSeatsEl.innerText = 'None';
+                    checkoutButton.disabled = true;
+                    checkoutButton.classList.add('opacity-50', 'cursor-not-allowed');
+
+                    hiddenSeatsInput.value = "";
+                    hiddenPriceInput.value = 0;
+                }
+
+                totalPriceEl.innerText = `$${totalPrice.toFixed(2)}`;
             }
         });
-
-        function updateSummary() {
-            const selectedSeats = document.querySelectorAll('.seat.selected');
-            const seatNumbers = [...selectedSeats].map(seat => seat.dataset.seatNumber);
-            const totalPrice = [...selectedSeats].reduce((total, seat) => total + parseFloat(seat.dataset.price), 0);
-
-            if (seatNumbers.length > 0) {
-                selectedSeatsEl.innerText = seatNumbers.join(', ');
-                checkoutButton.disabled = false;
-                checkoutButton.classList.remove('opacity-50', 'cursor-not-allowed');
-            } else {
-                selectedSeatsEl.innerText = 'None';
-                checkoutButton.disabled = true;
-                checkoutButton.classList.add('opacity-50', 'cursor-not-allowed');
-            }
-
-            totalPriceEl.innerText = `$${totalPrice.toFixed(2)}`;
-        }
-    });
-</script>
+    </script>
 }
