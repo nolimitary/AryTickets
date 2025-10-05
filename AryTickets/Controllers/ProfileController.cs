@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace AryTickets.Controllers
@@ -68,13 +69,23 @@ namespace AryTickets.Controllers
             if (user.UserName != model.Username)
             {
                 var setUsernameResult = await _userManager.SetUserNameAsync(user, model.Username);
-                if (!setUsernameResult.Succeeded) { TempData["ErrorMessage"] = "Username could not be changed."; return RedirectToAction("Settings"); }
+                if (!setUsernameResult.Succeeded)
+                {
+                    var errorMessage = string.Join(" ", setUsernameResult.Errors.Select(e => e.Description));
+                    TempData["ErrorMessage"] = errorMessage;
+                    return RedirectToAction("Settings");
+                }
             }
 
             if (user.Email != model.Email)
             {
                 var setEmailResult = await _userManager.SetEmailAsync(user, model.Email);
-                if (!setEmailResult.Succeeded) { TempData["ErrorMessage"] = "Email could not be changed."; return RedirectToAction("Settings"); }
+                if (!setEmailResult.Succeeded)
+                {
+                    var errorMessage = string.Join(" ", setEmailResult.Errors.Select(e => e.Description));
+                    TempData["ErrorMessage"] = errorMessage;
+                    return RedirectToAction("Settings");
+                }
             }
 
             TempData["SuccessMessage"] = "Profile updated successfully!";
@@ -91,7 +102,8 @@ namespace AryTickets.Controllers
             var changePasswordResult = await _userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
             if (!changePasswordResult.Succeeded)
             {
-                TempData["ErrorMessage"] = "Error changing password. Please check your current password.";
+                var errorMessage = string.Join(" ", changePasswordResult.Errors.Select(e => e.Description));
+                TempData["ErrorMessage"] = errorMessage;
                 return RedirectToAction("Settings");
             }
 
