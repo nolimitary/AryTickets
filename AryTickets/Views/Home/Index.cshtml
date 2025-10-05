@@ -6,7 +6,6 @@
 
 @section Styles {
     <style>
-        /* ... (All styles are here and unchanged) ... */
         .section-header {
             opacity: 0;
             transform: translateY(20px);
@@ -101,6 +100,7 @@
             position: relative;
             transform-style: preserve-3d;
             transition: transform 0.4s ease, box-shadow 0.4s ease;
+            cursor: pointer;
         }
 
             .movie-card:hover {
@@ -240,6 +240,11 @@
         .reveal.active .movie-card {
             animation: fadeUpBlur 0.8s forwards;
         }
+
+        .movie-link {
+            display: block;
+            text-decoration: none;
+        }
     </style>
 }
 
@@ -269,15 +274,17 @@
             @foreach (var movie in Model.NowShowingMovies.Skip(1))
             {
                 <div class="carousel-slide">
-                    <div class="movie-card bg-gray-800 rounded-xl overflow-hidden">
-                        <div class="poster-container">
-                            <img src="@movie.FullPosterPath" alt="@movie.Title" class="w-full h-auto aspect-[2/3] object-cover">
-                            <div class="shimmer"></div>
+                    <a asp-controller="Movie" asp-action="Details" asp-route-id="@movie.Id" class="movie-link">
+                        <div class="movie-card bg-gray-800 rounded-xl overflow-hidden">
+                            <div class="poster-container">
+                                <img src="@movie.FullPosterPath" alt="@movie.Title" class="w-full h-auto aspect-[2/3] object-cover">
+                                <div class="shimmer"></div>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-bold text-lg text-white truncate">@movie.Title</h3>
+                            </div>
                         </div>
-                        <div class="p-4">
-                            <h3 class="font-bold text-lg text-white truncate">@movie.Title</h3>
-                        </div>
-                    </div>
+                    </a>
                 </div>
             }
         </div>
@@ -302,7 +309,7 @@
                     <h4 class="text-indigo-400 font-semibold tracking-wider">NOW IN THEATERS</h4>
                     <h1 class="text-5xl md:text-6xl font-extrabold my-4">@featuredMovie.Title</h1>
                     <p class="text-gray-300 max-w-2xl leading-relaxed mb-8">@featuredMovie.Overview</p>
-                    <a href="#" class="bg-indigo-600 text-white font-bold py-4 px-10 rounded-full text-lg transition-all duration-300 transform hover:scale-110 hover:bg-indigo-700 shadow-lg shadow-indigo-500/50">Get Tickets</a>
+                    <a asp-controller="Movie" asp-action="Details" asp-route-id="@featuredMovie.Id" class="bg-indigo-600 text-white font-bold py-4 px-10 rounded-full text-lg transition-all duration-300 transform hover:scale-110 hover:bg-indigo-700 shadow-lg shadow-indigo-500/50">Get Tickets</a>
                 </div>
             </div>
         </div>
@@ -317,15 +324,17 @@
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
         @foreach (var movie in Model.ComingSoonMovies)
         {
-            <div class="movie-card bg-gray-800 rounded-xl overflow-hidden reveal">
-                <div class="poster-container">
-                    <img src="@movie.FullPosterPath" alt="@movie.Title" class="w-full h-auto aspect-[2/3] object-cover">
-                    <div class="shimmer"></div>
+            <a asp-controller="Movie" asp-action="Details" asp-route-id="@movie.Id" class="movie-link">
+                <div class="movie-card bg-gray-800 rounded-xl overflow-hidden reveal">
+                    <div class="poster-container">
+                        <img src="@movie.FullPosterPath" alt="@movie.Title" class="w-full h-auto aspect-[2/3] object-cover">
+                        <div class="shimmer"></div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg text-white truncate">@movie.Title</h3>
+                    </div>
                 </div>
-                <div class="p-4">
-                    <h3 class="font-bold text-lg text-white truncate">@movie.Title</h3>
-                </div>
-            </div>
+            </a>
         }
     </div>
 </section>
@@ -358,7 +367,7 @@
         // }
 
         document.querySelectorAll('.movie-card').forEach(card => {
-            const posterContainer = card.querySelector('.poster-container');
+            const posterContainer = card.closest('.poster-container'); // Corrected to get parent poster-container
             card.addEventListener('mousemove', (e) => {
                 const rect = card.getBoundingClientRect();
                 const x = e.clientX - rect.left;
@@ -367,10 +376,14 @@
                 const height = rect.height;
                 const rotateX = (y / height - 0.5) * -20;
                 const rotateY = (x / width - 0.5) * 20;
-                posterContainer.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
+                if (posterContainer) {
+                    posterContainer.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
+                }
             });
             card.addEventListener('mouseleave', () => {
-                posterContainer.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
+                if (posterContainer) {
+                    posterContainer.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
+                }
             });
         });
 
