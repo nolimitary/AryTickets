@@ -1,103 +1,259 @@
 ﻿@model AryTickets.Models.HomeViewModel
 @{
     ViewData["Title"] = "Home Page";
+    // Grab the first movie for our new Spotlight section!
+    var featuredMovie = Model.NowShowingMovies.FirstOrDefault();
 }
 
 @section Styles {
-<style>
-    /* 1. PARALLAX EFFECT 🌌 */
-    .parallax-bg {
-        transition: transform 0.2s ease-out;
-    }
-
-    /* 2. CINEMATIC HERO TEXT REVEAL 🎬 */
-    @@keyframes fadeUpBlur {
-        from {
+    <style>
+        /* GENERAL POLISH & NEW ANIMATIONS */
+        .section-header {
             opacity: 0;
-            transform: translateY(30px) scale(0.95);
-            filter: blur(5px);
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
         }
-        to {
+
+        .reveal.active .section-header {
             opacity: 1;
-            transform: translateY(0) scale(1);
-            filter: blur(0);
+            transform: translateY(0);
         }
-    }
-    /* Adding the animation to the hero elements */
-    .hero-animate {
-        animation: fadeUpBlur 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
-    }
-    .hero-animate.h1 { animation-delay: 0.2s; }
-    .hero-animate.p { animation-delay: 0.4s; }
-    .hero-animate.a { animation-delay: 0.6s; }
 
-    /* 3. SCROLL DOWN ARROW 🔽 */
-    .scroll-down-arrow {
-        position: absolute;
-        bottom: 2rem;
-        left: 50%;
-        transform: translateX(-50%);
-        animation: bounce 2s infinite;
-        opacity: 0;
-        animation: fadeUpBlur 1s 1.5s forwards; /* Also fades in */
-    }
-    .scroll-down-arrow svg {
-        width: 2rem;
-        height: 2rem;
-        color: white;
-    }
-    @@keyframes bounce {
-        0%, 20%, 50%, 80%, 100% { transform: translate(-50%, 0); }
-        40% { transform: translate(-50%, -20px); }
-        60% { transform: translate(-50%, -10px); }
-    }
+        .section-header h2::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, #6366F1, #8B5CF6);
+            margin-top: 1rem;
+            transform: scaleX(0);
+            transition: transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+            transform-origin: left;
+        }
 
-    /* 4. MOVIE CARD HOVER EFFECTS (3D TILT + SPOTLIGHT) ✨ */
-    .movie-card {
-        position: relative;
-        transform-style: preserve-3d;
-        transition: transform 0.4s ease, box-shadow 0.4s ease;
-    }
-    .movie-card:hover {
-        transform: scale(1.05);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-    }
-    .poster-container {
-        transform-style: preserve-3d;
-        transition: transform 0.5s;
-        transform: perspective(1000px);
-    }
-    .movie-card .spotlight {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), transparent 40%, rgba(0, 0, 0, 0.7) 100%);
-        opacity: 0;
-        transition: opacity 0.4s;
-        border-radius: 0.75rem; /* rounded-xl */
-    }
-    .movie-card:hover .spotlight {
-        opacity: 1;
-    }
-    .movie-card img {
-        transform: translateZ(20px); /* Lifts the poster slightly */
-    }
+        .reveal.active .section-header h2::after {
+            transform: scaleX(1);
+        }
 
-    /* 5. CASCADING GRID ENTRANCE 💥 */
-    .reveal.active .movie-card {
-        animation: fadeUpBlur 0.8s forwards;
-    }
+        /* EXISTING ANIMATIONS (IMPROVED) */
+        .parallax-bg {
+            transition: transform 0.2s ease-out;
+        }
 
-</style>
+        @@keyframes fadeUpBlur {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+                filter: blur(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: blur(0);
+            }
+        }
+
+        .hero-animate {
+            animation: fadeUpBlur 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+        }
+
+            .hero-animate.h1 {
+                animation-delay: 0.2s;
+            }
+
+            .hero-animate.p {
+                animation-delay: 0.4s;
+            }
+
+            .hero-animate.a {
+                animation-delay: 0.6s;
+            }
+
+        .scroll-down-arrow {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite, fadeUpBlur 1s 1.5s forwards;
+            opacity: 0;
+        }
+
+            .scroll-down-arrow svg {
+                width: 2rem;
+                height: 2rem;
+                color: white;
+            }
+
+        @@keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translate(-50%, 0);
+            }
+
+            40% {
+                transform: translate(-50%, -20px);
+            }
+
+            60% {
+                transform: translate(-50%, -10px);
+            }
+        }
+
+        /* MOVIE CARD ENHANCEMENTS ✨ */
+        .movie-card {
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+
+            .movie-card:hover {
+                transform: scale(1.05);
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            }
+
+        .poster-container {
+            transform-style: preserve-3d;
+            transition: transform 0.5s;
+            transform: perspective(1000px);
+            position: relative;
+            overflow: hidden;
+            border-radius: 0.75rem;
+        }
+
+        .movie-card img {
+            transform: translateZ(20px);
+        }
+
+        .movie-card .shimmer {
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        .movie-card:hover .shimmer {
+            transform: translateX(250%);
+        }
+
+        /* NEW: Details on Hover for Coming Soon */
+        .movie-details-hover {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(10px);
+            color: white;
+            transform: translateY(100%);
+            transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .movie-card:hover .movie-details-hover {
+            transform: translateY(0);
+        }
+
+        .movie-details-hover p {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            font-size: 0.875rem;
+            color: #D1D5DB;
+        }
+
+        /* NEW: HORIZONTAL CAROUSEL 🎠 */
+        .carousel-container {
+            position: relative;
+        }
+
+        .carousel-track {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            gap: 2rem;
+            padding-bottom: 1.5rem; /* For scrollbar spacing */
+            scrollbar-width: none; /* Firefox */
+        }
+
+            .carousel-track::-webkit-scrollbar {
+                display: none;
+            }
+
+        .carousel-slide {
+            flex: 0 0 calc(100% / 5 - 2rem * 4 / 5); /* Adjust based on desired visible items */
+            scroll-snap-align: start;
+        }
+
+        .carousel-nav button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(31, 41, 55, 0.7);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+            .carousel-nav button:hover {
+                background-color: #4F46E5;
+            }
+
+        .carousel-nav .prev {
+            left: -25px;
+        }
+
+        .carousel-nav .next {
+            right: -25px;
+        }
+
+        /* NEW: FEATURED MOVIE SPOTLIGHT 🌟 */
+        .featured-section {
+            position: relative;
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            padding: 4rem 1.5rem;
+        }
+
+        .featured-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: blur(15px) brightness(0.4);
+            transform: scale(1.1);
+        }
+
+        .featured-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .featured-poster {
+            border-radius: 1rem;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.75);
+        }
+
+    </style>
 }
 
 <section class="relative h-screen flex items-center justify-center overflow-hidden">
     <div class="absolute inset-0 z-0">
         <img src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=2525&auto=format&fit=crop"
-             alt="Cinematic background"
-             class="parallax-bg w-full h-full object-cover opacity-30">
+             alt="Cinematic background" class="parallax-bg w-full h-full object-cover opacity-30">
     </div>
     <div class="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/50 to-gray-900/90 z-10"></div>
     <div class="relative z-20 text-center px-4">
@@ -117,32 +273,63 @@
         </svg>
     </a>
 </section>
-<section id="now-showing" class="container mx-auto px-6 py-16">
-    <div class="reveal">
+
+<section id="now-showing" class="container mx-auto px-6 py-16 overflow-hidden">
+    <div class="reveal section-header">
         <h2 class="text-4xl font-bold mb-2 text-white">Now Showing</h2>
         <p class="text-gray-400 mb-8">Be the first to watch the latest blockbusters.</p>
     </div>
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
-        @foreach (var movie in Model.NowShowingMovies)
-        {
-            <div class="movie-card bg-gray-800 rounded-xl overflow-hidden reveal">
-                <div class="poster-container">
-                    <img src="@movie.FullPosterPath" alt="@movie.Title" class="w-full h-auto aspect-[2/3] object-cover">
-                    <div class="spotlight"></div>
+    <div class="reveal carousel-container">
+        <div id="nowShowingTrack" class="carousel-track">
+            @foreach (var movie in Model.NowShowingMovies)
+            {
+                <div class="carousel-slide">
+                    <div class="movie-card bg-gray-800 rounded-xl overflow-hidden">
+                        <div class="poster-container">
+                            <img src="@movie.FullPosterPath" alt="@movie.Title" class="w-full h-auto aspect-[2/3] object-cover">
+                            <div class="shimmer"></div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg text-white truncate">@movie.Title</h3>
+                        </div>
+                    </div>
                 </div>
-                <div class="p-4">
-                    <h3 class="font-bold text-lg text-white truncate">@movie.Title</h3>
-                </div>
-            </div>
-        }
+            }
+        </div>
+        <div class="carousel-nav hidden md:block">
+            <button id="nowShowingPrev" class="prev">&lt;</button>
+            <button id="nowShowingNext" class="next">&gt;</button>
+        </div>
     </div>
 </section>
 
-<section class="bg-gray-800 py-20">
+@if (featuredMovie != null)
+{
+    <section class="featured-section bg-gray-900 overflow-hidden">
+        <img src="@featuredMovie.FullBackdropPath" alt="Featured background" class="featured-bg">
+        <div class="absolute inset-0 bg-black/50"></div>
+        <div class="container mx-auto featured-content">
+            <div class="grid md:grid-cols-3 gap-12 items-center">
+                <div class="md:col-span-1 reveal">
+                    <img src="@featuredMovie.FullPosterPath" alt="@featuredMovie.Title" class="w-full h-auto featured-poster">
+                </div>
+                <div class="md:col-span-2 text-white reveal">
+                    <h4 class="text-indigo-400 font-semibold tracking-wider">NOW IN THEATERS</h4>
+                    <h1 class="text-5xl md:text-6xl font-extrabold my-4">@featuredMovie.Title</h1>
+                    <p class="text-gray-300 max-w-2xl leading-relaxed mb-8">
+                        @featuredMovie.Overview
+                    </p>
+                    <a href="#" class="bg-indigo-600 text-white font-bold py-4 px-10 rounded-full text-lg transition-all duration-300 transform hover:scale-110 hover:bg-indigo-700 shadow-lg shadow-indigo-500/50">
+                        Get Tickets
+                    </a>
+                </div>
+            </div>
+        </div>
     </section>
+}
 
 <section class="container mx-auto px-6 py-16">
-    <div class="reveal">
+    <div class="reveal section-header">
         <h2 class="text-4xl font-bold mb-2 text-white">Coming Soon</h2>
         <p class="text-gray-400 mb-8">Get ready for the next wave of cinematic masterpieces.</p>
     </div>
@@ -152,11 +339,11 @@
             <div class="movie-card bg-gray-800 rounded-xl overflow-hidden reveal">
                 <div class="poster-container">
                     <img src="@movie.FullPosterPath" alt="@movie.Title" class="w-full h-auto aspect-[2/3] object-cover">
-                    <div class="spotlight"></div>
-                </div>
-                <div class="p-4">
-                    <h3 class="font-bold text-lg text-white truncate">@movie.Title</h3>
-                    <p class="text-sm text-gray-400">Releasing Soon</p>
+                    <div class="shimmer"></div>
+                    <div class="movie-details-hover">
+                        <h3 class="font-bold text-lg text-white mb-2">@movie.Title</h3>
+                        <p>@movie.Overview</p>
+                    </div>
                 </div>
             </div>
         }
@@ -165,7 +352,8 @@
 
 @section Scripts {
     <script>
-                function reveal() {
+        // REVEAL ON SCROLL
+        function reveal() {
             var reveals = document.querySelectorAll('.reveal');
             for (var i = 0; i < reveals.length; i++) {
                 var windowHeight = window.innerHeight;
@@ -174,48 +362,60 @@
                 if (elementTop < windowHeight - elementVisible) {
                     if (!reveals[i].classList.contains('active')) {
                         reveals[i].classList.add('active');
-                                                cascadeGridItems(reveals[i]);
+                        cascadeGridItems(reveals[i]);
                     }
                 }
             }
         }
         window.addEventListener('scroll', reveal);
-        reveal(); 
+        reveal();
 
+        // PARALLAX EFFECT (FIXED!)
+        const parallaxBg = document.querySelector('.parallax-bg');
+        if (parallaxBg) {
+            window.addEventListener('scroll', () => {
+                const offset = window.pageYOffset;
+                parallaxBg.style.transform = `translateY(${offset * 0.4}px)`;
+            });
+        }
 
-        // const parallaxBg = document.querySelector('.parallax-bg');
-        // window.addEventListener('scroll', () => {
-        //     const offset = window.pageYOffset;
-        //     parallaxBg.style.transform = `translateY(${offset * 0.4}px)`;
-        // });
-
-                const movieCards = document.querySelectorAll('.movie-card');
-        movieCards.forEach(card => {
+        // 3D TILT & MOUSEMOVE EFFECTS
+        document.querySelectorAll('.movie-card').forEach(card => {
             const posterContainer = card.querySelector('.poster-container');
-            const spotlight = card.querySelector('.spotlight');
-
             card.addEventListener('mousemove', (e) => {
                 const rect = card.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
                 const width = rect.width;
                 const height = rect.height;
-
-                                card.style.setProperty('--x', `${(x / width) * 100}%`);
-                card.style.setProperty('--y', `${(y / height) * 100}%`);
-
-                                const rotateX = (y / height - 0.5) * -30;                 const rotateY = (x / width - 0.5) * 30;                 posterContainer.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
+                const rotateX = (y / height - 0.5) * -20;
+                const rotateY = (x / width - 0.5) * 20;
+                posterContainer.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
             });
-
             card.addEventListener('mouseleave', () => {
                 posterContainer.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
             });
         });
 
-                function cascadeGridItems(container) {
+        // CASCADING GRID ENTRANCE
+        function cascadeGridItems(container) {
             const items = container.querySelectorAll('.movie-card');
             items.forEach((item, index) => {
-                                item.style.animationDelay = `${index * 100}ms`;
+                item.style.animationDelay = `${index * 100}ms`;
+            });
+        }
+
+        // NEW: CAROUSEL NAVIGATION LOGIC
+        const nowShowingTrack = document.getElementById('nowShowingTrack');
+        const nowShowingNext = document.getElementById('nowShowingNext');
+        const nowShowingPrev = document.getElementById('nowShowingPrev');
+
+        if (nowShowingTrack) {
+            nowShowingNext.addEventListener('click', () => {
+                nowShowingTrack.scrollBy({ left: nowShowingTrack.clientWidth, behavior: 'smooth' });
+            });
+            nowShowingPrev.addEventListener('click', () => {
+                nowShowingTrack.scrollBy({ left: -nowShowingTrack.clientWidth, behavior: 'smooth' });
             });
         }
     </script>
