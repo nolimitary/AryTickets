@@ -1,29 +1,36 @@
 ﻿using AryTickets.Models;
 using AryTickets.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 
 namespace AryTickets.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmailSender _emailSender;
 
-        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, IEmailSender emailSender)
+        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IEmailSender emailSender)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
         }
 
-        [HttpGet]
-        public IActionResult Login()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
         {
-            return View();
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Home");
         }
+
+        [HttpGet]
+        public IActionResult Login() => View();
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -41,17 +48,11 @@ namespace AryTickets.Controllers
                     }
                     if (result.IsNotAllowed)
                     {
-                        ModelState.AddModelError(string.Empty, "You must confirm your email before you can log in.");
-                    }
-                    else
-                    {
-                        ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                        HttpContext.Session.SetString("EmailForConfirmation", model.Email);
+                        return RedirectToAction("ConfirmEmail");
                     }
                 }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                }
+                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             }
             return View(model);
         }
@@ -68,16 +69,22 @@ namespace AryTickets.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new IdentityUser { UserName = model.Username, Email = model.Email };
+                var user = new ApplicationUser { UserName = model.Username, Email = model.Email };
                 var result = await _userManager.CreateAsync(user, model.Password);
+
                 if (result.Succeeded)
                 {
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var code = new Random().Next(1000, 9999).ToString("D4");
+                    user.EmailVerificationCode = code;
+                    user.VerificationCodeExpiry = DateTime.UtcNow.AddMinutes(10);
+                    await _userManager.UpdateAsync(user);
 
                     await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
-                        $"<h1>Welcome to AryTix!</h1><p>Please confirm your account by entering this code on our site: <strong>{code}</strong></p>");
+                        $"<h1>Welcome to AryTix!</h1><p>Your verification code is: <strong>{code}</strong></p>");
 
-                    return View("RegisterConfirmation");
+                    HttpContext.Session.SetString("EmailForConfirmation", model.Email);
+
+                    return RedirectToAction("ConfirmEmail");
                 }
                 foreach (var error in result.Errors)
                 {
@@ -88,8 +95,13 @@ namespace AryTickets.Controllers
         }
 
         [HttpGet]
-        public IActionResult ConfirmEmail(string email)
+        public IActionResult ConfirmEmail()
         {
+            var email = HttpContext.Session.GetString("EmailForConfirmation");
+            if (string.IsNullOrEmpty(email))
+            {
+                return RedirectToAction("Login");
+            }
             var model = new ConfirmEmailViewModel { Email = email };
             return View(model);
         }
@@ -101,27 +113,19 @@ namespace AryTickets.Controllers
             if (ModelState.IsValid)
             {
                 var user = await _userManager.FindByEmailAsync(model.Email);
-                if (user != null)
+                if (user != null && user.EmailVerificationCode == model.Code && user.VerificationCodeExpiry > DateTime.UtcNow)
                 {
-                    var result = await _userManager.ConfirmEmailAsync(user, model.Code);
-                    if (result.Succeeded)
-                    {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
-                        return RedirectToAction("Index", "Home");
-                    }
+                    user.EmailConfirmed = true;
+                    user.EmailVerificationCode = null; 
+                    user.VerificationCodeExpiry = null;
+                    await _userManager.UpdateAsync(user);
+
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    return RedirectToAction("Index", "Home");
                 }
-                ModelState.AddModelError(string.Empty, "Invalid verification code.");
+                ModelState.AddModelError(string.Empty, "Invalid or expired verification code.");
             }
             return View(model);
-        }
-
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Logout()
-        {
-            await _signInManager.SignOutAsync();
-            return RedirectToAction("Index", "Home");
         }
     }
 }

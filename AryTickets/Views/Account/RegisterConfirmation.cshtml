@@ -1,14 +1,38 @@
 ﻿@{
     ViewData["Title"] = "Register Confirmation";
+    Layout = "_Layout";
 }
+
+@section Styles {
+    <style>
+        @@keyframes fadeUpBlur {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+                filter: blur(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+                filter: blur(0);
+            }
+        }
+
+        .content-animate {
+            animation: fadeUpBlur 1s forwards;
+        }
+    </style>
+}
+
 
 <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8" style="background-image: url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=2525&auto=format&fit=crop'); background-size: cover; background-position: center;">
     <div class="absolute inset-0 bg-gray-900/80"></div>
     <div class="max-w-md w-full space-y-8 p-10 text-center">
-        <h1 class="text-4xl font-extrabold text-white">Check Your Email</h1>
-        <p class="text-gray-300 mt-4">Thank you for registering! We've sent a verification code to your email address. Please enter it on the confirmation page to activate your account.</p>
-        <div class="mt-6">
-            <a asp-action="ConfirmEmail" class="bg-indigo-600 text-white font-bold py-3 px-8 rounded-full text-lg transition-transform transform hover:scale-105">Enter Code</a>
+        <h1 class="text-4xl font-extrabold text-white content-animate" style="animation-delay: 0.2s;">Check Your Email</h1>
+        <p class="text-gray-300 mt-4 content-animate" style="animation-delay: 0.4s;">Thank you for registering! We've sent a verification code to your email address. Please enter it on the confirmation page to activate your account.</p>
+        <div class="mt-6 content-animate" style="animation-delay: 0.6s;">
+            <a asp-action="ConfirmEmail" class="bg-indigo-600 text-white font-bold py-3 px-8 rounded-full text-lg transition-transform transform hover:scale-105 inline-block">Enter Code</a>
         </div>
     </div>
 </div>

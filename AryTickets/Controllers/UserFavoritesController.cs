@@ -13,9 +13,9 @@ namespace AryTickets.Controllers
     public class UserFavoritesController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public UserFavoritesController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
+        public UserFavoritesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _userManager = userManager;
@@ -31,12 +31,10 @@ namespace AryTickets.Controllers
 
             if (existingFavorite != null)
             {
-                // It exists, so remove it
                 _context.UserFavorites.Remove(existingFavorite);
             }
             else
             {
-                // It doesn't exist, so add it
                 var newFavorite = new UserFavorite
                 {
                     UserId = userId,

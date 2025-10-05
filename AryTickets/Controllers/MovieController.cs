@@ -15,9 +15,9 @@ namespace AryTickets.Controllers
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly string _apiKey;
         private readonly ApplicationDbContext _context;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public MovieController(IHttpClientFactory httpClientFactory, IConfiguration configuration, ApplicationDbContext context, UserManager<IdentityUser> userManager)
+        public MovieController(IHttpClientFactory httpClientFactory, IConfiguration configuration, ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _httpClientFactory = httpClientFactory;
             _apiKey = configuration["TMDb:ApiKey"];

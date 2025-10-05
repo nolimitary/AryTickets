@@ -1,7 +1,7 @@
 ﻿using AryTickets.Models;
-using AryTickets.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using AryTickets.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Text;
@@ -13,23 +13,29 @@ namespace AryTickets.Controllers
     public class BookingController : Controller
     {
         private readonly IEmailSender _emailSender;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public BookingController(IEmailSender emailSender, UserManager<IdentityUser> userManager)
+        public BookingController(IEmailSender emailSender, UserManager<ApplicationUser> userManager)
         {
             _emailSender = emailSender;
             _userManager = userManager;
         }
 
-        public IActionResult SelectSeats(int movieId)
+        public IActionResult SelectSeats(int movieId, string movieTitle, string showtime)
         {
+            if (string.IsNullOrEmpty(movieTitle) || string.IsNullOrEmpty(showtime))
+            {
+                return BadRequest("Movie and showtime information is required.");
+            }
+
             var viewModel = new SeatSelectionViewModel
             {
                 MovieId = movieId,
-                MovieTitle = "The Epic Movie",
-                Showtime = "October 26, 2025 - 8:00 PM",
+                MovieTitle = movieTitle,
+                Showtime = showtime,
                 SeatingChart = GenerateMockSeatingChart()
             };
+
             return View(viewModel);
         }
 

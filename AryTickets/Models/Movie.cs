@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace AryTickets.Models
@@ -43,7 +44,7 @@ namespace AryTickets.Models
         public ReviewCollection Reviews { get; set; }
 
         public string FullPosterPath => PosterPath != null ? $"https://image.tmdb.org/t/p/w500{PosterPath}" : "https://placehold.co/500x750/111827/FFFFFF?text=No+Image";
-        public string FullBackdropPath => BackdropPath != null ? $"https://image.tmdb.org/t/p/w1280{BackdropPath}" : "https://images.unsplash.com/photo-1594904351111-a072f80b1a71?q=80&w=2535&auto=format&fit=crop";
+        public string FullBackdropPath => BackdropPath != null ? $"https://image.tmdb.org/t/p/w1280{BackdropPath}" : "https://images.unsplash.com/photo-1594904351111-a072f80b1a71?q=80&w=2535&auto=format=fit=crop";
         public string FormattedRuntime => Runtime.HasValue ? $"{Runtime / 60}h {Runtime % 60}m" : "N/A";
         public string RatingPercentage => $"{VoteAverage * 10:F0}%";
         public Video FirstTrailer => Videos?.Results.FirstOrDefault(v => v.Type == "Trailer" && v.Site == "YouTube");

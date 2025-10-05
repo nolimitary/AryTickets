@@ -4,8 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -14,13 +12,13 @@ namespace AryTickets.Controllers
     [Authorize]
     public class ProfileController : Controller
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ApplicationDbContext _context;
 
         public ProfileController(
-            UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager,
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
             ApplicationDbContext context)
         {
             _userManager = userManager;
@@ -47,8 +45,7 @@ namespace AryTickets.Controllers
         public async Task<IActionResult> Reviews()
         {
             await SetUserViewData();
-            var reviews = new List<object>();
-            return View(reviews);
+            return View();
         }
 
         public async Task<IActionResult> Favorites()
@@ -65,10 +62,7 @@ namespace AryTickets.Controllers
         public async Task<IActionResult> Settings()
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
-            }
+            if (user == null) return NotFound();
 
             var model = new SettingsViewModel
             {
