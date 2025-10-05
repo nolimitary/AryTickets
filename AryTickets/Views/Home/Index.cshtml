@@ -1,4 +1,5 @@
-﻿@{
+﻿@model AryTickets.Models.HomeViewModel
+@{
     ViewData["Title"] = "Home Page";
 }
 
@@ -28,41 +29,15 @@
         <p class="text-gray-400 mb-8">Be the first to watch the latest blockbusters.</p>
     </div>
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
-        <div class="movie-card bg-gray-800 rounded-xl overflow-hidden reveal">
-            <img src="https://placehold.co/400x600/1e293b/ffffff?text=Movie+1" alt="Movie 1" class="w-full h-auto">
-            <div class="p-4">
-                <h3 class="font-bold text-lg">Galactic Odyssey</h3>
-                <p class="text-sm text-gray-400">Sci-Fi</p>
+        @foreach (var movie in Model.NowShowingMovies)
+        {
+            <div class="movie-card bg-gray-800 rounded-xl overflow-hidden reveal">
+                <img src="@movie.FullPosterPath" alt="@movie.Title" class="w-full h-auto aspect-[2/3] object-cover">
+                <div class="p-4">
+                    <h3 class="font-bold text-lg text-white truncate">@movie.Title</h3>
+                </div>
             </div>
-        </div>
-        <div class="movie-card bg-gray-800 rounded-xl overflow-hidden reveal" style="transition-delay: 100ms;">
-            <img src="https://placehold.co/400x600/991b1b/ffffff?text=Movie+2" alt="Movie 2" class="w-full h-auto">
-            <div class="p-4">
-                <h3 class="font-bold text-lg">Echoes of Time</h3>
-                <p class="text-sm text-gray-400">Thriller</p>
-            </div>
-        </div>
-        <div class="movie-card bg-gray-800 rounded-xl overflow-hidden reveal" style="transition-delay: 200ms;">
-            <img src="https://placehold.co/400x600/15803d/ffffff?text=Movie+3" alt="Movie 3" class="w-full h-auto">
-            <div class="p-4">
-                <h3 class="font-bold text-lg">The Last Laugh</h3>
-                <p class="text-sm text-gray-400">Comedy</p>
-            </div>
-        </div>
-        <div class="movie-card bg-gray-800 rounded-xl overflow-hidden reveal" style="transition-delay: 300ms;">
-            <img src="https://placehold.co/400x600/b45309/ffffff?text=Movie+4" alt="Movie 4" class="w-full h-auto">
-            <div class="p-4">
-                <h3 class="font-bold text-lg">Crimson Peak</h3>
-                <p class="text-sm text-gray-400">Horror</p>
-            </div>
-        </div>
-        <div class="movie-card bg-gray-800 rounded-xl overflow-hidden reveal" style="transition-delay: 400ms;">
-            <img src="https://placehold.co/400x600/065f46/ffffff?text=Movie+5" alt="Movie 5" class="w-full h-auto">
-            <div class="p-4">
-                <h3 class="font-bold text-lg">Whispers in Wind</h3>
-                <p class="text-sm text-gray-400">Drama</p>
-            </div>
-        </div>
+        }
     </div>
 </section>
 
@@ -85,27 +60,16 @@
         <p class="text-gray-400 mb-8">Get ready for the next wave of cinematic masterpieces.</p>
     </div>
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
-        <div class="movie-card bg-gray-800 rounded-xl overflow-hidden reveal">
-            <img src="https://placehold.co/400x600/1d4ed8/ffffff?text=Future+1" alt="Coming Soon 1" class="w-full h-auto">
-            <div class="p-4">
-                <h3 class="font-bold text-lg">Project Nova</h3>
-                <p class="text-sm text-gray-400">Releasing Soon</p>
+        @foreach (var movie in Model.ComingSoonMovies)
+        {
+            <div class="movie-card bg-gray-800 rounded-xl overflow-hidden reveal">
+                <img src="@movie.FullPosterPath" alt="@movie.Title" class="w-full h-auto aspect-[2/3] object-cover">
+                <div class="p-4">
+                    <h3 class="font-bold text-lg text-white truncate">@movie.Title</h3>
+                    <p class="text-sm text-gray-400">Releasing Soon</p>
+                </div>
             </div>
-        </div>
-        <div class="movie-card bg-gray-800 rounded-xl overflow-hidden reveal" style="transition-delay: 100ms;">
-            <img src="https://placehold.co/400x600/9d174d/ffffff?text=Future+2" alt="Coming Soon 2" class="w-full h-auto">
-            <div class="p-4">
-                <h3 class="font-bold text-lg">Deep Dive</h3>
-                <p class="text-sm text-gray-400">Releasing Soon</p>
-            </div>
-        </div>
-        <div class="movie-card bg-gray-800 rounded-xl overflow-hidden reveal" style="transition-delay: 200ms;">
-            <img src="https://placehold.co/400x600/581c87/ffffff?text=Future+3" alt="Coming Soon 3" class="w-full h-auto">
-            <div class="p-4">
-                <h3 class="font-bold text-lg">Cybernetic Dawn</h3>
-                <p class="text-sm text-gray-400">Releasing Soon</p>
-            </div>
-        </div>
+        }
     </div>
 </section>
 
