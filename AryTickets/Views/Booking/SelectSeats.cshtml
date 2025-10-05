@@ -6,23 +6,23 @@
 
 @section Styles {
 <style>
-    @@keyframes screenGlow {
-        from {
-            box-shadow: 0 0 20px 3px rgba(200, 200, 255, 0.4), 0 0 40px 8px rgba(79, 70, 229, 0.3);
-        }
-        to {
-            box-shadow: 0 0 30px 6px rgba(200, 200, 255, 0.5), 0 0 50px 12px rgba(79, 70, 229, 0.4);
-        }
-    }
-
     .screen {
-        width: 60%;
-        height: 20px;
-        background-color: #E5E7EB;
+        position: relative;
+        width: 70%;
+        height: 8px;
+        background-color: #111827;
         margin: 0 auto 4rem auto;
-        transform: rotateX(-50deg) scale(1.1);
-        border-radius: 10px 10px 100px 100px / 5px 5px 20px 20px;
-        animation: screenGlow 4s infinite alternate ease-in-out;
+        border-radius: 4px;
+    }
+    .screen::before {
+        content: '';
+        position: absolute;
+        top: -10px;
+        left: 0;
+        width: 100%;
+        height: 20px;
+        border-radius: 50%;
+        box-shadow: 0 0 25px 5px rgba(255, 255, 255, 0.6);
     }
 
     .seat-grid {
