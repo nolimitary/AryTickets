@@ -1,4 +1,8 @@
-﻿namespace YourAppName.Models;
+﻿using System.Collections.Generic;
+
+namespace AryTickets.Models;
+using AryTickets.Models;
+using YourAppName.Models;
 
 public class HomeViewModel
 {
