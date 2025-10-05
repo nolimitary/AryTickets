@@ -6,14 +6,25 @@
 
 @section Styles {
 <style>
-    .screen {
-        width: 80%;
-        height: 100px;
-        background-color: #fff;
-        margin: 0 auto 2rem auto;
-        transform: rotateX(-45deg);
-        box-shadow: 0 3px 10px rgba(255, 255, 255, 0.7);
+    @@keyframes screenGlow {
+        from {
+            box-shadow: 0 0 20px 3px rgba(200, 200, 255, 0.4), 0 0 40px 8px rgba(79, 70, 229, 0.3);
+        }
+        to {
+            box-shadow: 0 0 30px 6px rgba(200, 200, 255, 0.5), 0 0 50px 12px rgba(79, 70, 229, 0.4);
+        }
     }
+
+    .screen {
+        width: 60%;
+        height: 20px;
+        background-color: #E5E7EB;
+        margin: 0 auto 4rem auto;
+        transform: rotateX(-50deg) scale(1.1);
+        border-radius: 10px 10px 100px 100px / 5px 5px 20px 20px;
+        animation: screenGlow 4s infinite alternate ease-in-out;
+    }
+
     .seat-grid {
         display: grid;
         grid-template-columns: repeat(14, 1fr);
@@ -28,19 +39,20 @@
     .seat svg {
         width: 100%;
         height: 100%;
+        transition: fill 0.2s;
     }
     .seat.available svg {
-        fill: #374151; /* bg-gray-700 */
+        fill: #374151;
     }
     .seat.available:hover {
         transform: scale(1.2);
         cursor: pointer;
     }
     .seat.available:hover svg {
-         fill: #6366F1; /* hover:bg-indigo-500 */
+         fill: #6366F1;
     }
     .seat.taken svg {
-        fill: #9CA3AF; /* bg-gray-400 */
+        fill: #9CA3AF;
     }
     .seat.taken {
          cursor: not-allowed;
@@ -49,7 +61,7 @@
         transform: scale(1.1);
     }
     .seat.selected svg {
-        fill: #4F46E5; /* bg-indigo-600 */
+        fill: #4F46E5;
         filter: drop-shadow(0 0 5px #6366F1);
     }
 </style>
