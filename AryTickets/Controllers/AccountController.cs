@@ -69,23 +69,21 @@ namespace AryTickets.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.Username, Email = model.Email };
+                var user = new ApplicationUser
+                {
+                    UserName = model.Username,
+                    Email = model.Email,
+                    EmailConfirmed = true //Auto confirm the email verification since its broken
+                };
+
                 var result = await _userManager.CreateAsync(user, model.Password);
 
                 if (result.Succeeded)
                 {
-                    var code = new Random().Next(1000, 9999).ToString("D4");
-                    user.EmailVerificationCode = code;
-                    user.VerificationCodeExpiry = DateTime.UtcNow.AddMinutes(10);
-                    await _userManager.UpdateAsync(user);
-
-                    await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
-                        $"<h1>Welcome to AryTix!</h1><p>Your verification code is: <strong>{code}</strong></p>");
-
-                    HttpContext.Session.SetString("EmailForConfirmation", model.Email);
-
-                    return RedirectToAction("ConfirmEmail");
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    return RedirectToAction("Index", "Home");
                 }
+
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
@@ -93,6 +91,7 @@ namespace AryTickets.Controllers
             }
             return View(model);
         }
+
 
         [HttpGet]
         public IActionResult ConfirmEmail()
