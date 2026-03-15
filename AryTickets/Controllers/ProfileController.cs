@@ -43,8 +43,13 @@ namespace AryTickets.Controllers
 
         public async Task<IActionResult> Index()
         {
-            await SetUserViewData();
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                await _signInManager.SignOutAsync();
+                return RedirectToAction("Login", "Account");
+            }
+            await SetUserViewData();
             var userId = user.Id;
 
             var ticketCount = await _context.Bookings.CountAsync(b => b.UserId == userId);
