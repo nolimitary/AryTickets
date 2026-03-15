@@ -462,11 +462,87 @@
                 <p class="text-xs font-medium text-[#e11d48] uppercase tracking-wider mb-2">Audience &amp; Critics</p>
                 <h2 class="font-sans font-semibold text-white text-3xl">Reviews</h2>
             </div>
-            <a asp-controller="Account" asp-action="Register"
-               class="inline-flex items-center justify-center px-6 py-2.5 bg-[#e11d48] text-white text-sm font-semibold rounded-lg hover:bg-[#be123c] transition-colors duration-300 self-start sm:self-auto">
-                Write a Review
-            </a>
+            @if (SignInManager.IsSignedIn(User))
+            {
+                <a href="#write-review"
+                   class="inline-flex items-center justify-center px-6 py-2.5 bg-[#e11d48] text-white text-sm font-semibold rounded-lg hover:bg-[#be123c] transition-colors duration-300 self-start sm:self-auto">
+                    Write a Review
+                </a>
+            }
+            else
+            {
+                <a asp-controller="Account" asp-action="Register"
+                   class="inline-flex items-center justify-center px-6 py-2.5 bg-[#e11d48] text-white text-sm font-semibold rounded-lg hover:bg-[#be123c] transition-colors duration-300 self-start sm:self-auto">
+                    Write a Review
+                </a>
+            }
         </div>
+
+        <!-- ── User Reviews ── -->
+        @{
+            var userReviews = ViewData["UserReviews"] as List<UserReview>;
+        }
+        @if (userReviews != null && userReviews.Any())
+        {
+            <div class="mb-10">
+                <p class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-4">Community Reviews</p>
+                <div class="space-y-5">
+                    @foreach (var ur in userReviews)
+                    {
+                        <div class="review-card">
+                            <div class="flex items-center gap-3 mb-3">
+                                <h4 class="font-sans font-semibold text-white">@ur.UserName</h4>
+                                @if (ur.IsCritic)
+                                {
+                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-accent-500/10 text-accent-400 border border-accent-500/20 uppercase tracking-wider">Critic</span>
+                                }
+                                <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-yellow-400/10 text-yellow-400 border border-yellow-400/20">
+                                    @ur.Rating / 10
+                                </span>
+                            </div>
+                            <p class="text-zinc-400 font-sans text-sm leading-relaxed">@ur.Content</p>
+                            <p class="text-zinc-600 text-xs mt-3">@ur.CreatedAt.ToString("MMM dd, yyyy")</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        <!-- ── Write a Review Form ── -->
+        @if (SignInManager.IsSignedIn(User) && !(bool)(ViewData["HasReviewed"] ?? false))
+        {
+            <div id="write-review" class="mb-10">
+                <p class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-4">Share Your Thoughts</p>
+                <div class="review-card">
+                    <form asp-controller="Movie" asp-action="SubmitReview" method="post">
+                        <input type="hidden" name="movieId" value="@Model.Id" />
+                        <input type="hidden" name="movieTitle" value="@Model.Title" />
+
+                        <div class="mb-5">
+                            <label class="block text-sm font-medium text-zinc-300 mb-2">Rating</label>
+                            <select name="rating" required class="bg-surface-200 border border-white/[0.06] text-white text-sm rounded-lg px-4 py-2.5 focus:border-accent-500/30 focus:outline-none w-full max-w-[200px] appearance-none">
+                                <option value="" disabled selected class="text-zinc-600">Select a rating</option>
+                                @for (int i = 1; i <= 10; i++)
+                                {
+                                    <option value="@i">@i / 10</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="mb-5">
+                            <label class="block text-sm font-medium text-zinc-300 mb-2">Your Review</label>
+                            <textarea name="content" required rows="4" placeholder="What did you think of the movie?"
+                                      class="w-full bg-surface-200 border border-white/[0.06] text-white text-sm rounded-lg px-4 py-3 focus:border-accent-500/30 focus:outline-none placeholder-zinc-600 resize-none"></textarea>
+                        </div>
+
+                        <button type="submit"
+                                class="inline-flex items-center justify-center px-6 py-2.5 bg-[#e11d48] text-white text-sm font-semibold rounded-lg hover:bg-[#be123c] transition-colors duration-300">
+                            Submit Review
+                        </button>
+                    </form>
+                </div>
+            </div>
+        }
 
         @if (releaseDate > DateTime.Now)
         {
