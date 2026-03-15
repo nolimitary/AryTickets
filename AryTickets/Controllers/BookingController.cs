@@ -14,11 +14,13 @@ namespace AryTickets.Controllers
     {
         private readonly IEmailSender _emailSender;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly Data.ApplicationDbContext _db;
 
-        public BookingController(IEmailSender emailSender, UserManager<ApplicationUser> userManager)
+        public BookingController(IEmailSender emailSender, UserManager<ApplicationUser> userManager, Data.ApplicationDbContext db)
         {
             _emailSender = emailSender;
             _userManager = userManager;
+            _db = db;
         }
 
         public IActionResult SelectSeats(int movieId, string movieTitle, string showtime)
@@ -72,6 +74,20 @@ namespace AryTickets.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user != null)
             {
+                var booking = new Booking
+                {
+                    UserId = user.Id,
+                    UserEmail = user.Email,
+                    UserName = user.UserName,
+                    MovieTitle = model.MovieTitle,
+                    Showtime = model.Showtime,
+                    Seats = model.SelectedSeats,
+                    TotalPrice = model.TotalPrice,
+                    BookedAt = System.DateTime.UtcNow
+                };
+                _db.Bookings.Add(booking);
+                await _db.SaveChangesAsync();
+
                 try
                 {
                     var emailBody = BuildTicketEmail(model, user.UserName);
