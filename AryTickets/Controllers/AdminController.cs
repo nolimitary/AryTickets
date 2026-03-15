@@ -28,7 +28,7 @@ namespace AryTickets.Controllers
         {
             var totalUsers = await _userManager.Users.CountAsync();
             var totalBookings = await _db.Bookings.CountAsync();
-            var totalRevenue = await _db.Bookings.SumAsync(b => b.TotalPrice);
+            var totalRevenue = (await _db.Bookings.Select(b => (double)b.TotalPrice).ToListAsync()).Sum();
             var totalFavorites = await _db.UserFavorites.CountAsync();
             var recentBookings = await _db.Bookings.OrderByDescending(b => b.BookedAt).Take(10).ToListAsync();
             var recentUsers = await _userManager.Users.OrderByDescending(u => u.Id).Take(5).ToListAsync();
