@@ -15,7 +15,6 @@ namespace AryTickets.Models
         public string CardHolderName { get; set; }
 
         [Required]
-        [CreditCard]
         [Display(Name = "Card Number")]
         public string CardNumber { get; set; }
 
