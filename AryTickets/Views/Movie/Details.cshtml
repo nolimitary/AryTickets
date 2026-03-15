@@ -10,7 +10,7 @@
 
 @section Styles {
     <style>
-        /* ── Cinematic Noir Editorial: Details ── */
+        /* ── Electric Modern: Details ── */
 
         .movie-hero {
             position: relative;
@@ -35,14 +35,13 @@
             100% { transform: scale(1.15) translate(-1%, 1%); }
         }
 
-        /* Deep vignette overlay */
         .hero-vignette {
             position: absolute;
             inset: 0;
             background:
-                radial-gradient(ellipse at 60% 30%, transparent 0%, rgba(10,10,10,0.45) 55%, #0a0a0a 100%),
-                linear-gradient(to top, #0a0a0a 0%, transparent 50%),
-                linear-gradient(to right, rgba(10,10,10,0.8) 0%, transparent 60%);
+                radial-gradient(ellipse at 60% 30%, transparent 0%, rgba(9,9,11,0.5) 55%, #09090b 100%),
+                linear-gradient(to top, #09090b 0%, transparent 50%),
+                linear-gradient(to right, rgba(9,9,11,0.85) 0%, transparent 60%);
             z-index: 2;
         }
 
@@ -51,22 +50,20 @@
             z-index: 10;
         }
 
-        /* Glass-morphism panel – noir tones */
         .hero-glass {
-            background: rgba(10, 10, 10, 0.55);
-            backdrop-filter: blur(20px) saturate(1.2);
-            -webkit-backdrop-filter: blur(20px) saturate(1.2);
-            border: 1px solid rgba(201, 169, 110, 0.12);
-            border-radius: 1.25rem;
+            background: rgba(20, 20, 22, 0.7);
+            backdrop-filter: blur(24px) saturate(1.3);
+            -webkit-backdrop-filter: blur(24px) saturate(1.3);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 1rem;
             padding: 2.5rem;
         }
 
-        /* Poster */
         .movie-poster-details {
-            border-radius: 1rem;
+            border-radius: 0.75rem;
             box-shadow:
                 0 20px 60px rgba(0,0,0,0.7),
-                0 0 0 1px rgba(201, 169, 110, 0.1);
+                0 0 0 1px rgba(255,255,255,0.06);
             transition: transform 0.5s cubic-bezier(.22,.61,.36,1), box-shadow 0.5s ease;
         }
 
@@ -74,10 +71,9 @@
             transform: translateY(-6px);
             box-shadow:
                 0 30px 80px rgba(0,0,0,0.8),
-                0 0 0 1px rgba(201, 169, 110, 0.25);
+                0 0 0 1px rgba(225,29,72,0.2);
         }
 
-        /* Rating ring */
         .rating-ring {
             width: 64px;
             height: 64px;
@@ -85,7 +81,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: conic-gradient(#C9A96E @Model.RatingPercentage, #2a2a2a 0);
+            background: conic-gradient(#e11d48 @Model.RatingPercentage, rgba(255,255,255,0.08) 0);
             position: relative;
             flex-shrink: 0;
         }
@@ -94,7 +90,7 @@
             width: 52px;
             height: 52px;
             border-radius: 50%;
-            background: #0a0a0a;
+            background: #09090b;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -107,44 +103,45 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: #1a1a1a;
-            border: 2px solid #333;
+            background: #141416;
+            border: 2px solid rgba(255,255,255,0.08);
             flex-shrink: 0;
         }
 
-        /* Showtime pills */
         .showtime-pill {
-            border: 1px solid #C9A96E;
-            color: #C9A96E;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
             font-weight: 600;
             padding: 0.625rem 1.75rem;
-            border-radius: 9999px;
+            border-radius: 0.5rem;
             transition: all 0.3s ease;
             text-decoration: none;
             font-size: 0.9rem;
             letter-spacing: 0.04em;
+            background: transparent;
         }
 
         .showtime-pill:hover {
-            background: #C9A96E;
-            color: #0a0a0a;
-            box-shadow: 0 0 20px rgba(201, 169, 110, 0.25);
+            background: #e11d48;
+            border-color: #e11d48;
+            color: #fff;
+            box-shadow: 0 0 24px rgba(225,29,72,0.25);
         }
 
-        /* Cast */
         .cast-card {
             display: flex;
             align-items: center;
             gap: 1rem;
             padding: 0.75rem;
             border-radius: 0.75rem;
-            background: #111;
+            background: #141416;
             border: 1px solid rgba(255,255,255,0.04);
-            transition: border-color 0.3s, background 0.3s;
+            transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
         }
         .cast-card:hover {
-            border-color: rgba(201,169,110,0.2);
-            background: #1a1a1a;
+            border-color: rgba(225,29,72,0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
         }
         .cast-photo {
             width: 64px;
@@ -152,16 +149,15 @@
             object-fit: cover;
             border-radius: 50%;
             flex-shrink: 0;
-            border: 2px solid #1a1a1a;
+            border: 2px solid #1a1a1e;
             transition: border-color 0.3s;
         }
         .cast-card:hover .cast-photo {
-            border-color: rgba(201,169,110,0.4);
+            border-color: rgba(225,29,72,0.4);
         }
 
-        /* Tabs */
         .tab-button {
-            color: #888;
+            color: #71717a;
             border-bottom: 2px solid transparent;
             transition: all 0.3s ease;
             padding: 0.5rem 1.25rem;
@@ -172,12 +168,12 @@
         }
 
         .tab-button:hover {
-            color: #C9A96E;
+            color: #e11d48;
         }
 
         .tab-button.active {
-            color: #C9A96E;
-            border-bottom-color: #C9A96E;
+            color: #e11d48;
+            border-bottom-color: #e11d48;
             background: transparent;
         }
 
@@ -189,34 +185,32 @@
             display: block;
         }
 
-        /* Review cards */
         .review-card {
-            background: #1a1a1a;
+            background: #141416;
             border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 1rem;
+            border-radius: 0.75rem;
             padding: 1.75rem;
-            transition: border-color 0.3s ease;
+            transition: border-color 0.3s ease, transform 0.3s ease;
         }
 
         .review-card:hover {
-            border-color: rgba(201, 169, 110, 0.2);
+            border-color: rgba(225,29,72,0.15);
+            transform: translateY(-1px);
         }
 
-        /* Reviews placeholder */
         .reviews-placeholder {
             text-align: center;
             padding: 4rem 2rem;
-            background: #1a1a1a;
-            border-radius: 1rem;
-            border: 1px dashed rgba(201, 169, 110, 0.2);
+            background: #141416;
+            border-radius: 0.75rem;
+            border: 1px dashed rgba(255,255,255,0.08);
         }
 
-        /* Trailer modal */
         .trailer-modal {
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.92);
+            background: rgba(0, 0, 0, 0.90);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -247,21 +241,21 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px solid rgba(201, 169, 110, 0.4);
+            border: 1px solid rgba(255,255,255,0.08);
             border-radius: 50%;
-            color: #C9A96E;
+            color: #fff;
             font-size: 1.25rem;
             cursor: pointer;
             transition: all 0.3s ease;
-            background: rgba(10,10,10,0.8);
+            background: #141416;
         }
 
         .close-modal:hover {
-            background: #C9A96E;
-            color: #0a0a0a;
+            background: #e11d48;
+            border-color: #e11d48;
+            color: #fff;
         }
 
-        /* Action buttons */
         .action-circle {
             width: 48px;
             height: 48px;
@@ -269,30 +263,36 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px solid rgba(201, 169, 110, 0.3);
-            background: rgba(26, 26, 26, 0.6);
-            color: #C9A96E;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: #141416;
+            color: #a1a1aa;
             transition: all 0.3s ease;
         }
 
         .action-circle:hover {
-            background: #C9A96E;
-            color: #0a0a0a;
-            border-color: #C9A96E;
+            background: rgba(225,29,72,0.1);
+            border-color: rgba(225,29,72,0.3);
+            color: #e11d48;
         }
 
         .action-circle-active {
-            background: #C9A96E;
-            color: #0a0a0a;
-            border-color: #C9A96E;
+            background: #e11d48;
+            color: #fff;
+            border-color: #e11d48;
         }
 
-        /* Section divider line */
-        .gold-line {
+        .action-circle-active:hover {
+            background: #be123c;
+            border-color: #be123c;
+            color: #fff;
+        }
+
+        .accent-line {
             width: 48px;
-            height: 1px;
-            background: #C9A96E;
+            height: 2px;
+            background: #e11d48;
             margin-bottom: 1rem;
+            border-radius: 1px;
         }
     </style>
 }
@@ -318,16 +318,16 @@
                     <div class="hero-glass">
 
                         <!-- Title -->
-                        <h1 class="font-display font-semibold text-white text-4xl sm:text-5xl lg:text-6xl leading-tight tracking-tight mb-4">
+                        <h1 class="font-sans font-semibold text-white text-4xl sm:text-5xl lg:text-6xl leading-tight tracking-tight mb-4">
                             @Model.Title
                         </h1>
 
                         <!-- Meta line -->
-                        <div class="flex items-center flex-wrap gap-3 text-sm text-gray-400 font-body mb-6">
-                            <span class="text-[#C9A96E] font-semibold">@Model.ReleaseDate.Split('-')[0]</span>
-                            <span class="text-gray-600">/</span>
+                        <div class="flex items-center flex-wrap gap-3 text-sm text-zinc-400 font-sans mb-6">
+                            <span class="text-[#e11d48] font-semibold">@Model.ReleaseDate.Split('-')[0]</span>
+                            <span class="text-zinc-600">/</span>
                             <span>@string.Join(", ", Model.Genres.Select(g => g.Name))</span>
-                            <span class="text-gray-600">/</span>
+                            <span class="text-zinc-600">/</span>
                             <span>@Model.FormattedRuntime</span>
                         </div>
 
@@ -336,7 +336,7 @@
                             @if (releaseDate > DateTime.Now || Model.VoteAverage == 0)
                             {
                                 <div class="rating-placeholder" title="Not yet rated">
-                                    <span class="text-gray-500 font-semibold text-sm">N/A</span>
+                                    <span class="text-zinc-500 font-semibold text-sm">N/A</span>
                                 </div>
                             }
                             else
@@ -350,7 +350,7 @@
                             @if (Model.FirstTrailer != null)
                             {
                                 <button id="playTrailerBtn"
-                                        class="flex items-center gap-2 text-[#C9A96E] hover:text-white transition-colors duration-300 font-body font-semibold text-sm tracking-wide">
+                                        class="flex items-center gap-2 text-zinc-400 hover:text-[#e11d48] transition-colors duration-300 font-sans font-semibold text-sm tracking-wide">
                                     <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path>
                                     </svg>
@@ -361,8 +361,8 @@
 
                         <!-- Overview -->
                         <div class="mb-8">
-                            <p class="text-[11px] uppercase tracking-[0.3em] text-[#C9A96E] font-body mb-2">Overview</p>
-                            <p class="text-gray-300 font-body leading-relaxed max-w-2xl text-[15px]">@Model.Overview</p>
+                            <p class="text-xs font-medium text-[#e11d48] uppercase tracking-wider mb-2">Overview</p>
+                            <p class="text-zinc-400 font-sans leading-relaxed max-w-2xl text-[15px]">@Model.Overview</p>
                         </div>
 
                         <!-- Action buttons -->
@@ -407,7 +407,7 @@
 
                         <!-- Showtimes -->
                         <div>
-                            <p class="text-[11px] uppercase tracking-[0.3em] text-[#C9A96E] font-body mb-4">Select Showtime</p>
+                            <p class="text-xs font-medium text-[#e11d48] uppercase tracking-wider mb-4">Select Showtime</p>
                             <div class="flex flex-wrap gap-3">
                                 @if (SignInManager.IsSignedIn(User))
                                 {
@@ -433,11 +433,11 @@
 </div>
 
 <!-- ════════════════  CAST  ════════════════ -->
-<section class="py-20 px-6 lg:px-16" style="background: #0a0a0a;">
+<section class="py-20 px-6 lg:px-16" style="background: #09090b;">
     <div class="max-w-7xl mx-auto reveal-up">
-        <div class="gold-line"></div>
-        <p class="text-[11px] uppercase tracking-[0.3em] text-[#C9A96E] font-body mb-2">The Ensemble</p>
-        <h2 class="font-display font-semibold text-white text-3xl mb-10">Top Billed Cast</h2>
+        <div class="accent-line"></div>
+        <p class="text-xs font-medium text-[#e11d48] uppercase tracking-wider mb-2">The Ensemble</p>
+        <h2 class="font-sans font-semibold text-white text-3xl mb-10">Top Billed Cast</h2>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             @foreach (var castMember in Model.Credits.Cast.Take(6))
@@ -446,7 +446,7 @@
                     <img src="@castMember.FullProfilePath"
                          alt="@castMember.Name"
                          class="cast-photo" />
-                    <h4 class="font-body font-medium text-white text-sm">@castMember.Name</h4>
+                    <h4 class="font-sans font-medium text-white text-sm">@castMember.Name</h4>
                 </div>
             }
         </div>
@@ -454,16 +454,16 @@
 </section>
 
 <!-- ════════════════  REVIEWS  ════════════════ -->
-<section class="py-20 px-6 lg:px-16" style="background: #0a0a0a;">
+<section class="py-20 px-6 lg:px-16" style="background: #09090b;">
     <div class="max-w-7xl mx-auto reveal-up">
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 mb-10">
             <div>
-                <div class="gold-line"></div>
-                <p class="text-[11px] uppercase tracking-[0.3em] text-[#C9A96E] font-body mb-2">Audience &amp; Critics</p>
-                <h2 class="font-display font-semibold text-white text-3xl">Reviews</h2>
+                <div class="accent-line"></div>
+                <p class="text-xs font-medium text-[#e11d48] uppercase tracking-wider mb-2">Audience &amp; Critics</p>
+                <h2 class="font-sans font-semibold text-white text-3xl">Reviews</h2>
             </div>
             <a asp-controller="Account" asp-action="Register"
-               class="showtime-pill text-sm self-start sm:self-auto">
+               class="inline-flex items-center justify-center px-6 py-2.5 bg-[#e11d48] text-white text-sm font-semibold rounded-lg hover:bg-[#be123c] transition-colors duration-300 self-start sm:self-auto">
                 Write a Review
             </a>
         </div>
@@ -471,20 +471,20 @@
         @if (releaseDate > DateTime.Now)
         {
             <div class="reviews-placeholder">
-                <h3 class="font-display font-semibold text-white text-2xl mb-2">This movie is coming soon!</h3>
-                <p class="text-gray-500 font-body">Reviews will be available after the release date. Check back then!</p>
+                <h3 class="font-sans font-semibold text-white text-2xl mb-2">This movie is coming soon!</h3>
+                <p class="text-zinc-500 font-sans">Reviews will be available after the release date. Check back then!</p>
             </div>
         }
         else if (!Model.Reviews.Results.Any())
         {
             <div class="reviews-placeholder">
-                <h3 class="font-display font-semibold text-white text-2xl mb-2">No Reviews Yet</h3>
-                <p class="text-gray-500 font-body">Be the first one to share your thoughts!</p>
+                <h3 class="font-sans font-semibold text-white text-2xl mb-2">No Reviews Yet</h3>
+                <p class="text-zinc-500 font-sans">Be the first one to share your thoughts!</p>
             </div>
         }
         else
         {
-            <div class="flex gap-1 border-b border-gray-800/50 mb-8">
+            <div class="flex gap-1 border-b border-white/[0.06] mb-8">
                 <button class="tab-button active" data-tab="user-reviews">User Reviews</button>
                 <button class="tab-button" data-tab="critic-reviews">Critic Reviews</button>
             </div>
@@ -494,23 +494,23 @@
                 {
                     <div class="review-card">
                         <div class="flex items-center gap-3 mb-3">
-                            <h4 class="font-body font-semibold text-white">@review.Author</h4>
+                            <h4 class="font-sans font-semibold text-white">@review.Author</h4>
                             @if (review.AuthorDetails.Rating.HasValue)
                             {
-                                <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#C9A96E]/15 text-[#C9A96E] border border-[#C9A96E]/30">
+                                <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-yellow-400/10 text-yellow-400 border border-yellow-400/20">
                                     @review.AuthorDetails.Rating / 10
                                 </span>
                             }
                         </div>
-                        <p class="text-gray-400 font-body text-sm leading-relaxed line-clamp-4">@review.Content</p>
+                        <p class="text-zinc-400 font-sans text-sm leading-relaxed line-clamp-4">@review.Content</p>
                     </div>
                 }
             </div>
 
             <div id="critic-reviews" class="tab-panel">
                 <div class="reviews-placeholder">
-                    <h3 class="font-display font-semibold text-white text-2xl mb-2">No Critic Reviews Yet</h3>
-                    <p class="text-gray-500 font-body">Professional critic reviews will be added as they become available.</p>
+                    <h3 class="font-sans font-semibold text-white text-2xl mb-2">No Critic Reviews Yet</h3>
+                    <p class="text-zinc-500 font-sans">Professional critic reviews will be added as they become available.</p>
                 </div>
             </div>
         }
