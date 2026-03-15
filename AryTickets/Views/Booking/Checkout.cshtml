@@ -5,188 +5,232 @@
 }
 
 @section Styles {
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        *, *::before, *::after { font-family: 'Outfit', sans-serif; }
-
-        .form-group {
-            position: relative;
+        .checkout-panel {
+            background: #141416;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 2rem;
         }
 
-        .form-input {
-            background-color: #0c0c0e;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            color: white;
+        .field-label {
+            display: block;
+            font-size: 0.8rem;
+            color: #71717a;
+            margin-bottom: 0.4rem;
+            font-weight: 500;
+        }
+        .field-input {
             width: 100%;
-            padding: 0.75rem 0.75rem 0.25rem 0.75rem;
-            border-radius: 0.375rem;
+            background: #0c0c0e;
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #fff;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            font-size: 0.95rem;
             outline: none;
-            transition: border-color 0.2s;
-            font-family: 'Outfit', sans-serif;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: 'Outfit', monospace;
         }
-
-            .form-input:focus {
-                border-color: rgba(225, 29, 72, 0.4);
-            }
-
-        .form-label {
-            position: absolute;
-            left: 0.75rem;
-            top: 0.75rem;
-            color: #666;
-            pointer-events: none;
-            transition: all 0.2s ease-out;
-            transform-origin: left top;
-            font-family: 'Outfit', sans-serif;
+        .field-input:focus {
+            border-color: rgba(225,29,72,0.4);
+            box-shadow: 0 0 0 3px rgba(225,29,72,0.08);
         }
+        .field-input::placeholder { color: #3f3f46; }
+        .field-input.mono { letter-spacing: 0.12em; font-variant-numeric: tabular-nums; }
 
-        .form-input:focus + .form-label,
-        .form-input:not(:placeholder-shown) + .form-label {
-            transform: translateY(-0.6rem) scale(0.75);
-            color: #e11d48;
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.65rem 0;
         }
+        .summary-row .label { font-size: 0.85rem; color: #71717a; }
+        .summary-row .value { font-size: 0.9rem; color: #fff; font-weight: 500; }
 
-        .payment-overlay {
-            background-color: rgba(9, 9, 11, 0.92);
-            backdrop-filter: blur(5px);
-            transition: opacity 0.4s ease-in-out;
+        .divider { border-top: 1px solid rgba(255,255,255,0.06); margin: 0.5rem 0; }
+
+        .pay-btn {
+            width: 100%;
+            padding: 0.85rem;
+            background: #e11d48;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .pay-btn:hover { background: #be123c; transform: translateY(-1px); box-shadow: 0 8px 20px rgba(225,29,72,0.25); }
+        .pay-btn:active { transform: translateY(0); }
+
+        /* Overlay */
+        .pay-overlay {
+            background: rgba(9,9,11,0.94);
+            backdrop-filter: blur(8px);
+            transition: opacity 0.4s;
         }
 
         .spinner {
-            border-color: rgba(225, 29, 72, 0.2);
+            width: 48px;
+            height: 48px;
+            border: 3px solid rgba(225,29,72,0.15);
             border-top-color: #e11d48;
-            animation: spin 1s linear infinite;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto;
         }
-
-        @@keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
+        @@keyframes spin { to { transform: rotate(360deg); } }
 
         .checkmark-circle {
             stroke-dasharray: 166;
             stroke-dashoffset: 166;
-            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+            animation: cstroke 0.6s cubic-bezier(0.65,0,0.45,1) forwards;
         }
-
         .checkmark-check {
             transform-origin: 50% 50%;
             stroke-dasharray: 48;
             stroke-dashoffset: 48;
-            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+            animation: cstroke 0.3s cubic-bezier(0.65,0,0.45,1) 0.7s forwards;
         }
+        @@keyframes cstroke { 100% { stroke-dashoffset: 0; } }
 
-        @@keyframes stroke {
-            100% {
-                stroke-dashoffset: 0;
-            }
-        }
-
-        .checkmark {
-            margin: auto;
-            display: block;
-        }
-
-        #success-container {
-            padding: 1rem;
-        }
-
-        #spinner-container {
-            text-align: center;
-        }
-
-        .spinner {
-            margin: auto;
-        }
-
-            .spinner + p {
-                text-align: center;
-                margin-top: 1rem;
-            }
-
-        .checkmark-circle {
-            r: 24;
-        }
-
-        .electric-panel {
-            background-color: #141416;
-            border-radius: 1rem;
+        /* Card type icon area */
+        .card-type {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.7rem;
+            color: #52525b;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            pointer-events: none;
         }
     </style>
 }
 
-<div class="container mx-auto px-6 py-16 min-h-screen" style="background-color: #09090b;">
+<div class="min-h-screen py-16 px-6" style="background:#09090b;">
     <div class="pt-24 max-w-4xl mx-auto">
-        <h1 class="text-4xl font-extrabold text-center text-white" style="font-family: 'Outfit', sans-serif;">Final Step: Secure Checkout</h1>
-        <p class="text-center mt-2" style="color: #888; font-family: 'Outfit', sans-serif;">Complete your booking for <span style="color: #e11d48;">@Model.MovieTitle</span></p>
+        <h1 class="text-3xl md:text-4xl font-bold text-center text-white mb-1">Checkout</h1>
+        <p class="text-center text-sm text-zinc-500 mb-12">Complete your booking for <span class="text-accent-500 font-medium">@Model.MovieTitle</span></p>
 
-        <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-12">
-            <div class="electric-panel p-8 rounded-2xl">
-                <h3 class="text-2xl font-bold mb-6 text-white" style="font-family: 'Outfit', sans-serif;">Order Summary</h3>
-                <div class="space-y-4" style="font-family: 'Outfit', sans-serif;">
-                    <div class="flex justify-between"><span style="color: #666;">Movie:</span> <span class="font-semibold text-white">@Model.MovieTitle</span></div>
-                    <div class="flex justify-between"><span style="color: #666;">Showtime:</span> <span class="font-semibold" style="color: #e11d48;">@Model.Showtime</span></div>
-                    <div class="flex justify-between"><span style="color: #666;">Seats:</span> <span class="font-semibold text-white">@Model.SelectedSeats</span></div>
-                    <div class="my-4" style="border-top: 1px solid rgba(255, 255, 255, 0.06);"></div>
-                    <div class="flex justify-between text-xl"><span style="color: #666;">Total:</span> <span class="font-bold" style="color: #fb7185;">$@Model.TotalPrice.ToString("F2")</span></div>
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
+            <!-- Order Summary -->
+            <div class="md:col-span-2 checkout-panel h-fit">
+                <h3 class="text-lg font-semibold text-white mb-5">Order Summary</h3>
+                <div class="summary-row">
+                    <span class="label">Movie</span>
+                    <span class="value">@Model.MovieTitle</span>
+                </div>
+                <div class="summary-row">
+                    <span class="label">Showtime</span>
+                    <span class="value text-accent-400">@Model.Showtime</span>
+                </div>
+                <div class="summary-row">
+                    <span class="label">Seats</span>
+                    <span class="value">@Model.SelectedSeats</span>
+                </div>
+                <div class="divider"></div>
+                <div class="summary-row">
+                    <span class="label text-base">Total</span>
+                    <span class="text-xl font-bold text-accent-400">$@Model.TotalPrice.ToString("F2")</span>
                 </div>
             </div>
 
-            <div class="electric-panel p-8 rounded-2xl">
-                <h3 class="text-2xl font-bold mb-6 text-white" style="font-family: 'Outfit', sans-serif;">Payment Details</h3>
-                <form id="payment-form" class="space-y-6">
+            <!-- Payment Form -->
+            <div class="md:col-span-3 checkout-panel">
+                <h3 class="text-lg font-semibold text-white mb-5">Payment Details</h3>
+                <form id="payment-form" class="space-y-4">
                     @Html.AntiForgeryToken()
                     <input type="hidden" asp-for="MovieTitle" />
                     <input type="hidden" asp-for="Showtime" />
                     <input type="hidden" asp-for="SelectedSeats" />
                     <input type="hidden" asp-for="TotalPrice" />
 
-                    <div class="form-group">
-                        <input asp-for="CardHolderName" class="form-input" placeholder=" ">
-                        <label asp-for="CardHolderName" class="form-label"></label>
+                    <div>
+                        <label class="field-label">Name on Card</label>
+                        <input asp-for="CardHolderName" class="field-input" placeholder="John Doe" autocomplete="cc-name">
                     </div>
-                    <div class="form-group">
-                        <input asp-for="CardNumber" class="form-input" placeholder=" " maxlength="16">
-                        <label asp-for="CardNumber" class="form-label"></label>
+
+                    <div class="relative">
+                        <label class="field-label">Card Number</label>
+                        <input id="CardNumber" name="CardNumber" class="field-input mono" placeholder="1234 5678 9012 3456" maxlength="19" inputmode="numeric" autocomplete="cc-number">
+                        <span id="cardType" class="card-type"></span>
                     </div>
-                    <div class="grid grid-cols-2 gap-6">
-                        <div class="form-group">
-                            <input asp-for="ExpiryDate" class="form-input" placeholder=" " maxlength="5">
-                            <label asp-for="ExpiryDate" class="form-label"></label>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="field-label">Expiry Date</label>
+                            <input id="ExpiryDate" name="ExpiryDate" class="field-input mono" placeholder="MM/YY" maxlength="5" inputmode="numeric" autocomplete="cc-exp">
                         </div>
-                        <div class="form-group">
-                            <input asp-for="Cvc" class="form-input" placeholder=" " maxlength="4">
-                            <label asp-for="Cvc" class="form-label"></label>
+                        <div>
+                            <label class="field-label">CVC</label>
+                            <input id="Cvc" name="Cvc" class="field-input mono" placeholder="123" maxlength="3" inputmode="numeric" autocomplete="cc-csc">
                         </div>
                     </div>
-                    <div class="pt-4">
-                        <button type="submit" class="w-full font-bold py-3 px-8 rounded-lg text-lg transition-all transform hover:scale-105 text-white" style="background-color: #e11d48; font-family: 'Outfit', sans-serif;">Pay $@Model.TotalPrice.ToString("F2")</button>
+
+                    <div class="pt-3">
+                        <button type="submit" class="pay-btn">Pay $@Model.TotalPrice.ToString("F2")</button>
                     </div>
+                    <p class="text-center text-[11px] text-zinc-600 mt-2">
+                        <svg class="w-3 h-3 inline-block mr-0.5 -mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+                        Payments are securely processed
+                    </p>
                 </form>
             </div>
         </div>
     </div>
 </div>
 
-<div id="payment-overlay" class="payment-overlay fixed inset-0 z-50 flex flex-col items-center justify-center text-white opacity-0 pointer-events-none">
+<!-- Payment Overlay -->
+<div id="payment-overlay" class="pay-overlay fixed inset-0 z-50 flex flex-col items-center justify-center text-white opacity-0 pointer-events-none">
     <div id="spinner-container">
-        <div class="spinner w-16 h-16 rounded-full border-4"></div>
-        <p class="mt-4 text-xl" style="font-family: 'Outfit', sans-serif;">Processing Payment...</p>
+        <div class="spinner"></div>
+        <p class="mt-5 text-lg font-medium text-white">Processing payment...</p>
+        <p class="mt-1 text-sm text-zinc-500">Please don't close this page</p>
     </div>
     <div id="success-container" class="text-center hidden">
-        <svg class="checkmark mx-auto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52" width="100px" height="100px">
-            <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none" stroke="#e11d48" stroke-width="4" />
-            <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" stroke="#fb7185" stroke-width="5" />
+        <svg class="mx-auto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52" width="80" height="80">
+            <circle class="checkmark-circle" cx="26" cy="26" r="24" fill="none" stroke="#e11d48" stroke-width="3" />
+            <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" stroke="#fb7185" stroke-width="4" />
         </svg>
-        <h2 class="text-3xl font-bold mt-4 text-white" style="font-family: 'Outfit', sans-serif;">Payment Confirmed!</h2>
-        <p class="mt-2" style="color: #888; font-family: 'Outfit', sans-serif;">Your tickets have been sent to your account email.</p>
-        <a asp-controller="Home" asp-action="Index" class="mt-8 inline-block font-semibold py-2 px-6 rounded-lg transition-all hover:scale-105" style="border: 2px solid #e11d48; color: #e11d48; background: transparent; font-family: 'Outfit', sans-serif;">Back to Home</a>
+        <h2 class="text-2xl font-bold mt-5 text-white">Payment Confirmed!</h2>
+        <p class="mt-2 text-sm text-zinc-400">Your tickets have been sent to your email.</p>
+        <a asp-controller="Home" asp-action="Index" class="mt-6 inline-block bg-accent-500 text-white font-semibold py-2.5 px-8 rounded-lg hover:bg-accent-600 transition-all text-sm">Back to Home</a>
     </div>
 </div>
 
 @section Scripts {
     <script>
+        // Auto-format card number with spaces
+        document.getElementById('CardNumber').addEventListener('input', function(e) {
+            let v = e.target.value.replace(/\D/g, '').substring(0, 16);
+            e.target.value = v.replace(/(.{4})/g, '$1 ').trim();
+
+            // Detect card type
+            const type = document.getElementById('cardType');
+            if (v.startsWith('4')) type.textContent = 'Visa';
+            else if (v.startsWith('5') || v.startsWith('2')) type.textContent = 'Mastercard';
+            else if (v.startsWith('3')) type.textContent = 'Amex';
+            else type.textContent = '';
+        });
+
+        // Auto-format expiry with /
+        document.getElementById('ExpiryDate').addEventListener('input', function(e) {
+            let v = e.target.value.replace(/\D/g, '').substring(0, 4);
+            if (v.length >= 2) v = v.substring(0, 2) + '/' + v.substring(2);
+            e.target.value = v;
+        });
+
+        // CVC: numbers only, max 3
+        document.getElementById('Cvc').addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/\D/g, '').substring(0, 3);
+        });
+
+        // Payment submission
         document.getElementById('payment-form').addEventListener('submit', async function (e) {
             e.preventDefault();
 
@@ -195,8 +239,8 @@
             const success = document.getElementById('success-container');
             const form = e.target;
 
-            const cardName = form.querySelector("#CardHolderName").value;
-            const cardNumber = form.querySelector("#CardNumber").value;
+            const cardName = form.querySelector("#CardHolderName").value.trim();
+            const cardNumber = form.querySelector("#CardNumber").value.replace(/\s/g, '');
             const expiry = form.querySelector("#ExpiryDate").value;
             const cvc = form.querySelector("#Cvc").value;
 
@@ -211,6 +255,9 @@
 
             try {
                 const formData = new FormData(form);
+                // Send raw card number without spaces
+                formData.set('CardNumber', cardNumber);
+
                 const response = await fetch("@Url.Action("ProcessPayment", "Booking")", {
                     method: 'POST',
                     body: formData,
