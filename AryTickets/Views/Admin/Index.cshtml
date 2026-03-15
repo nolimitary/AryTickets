@@ -5,7 +5,7 @@
 
     var totalUsers = (int)(ViewData["TotalUsers"] ?? 0);
     var totalBookings = (int)(ViewData["TotalBookings"] ?? 0);
-    var totalRevenue = (decimal)(ViewData["TotalRevenue"] ?? 0m);
+    var totalRevenue = Convert.ToDecimal(ViewData["TotalRevenue"] ?? 0);
     var totalFavorites = (int)(ViewData["TotalFavorites"] ?? 0);
     var recentBookings = ViewData["RecentBookings"] as List<Booking> ?? new List<Booking>();
     var recentUsers = ViewData["RecentUsers"] as List<ApplicationUser> ?? new List<ApplicationUser>();
