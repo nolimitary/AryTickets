@@ -199,6 +199,10 @@
         </svg>
         <h2 class="text-2xl font-bold mt-5 text-white">Payment Confirmed!</h2>
         <p class="mt-2 text-sm text-zinc-400">Your tickets have been sent to your email.</p>
+        <div id="qr-section" class="mt-5 hidden">
+            <img id="qr-img" src="" alt="QR Code" class="mx-auto rounded-lg" width="160" height="160">
+            <p id="confirm-code" class="text-xs text-zinc-500 mt-2 tracking-widest"></p>
+        </div>
         <a asp-controller="Home" asp-action="Index" class="mt-6 inline-block bg-accent-500 text-white font-semibold py-2.5 px-8 rounded-lg hover:bg-accent-600 transition-all text-sm">Back to Home</a>
     </div>
 </div>
@@ -272,6 +276,11 @@
                 if (result.success) {
                     spinner.classList.add('hidden');
                     success.classList.remove('hidden');
+                    if (result.qrCodeUrl) {
+                        document.getElementById('qr-section').classList.remove('hidden');
+                        document.getElementById('qr-img').src = result.qrCodeUrl;
+                        document.getElementById('confirm-code').textContent = 'CODE: ' + result.confirmationCode;
+                    }
                 } else {
                     throw new Error("Payment was not successful.");
                 }
