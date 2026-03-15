@@ -69,19 +69,35 @@ namespace AryTickets.Controllers
         {
             if (ModelState.IsValid)
             {
+                var code = new Random().Next(1000, 9999).ToString();
                 var user = new ApplicationUser
                 {
                     UserName = model.Username,
                     Email = model.Email,
-                    EmailConfirmed = true //Auto confirm the email verification since its broken
+                    EmailConfirmed = false,
+                    EmailVerificationCode = code,
+                    VerificationCodeExpiry = DateTime.UtcNow.AddMinutes(15)
                 };
 
                 var result = await _userManager.CreateAsync(user, model.Password);
 
                 if (result.Succeeded)
                 {
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToAction("Index", "Home");
+                    try
+                    {
+                        var emailBody = $"<div style='font-family:Arial,sans-serif;background:#09090b;color:#e4e4e7;padding:40px;text-align:center;'>" +
+                            $"<div style='max-width:400px;margin:0 auto;background:#141416;border-radius:16px;padding:32px;border:1px solid rgba(255,255,255,0.06);'>" +
+                            $"<h1 style='font-size:24px;margin-bottom:4px;'><span style='color:#fff;'>Ary</span><span style='color:#e11d48;'>Tix</span></h1>" +
+                            $"<p style='color:#71717a;font-size:13px;margin-bottom:24px;'>Verify your email</p>" +
+                            $"<div style='background:#09090b;border-radius:12px;padding:20px;margin-bottom:20px;'>" +
+                            $"<p style='font-size:32px;font-weight:700;color:#fff;letter-spacing:0.3em;margin:0;'>{code}</p></div>" +
+                            $"<p style='color:#52525b;font-size:12px;'>This code expires in 15 minutes.</p></div></div>";
+                        await _emailSender.SendEmailAsync(model.Email, "Verify your AryTix account", emailBody);
+                    }
+                    catch { }
+
+                    HttpContext.Session.SetString("EmailForConfirmation", model.Email);
+                    return RedirectToAction("ConfirmEmail");
                 }
 
                 foreach (var error in result.Errors)
