@@ -66,8 +66,15 @@ namespace AryTickets.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user != null)
             {
-                var emailBody = BuildTicketEmail(model, user.UserName);
-                await _emailSender.SendEmailAsync(user.Email, "Your Tickets for " + model.MovieTitle, emailBody);
+                try
+                {
+                    var emailBody = BuildTicketEmail(model, user.UserName);
+                    await _emailSender.SendEmailAsync(user.Email, "Your Tickets for " + model.MovieTitle, emailBody);
+                }
+                catch
+                {
+                    // Email sending failed but payment still succeeds
+                }
             }
 
             return Json(new { success = true });
