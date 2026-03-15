@@ -56,6 +56,12 @@ namespace AryTickets.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ProcessPayment(CheckoutViewModel model)
         {
+            if (model.CardNumber != null)
+                model.CardNumber = model.CardNumber.Replace(" ", "");
+
+            ModelState.Clear();
+            TryValidateModel(model);
+
             if (!ModelState.IsValid)
             {
                 return BadRequest("Invalid payment details.");
