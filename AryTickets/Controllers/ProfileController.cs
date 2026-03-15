@@ -138,6 +138,17 @@ namespace AryTickets.Controllers
             return RedirectToAction("Index");
         }
 
+        public async Task<IActionResult> BookingHistory()
+        {
+            await SetUserViewData();
+            var userId = _userManager.GetUserId(User);
+            var bookings = await _context.Bookings
+                .Where(b => b.UserId == userId)
+                .OrderByDescending(b => b.BookedAt)
+                .ToListAsync();
+            return View(bookings);
+        }
+
         public async Task<IActionResult> Reviews()
         {
             await SetUserViewData();
