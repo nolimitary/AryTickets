@@ -1,482 +1,329 @@
 @model AryTickets.Models.HomeViewModel
 @{
     ViewData["Title"] = "Home";
-    var featuredMovie = Model.NowShowingMovies.FirstOrDefault();
-    var heroSide = Model.NowShowingMovies.Skip(1).Take(4).ToList();
-    var gridMovies = Model.NowShowingMovies.Skip(5).ToList();
+    var featured = Model.NowShowingMovies.FirstOrDefault();
+    var heroSecondary = Model.NowShowingMovies.Skip(1).Take(3).ToList();
 }
 
 @section Styles {
     <style>
-        /* ═══════════════════════════════════════════
-           HERO
-        ═══════════════════════════════════════════ */
-        .hero-section {
+        /* ── HERO ── */
+        .hero {
             position: relative;
             min-height: 100vh;
-            overflow: hidden;
-            display: grid;
-            grid-template-columns: 1fr;
-            align-items: end;
-        }
-        @@media (min-width: 1024px) {
-            .hero-section { grid-template-columns: 1fr 1fr; align-items: center; }
-        }
-        .hero-backdrop {
-            position: absolute;
-            inset: 0;
-            z-index: 0;
-        }
-        .hero-backdrop img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transform: scale(1.05);
-            transition: transform 10s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .hero-section.loaded .hero-backdrop img {
-            transform: scale(1);
-        }
-        .hero-vignette {
-            position: absolute;
-            inset: 0;
-            z-index: 1;
-            background:
-                linear-gradient(0deg, #0a0a0a 0%, rgba(10,10,10,0.85) 25%, rgba(10,10,10,0.4) 50%, rgba(10,10,10,0.5) 100%),
-                linear-gradient(90deg, rgba(10,10,10,0.8) 0%, rgba(10,10,10,0.2) 40%, rgba(10,10,10,0.6) 100%);
-        }
-
-        /* Hero reveals */
-        .h-reveal {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .hero-section.loaded .h-reveal { opacity: 1; transform: translateY(0); }
-        .hero-section.loaded .h-d1 { transition-delay: 0.2s; }
-        .hero-section.loaded .h-d2 { transition-delay: 0.4s; }
-        .hero-section.loaded .h-d3 { transition-delay: 0.55s; }
-        .hero-section.loaded .h-d4 { transition-delay: 0.7s; }
-        .hero-section.loaded .h-d5 { transition-delay: 0.85s; }
-        .hero-section.loaded .h-d6 { transition-delay: 1s; }
-
-        .gold-line {
-            width: 0;
-            height: 1px;
-            background: linear-gradient(90deg, #C9A96E, transparent);
-            transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.9s;
-        }
-        .hero-section.loaded .gold-line { width: 80px; }
-
-        /* Hero poster stack */
-        .hero-poster-stack {
-            position: relative;
-            z-index: 2;
             display: flex;
-            gap: 0.75rem;
             align-items: flex-end;
-            justify-content: center;
-            padding: 2rem 0;
-        }
-        .hero-poster-main {
-            border-radius: 6px;
             overflow: hidden;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.7);
-            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .hero-poster-main:hover { transform: translateY(-8px); }
-        .hero-poster-main img {
-            width: 260px;
-            aspect-ratio: 2/3;
-            object-fit: cover;
-            display: block;
+        .hero-bg {
+            position: absolute;
+            inset: 0;
         }
-        @@media (max-width: 1023px) {
-            .hero-poster-stack { display: none; }
-        }
-
-        /* ═══════════════════════════════════════════
-           REVEAL SYSTEM
-        ═══════════════════════════════════════════ */
-        .reveal-up {
-            opacity: 0;
-            transform: translateY(40px);
-            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .reveal-up.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .stagger-children > * {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .stagger-children.visible > *:nth-child(1) { opacity: 1; transform: translateY(0); transition-delay: 0.04s; }
-        .stagger-children.visible > *:nth-child(2) { opacity: 1; transform: translateY(0); transition-delay: 0.1s; }
-        .stagger-children.visible > *:nth-child(3) { opacity: 1; transform: translateY(0); transition-delay: 0.16s; }
-        .stagger-children.visible > *:nth-child(4) { opacity: 1; transform: translateY(0); transition-delay: 0.22s; }
-        .stagger-children.visible > *:nth-child(5) { opacity: 1; transform: translateY(0); transition-delay: 0.28s; }
-        .stagger-children.visible > *:nth-child(6) { opacity: 1; transform: translateY(0); transition-delay: 0.34s; }
-        .stagger-children.visible > *:nth-child(7) { opacity: 1; transform: translateY(0); transition-delay: 0.40s; }
-        .stagger-children.visible > *:nth-child(8) { opacity: 1; transform: translateY(0); transition-delay: 0.46s; }
-        .stagger-children.visible > *:nth-child(n+9) { opacity: 1; transform: translateY(0); transition-delay: 0.52s; }
-
-        /* ═══════════════════════════════════════════
-           MOVIE CARD — MODERN
-        ═══════════════════════════════════════════ */
-        .m-card {
-            position: relative;
-            border-radius: 8px;
-            overflow: hidden;
-            background: #111;
-            display: flex;
-            flex-direction: column;
-        }
-        .m-card .m-poster {
-            position: relative;
-            overflow: hidden;
-            aspect-ratio: 2/3;
-        }
-        .m-card .m-poster img {
+        .hero-bg img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: scale(1.03);
+            transition: transform 12s ease-out;
         }
-        .m-card:hover .m-poster img {
-            transform: scale(1.06);
-        }
-        /* Always-visible gradient at bottom of poster */
-        .m-card .m-poster::after {
-            content: '';
+        .hero.loaded .hero-bg img { transform: scale(1); }
+        .hero-overlay {
             position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 50%;
-            background: linear-gradient(0deg, #111 0%, transparent 100%);
-            pointer-events: none;
+            inset: 0;
+            background:
+                linear-gradient(0deg, #09090b 0%, rgba(9,9,11,0.7) 35%, rgba(9,9,11,0.15) 55%, rgba(9,9,11,0.3) 100%),
+                linear-gradient(90deg, rgba(9,9,11,0.7) 0%, transparent 50%);
         }
-        /* Rating badge */
-        .m-badge {
+
+        .h-anim {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .hero.loaded .h-anim { opacity: 1; transform: translateY(0); }
+        .hero.loaded .hd1 { transition-delay: 0.15s; }
+        .hero.loaded .hd2 { transition-delay: 0.3s; }
+        .hero.loaded .hd3 { transition-delay: 0.45s; }
+        .hero.loaded .hd4 { transition-delay: 0.6s; }
+        .hero.loaded .hd5 { transition-delay: 0.75s; }
+
+        /* ── REVEALS ── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        .reveal.vis { opacity: 1; transform: translateY(0); }
+
+        .stagger > * {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .stagger.vis > *:nth-child(1) { opacity:1; transform:translateY(0); transition-delay:.03s; }
+        .stagger.vis > *:nth-child(2) { opacity:1; transform:translateY(0); transition-delay:.08s; }
+        .stagger.vis > *:nth-child(3) { opacity:1; transform:translateY(0); transition-delay:.13s; }
+        .stagger.vis > *:nth-child(4) { opacity:1; transform:translateY(0); transition-delay:.18s; }
+        .stagger.vis > *:nth-child(5) { opacity:1; transform:translateY(0); transition-delay:.23s; }
+        .stagger.vis > *:nth-child(6) { opacity:1; transform:translateY(0); transition-delay:.28s; }
+        .stagger.vis > *:nth-child(7) { opacity:1; transform:translateY(0); transition-delay:.33s; }
+        .stagger.vis > *:nth-child(8) { opacity:1; transform:translateY(0); transition-delay:.38s; }
+        .stagger.vis > *:nth-child(9) { opacity:1; transform:translateY(0); transition-delay:.43s; }
+        .stagger.vis > *:nth-child(10) { opacity:1; transform:translateY(0); transition-delay:.48s; }
+        .stagger.vis > *:nth-child(n+11) { opacity:1; transform:translateY(0); transition-delay:.53s; }
+
+        /* ── MOVIE CARD ── */
+        .mc {
+            border-radius: 12px;
+            overflow: hidden;
+            background: #141416;
+            transition: transform 0.35s ease, box-shadow 0.35s ease;
+        }
+        .mc:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        .mc-img {
+            position: relative;
+            overflow: hidden;
+            aspect-ratio: 2/3;
+        }
+        .mc-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .mc:hover .mc-img img { transform: scale(1.05); }
+
+        .mc-rating {
             position: absolute;
-            top: 10px;
-            left: 10px;
-            z-index: 3;
+            top: 8px;
+            right: 8px;
             display: inline-flex;
             align-items: center;
-            gap: 4px;
-            background: rgba(10,10,10,0.75);
+            gap: 3px;
+            background: rgba(9,9,11,0.8);
             backdrop-filter: blur(8px);
-            padding: 4px 8px;
-            border-radius: 4px;
-            border: 1px solid rgba(201,169,110,0.15);
+            padding: 3px 7px;
+            border-radius: 6px;
             line-height: 1;
         }
-        .m-badge svg { width: 12px; height: 12px; flex-shrink: 0; color: #C9A96E; display: block; }
-        .m-badge span { font-size: 11px; font-weight: 600; color: #fff; line-height: 1; display: block; }
+        .mc-rating svg { width: 11px; height: 11px; color: #fbbf24; flex-shrink: 0; }
+        .mc-rating span { font-size: 11px; font-weight: 600; color: #fff; line-height: 1; }
 
-        /* Card info - always visible below poster */
-        .m-info {
-            padding: 0.85rem 1rem;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 0.3rem;
+        .mc-body {
+            padding: 0.75rem 0.85rem;
         }
-        .m-info h3 {
-            font-family: 'Playfair Display', serif;
+        .mc-body h3 {
+            font-size: 0.9rem;
             font-weight: 600;
-            font-size: 0.95rem;
             color: #fff;
             line-height: 1.3;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            transition: color 0.3s;
+            transition: color 0.25s;
         }
-        .m-card:hover .m-info h3 { color: #C9A96E; }
-        .m-info .m-date {
+        .mc:hover .mc-body h3 { color: #fb7185; }
+        .mc-body .mc-date {
             font-size: 0.7rem;
-            color: #666;
-            letter-spacing: 0.05em;
+            color: #52525b;
+            margin-top: 0.2rem;
         }
 
-        /* ═══════════════════════════════════════════
-           NOW SHOWING GRID
-        ═══════════════════════════════════════════ */
-        .ns-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 1.1rem;
-        }
-        @@media (max-width: 1280px) {
-            .ns-grid { grid-template-columns: repeat(4, 1fr); }
-        }
-        @@media (max-width: 900px) {
-            .ns-grid { grid-template-columns: repeat(3, 1fr); }
-        }
-        @@media (max-width: 600px) {
-            .ns-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-
-        /* ═══════════════════════════════════════════
-           HORIZONTAL SCROLL — COMING SOON
-        ═══════════════════════════════════════════ */
-        .cs-scroll {
+        /* ── SCROLL TRACK ── */
+        .scroll-x {
             display: flex;
-            gap: 1.25rem;
+            gap: 1rem;
             overflow-x: auto;
             scroll-snap-type: x mandatory;
             scrollbar-width: none;
             scroll-behavior: smooth;
-            padding-bottom: 1rem;
         }
-        .cs-scroll::-webkit-scrollbar { display: none; }
-        .cs-scroll > * {
-            flex: 0 0 220px;
-            min-width: 220px;
+        .scroll-x::-webkit-scrollbar { display: none; }
+        .scroll-x > * {
+            flex: 0 0 200px;
+            min-width: 200px;
             scroll-snap-align: start;
         }
         @@media (max-width: 640px) {
-            .cs-scroll > * { flex: 0 0 170px; min-width: 170px; }
+            .scroll-x > * { flex: 0 0 160px; min-width: 160px; }
         }
 
-        .scroll-arrow {
+        .s-arrow {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            border: 1px solid rgba(201,169,110,0.25);
-            background: rgba(10,10,10,0.8);
-            backdrop-filter: blur(10px);
-            color: #C9A96E;
+            background: rgba(9,9,11,0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
             z-index: 10;
         }
-        .scroll-arrow:hover {
-            background: #C9A96E;
-            color: #0a0a0a;
-            border-color: #C9A96E;
-        }
-        .scroll-arrow.left { left: -20px; }
-        .scroll-arrow.right { right: -20px; }
+        .s-arrow:hover { background: #e11d48; border-color: #e11d48; }
+        .s-arrow.l { left: -18px; }
+        .s-arrow.r { right: -18px; }
 
-        /* ═══════════════════════════════════════════
-           SPOTLIGHT STRIP
-        ═══════════════════════════════════════════ */
-        .spotlight-strip {
+        /* ── SPOTLIGHT ── */
+        .spot {
             position: relative;
             overflow: hidden;
-            background: #0f0f0f;
         }
-        .spotlight-strip .spot-bg {
+        .spot-bg {
             position: absolute;
             inset: 0;
         }
-        .spotlight-strip .spot-bg img {
+        .spot-bg img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            filter: blur(50px) brightness(0.25) saturate(1.4);
-            transform: scale(1.4);
+            filter: blur(60px) brightness(0.2) saturate(1.5);
+            transform: scale(1.5);
         }
-        .spotlight-strip .spot-fade {
+        .spot-fade {
             position: absolute;
             inset: 0;
-            background: linear-gradient(90deg, #0a0a0a 0%, rgba(10,10,10,0.5) 50%, #0a0a0a 100%);
+            background: linear-gradient(90deg, #09090b 0%, rgba(9,9,11,0.4) 50%, #09090b 100%);
         }
 
-        /* ═══════════════════════════════════════════
-           SECTION STYLING
-        ═══════════════════════════════════════════ */
-        .section-label {
-            font-size: 0.65rem;
-            letter-spacing: 0.3em;
-            text-transform: uppercase;
-            color: #C9A96E;
-        }
-        .section-title {
-            font-family: 'Playfair Display', serif;
-            font-weight: 600;
+        /* ── CTA BUTTON ── */
+        .btn-accent {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.7rem 1.5rem;
+            background: #e11d48;
             color: #fff;
-        }
-        .gold-hr {
-            height: 1px;
-            background: linear-gradient(90deg, rgba(201,169,110,0.3), transparent);
-            border: none;
-        }
-
-        /* CTA */
-        .cta-gold {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.8rem 1.8rem;
-            border: 1px solid rgba(201,169,110,0.4);
-            color: #C9A96E;
-            font-size: 0.78rem;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 10px;
             text-decoration: none;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-            overflow: hidden;
+            transition: all 0.25s;
         }
-        .cta-gold::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: #C9A96E;
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            z-index: -1;
+        .btn-accent:hover {
+            background: #be123c;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(225,29,72,0.3);
         }
-        .cta-gold:hover { color: #0a0a0a; border-color: #C9A96E; }
-        .cta-gold:hover::before { transform: scaleX(1); }
-        .cta-gold svg { transition: transform 0.3s; }
-        .cta-gold:hover svg { transform: translateX(4px); }
+        .btn-accent svg { transition: transform 0.2s; }
+        .btn-accent:hover svg { transform: translateX(3px); }
 
-        /* Quick stats bar */
-        .stat-pill {
+        .btn-outline {
             display: inline-flex;
             align-items: center;
-            gap: 0.4rem;
-            padding: 0.45rem 0.9rem;
-            background: rgba(201,169,110,0.06);
-            border: 1px solid rgba(201,169,110,0.1);
-            border-radius: 100px;
-            line-height: 1;
+            gap: 0.5rem;
+            padding: 0.7rem 1.5rem;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.12);
+            color: #fff;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.25s;
         }
-        .stat-pill svg {
-            flex-shrink: 0;
-            display: block;
-        }
-        .stat-pill .stat-val {
-            font-family: 'Playfair Display', serif;
-            font-weight: 700;
-            font-size: 1rem;
-            color: #C9A96E;
-            line-height: 1;
-        }
-        .stat-pill .stat-lbl {
-            font-size: 0.65rem;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            line-height: 1;
+        .btn-outline:hover {
+            background: rgba(255,255,255,0.06);
+            border-color: rgba(255,255,255,0.2);
         }
     </style>
 }
 
-<!-- ══════════════════════════════════════════════
-     HERO
-══════════════════════════════════════════════ -->
-@if (featuredMovie != null)
+<!-- ═══ HERO ═══ -->
+@if (featured != null)
 {
-    <section class="hero-section" id="hero">
-        <div class="hero-backdrop">
-            <img src="@featuredMovie.FullBackdropPath" alt="@featuredMovie.Title">
+    <section class="hero" id="hero">
+        <div class="hero-bg">
+            <img src="@featured.FullBackdropPath" alt="@featured.Title">
         </div>
-        <div class="hero-vignette"></div>
+        <div class="hero-overlay"></div>
 
-        <!-- Left: Text content -->
-        <div class="relative z-10 max-w-[700px] px-8 lg:pl-[max(2rem,calc((100vw-1400px)/2+2rem))] pb-20 pt-40 lg:pt-0 lg:pb-0">
-            <div class="h-reveal h-d1 flex items-center gap-3 mb-5">
-                <span class="inline-block w-1.5 h-1.5 rounded-full bg-gold-500 animate-pulse"></span>
-                <span class="text-[11px] uppercase tracking-[0.3em] text-gold-500">Now in cinemas</span>
-            </div>
-            <h1 class="h-reveal h-d2 font-display text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-[0.95] mb-5">
-                @featuredMovie.Title
-            </h1>
-            <div class="gold-line mb-5"></div>
-            <p class="h-reveal h-d3 text-gray-400 text-[15px] leading-relaxed mb-5 max-w-md">
-                @(featuredMovie.Overview.Length > 160 ? featuredMovie.Overview.Substring(0, 160) + "..." : featuredMovie.Overview)
-            </p>
-            <div class="h-reveal h-d4 flex flex-wrap items-center gap-3 mb-7">
-                <div class="stat-pill">
-                    <svg class="w-3.5 h-3.5 text-gold-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                    <span class="stat-val">@featuredMovie.VoteAverage.ToString("F1")</span>
-                    <span class="stat-lbl">Rating</span>
+        <div class="relative z-10 w-full max-w-[1360px] mx-auto px-6 pb-20 pt-48 lg:pb-24">
+            <div class="max-w-xl">
+                <div class="h-anim hd1 inline-flex items-center gap-2 bg-accent-500/10 border border-accent-500/20 rounded-full px-3.5 py-1.5 mb-5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-accent-500 animate-pulse"></span>
+                    <span class="text-xs font-medium text-accent-400">Now in cinemas</span>
                 </div>
-                @if (!string.IsNullOrEmpty(featuredMovie.ReleaseDate))
-                {
-                    <div class="stat-pill">
-                        <svg class="w-3.5 h-3.5 text-gold-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
-                        <span class="stat-val text-sm">@featuredMovie.ReleaseDate</span>
+                <h1 class="h-anim hd2 text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.05] mb-4">
+                    @featured.Title
+                </h1>
+                <p class="h-anim hd3 text-zinc-400 text-[15px] leading-relaxed mb-5 max-w-md">
+                    @(featured.Overview.Length > 160 ? featured.Overview.Substring(0, 160) + "..." : featured.Overview)
+                </p>
+                <div class="h-anim hd4 flex items-center gap-4 mb-7">
+                    <div class="flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                        <span class="text-sm font-semibold text-white">@featured.VoteAverage.ToString("F1")</span>
+                        <span class="text-xs text-zinc-500">/10</span>
                     </div>
-                }
-            </div>
-            <a asp-controller="Movie" asp-action="Details" asp-route-id="@featuredMovie.Id" class="h-reveal h-d5 cta-gold">
-                <span>Get Tickets</span>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
-            </a>
-        </div>
-
-        <!-- Right: Poster + side movies -->
-        <div class="relative z-10 hero-poster-stack h-reveal h-d6">
-            <a asp-controller="Movie" asp-action="Details" asp-route-id="@featuredMovie.Id" class="hero-poster-main block">
-                <img src="@featuredMovie.FullPosterPath" alt="@featuredMovie.Title">
-            </a>
-            @if (heroSide.Any())
-            {
-                <div class="flex flex-col gap-3">
-                    @foreach (var movie in heroSide.Take(3))
+                    @if (!string.IsNullOrEmpty(featured.ReleaseDate))
                     {
-                        <a asp-controller="Movie" asp-action="Details" asp-route-id="@movie.Id" class="block group">
-                            <div class="w-20 rounded overflow-hidden opacity-50 group-hover:opacity-100 transition-all duration-300 group-hover:scale-105">
-                                <img src="@movie.FullPosterPath" alt="@movie.Title" class="w-full aspect-[2/3] object-cover">
+                        <span class="text-xs text-zinc-600">|</span>
+                        <span class="text-sm text-zinc-500">@featured.ReleaseDate</span>
+                    }
+                </div>
+                <div class="h-anim hd5 flex items-center gap-3">
+                    <a asp-controller="Movie" asp-action="Details" asp-route-id="@featured.Id" class="btn-accent">
+                        <span>Get Tickets</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
+                    </a>
+                    <a asp-controller="Movie" asp-action="Details" asp-route-id="@featured.Id" class="btn-outline">
+                        More Info
+                    </a>
+                </div>
+            </div>
+
+            <!-- Side posters -->
+            @if (heroSecondary.Any())
+            {
+                <div class="hidden lg:flex absolute bottom-24 right-6 gap-3">
+                    @foreach (var m in heroSecondary)
+                    {
+                        <a asp-controller="Movie" asp-action="Details" asp-route-id="@m.Id" class="block group">
+                            <div class="w-24 rounded-lg overflow-hidden ring-1 ring-white/[0.06] transition-all duration-300 group-hover:ring-accent-500/40 group-hover:scale-105">
+                                <img src="@m.FullPosterPath" alt="@m.Title" class="w-full aspect-[2/3] object-cover opacity-60 group-hover:opacity-100 transition-opacity">
                             </div>
                         </a>
                     }
                 </div>
             }
         </div>
-
-        <!-- Scroll hint -->
-        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 opacity-40">
-            <span class="text-[9px] uppercase tracking-[0.4em] text-gray-500">Scroll</span>
-            <div class="w-px h-6 bg-gradient-to-b from-gold-500/40 to-transparent"></div>
-        </div>
     </section>
 }
 
-<!-- ══════════════════════════════════════════════
-     NOW SHOWING — BENTO GRID
-══════════════════════════════════════════════ -->
-<section id="now-showing" class="max-w-[1400px] mx-auto px-8 pt-24 pb-16">
-    <div class="flex items-end justify-between mb-8 reveal-up">
+<!-- ═══ NOW SHOWING ═══ -->
+<section id="now-showing" class="max-w-[1360px] mx-auto px-6 pt-20 pb-16">
+    <div class="flex items-end justify-between mb-8 reveal">
         <div>
-            <span class="section-label">In Theatres</span>
-            <h2 class="section-title text-3xl md:text-4xl mt-2">Now Showing</h2>
+            <p class="text-xs font-medium text-accent-500 uppercase tracking-wider mb-1">In Theatres</p>
+            <h2 class="text-2xl md:text-3xl font-bold text-white">Now Showing</h2>
         </div>
-        <hr class="gold-hr flex-1 ml-8 hidden md:block">
     </div>
-
-    <div class="ns-grid stagger-children">
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 stagger">
         @foreach (var movie in Model.NowShowingMovies.Skip(1))
         {
             <a asp-controller="Movie" asp-action="Details" asp-route-id="@movie.Id" class="block no-underline">
-                <div class="m-card">
-                    <div class="m-poster">
+                <div class="mc">
+                    <div class="mc-img">
                         <img src="@movie.FullPosterPath" alt="@movie.Title" loading="lazy">
-                        <div class="m-badge">
+                        <div class="mc-rating">
                             <svg fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                             <span>@movie.VoteAverage.ToString("F1")</span>
                         </div>
                     </div>
-                    <div class="m-info">
+                    <div class="mc-body">
                         <h3>@movie.Title</h3>
-                        <span class="m-date">@movie.ReleaseDate</span>
+                        <p class="mc-date">@movie.ReleaseDate</p>
                     </div>
                 </div>
             </a>
@@ -484,39 +331,36 @@
     </div>
 </section>
 
-<!-- ══════════════════════════════════════════════
-     SPOTLIGHT STRIP
-══════════════════════════════════════════════ -->
-@if (featuredMovie != null)
+<!-- ═══ SPOTLIGHT ═══ -->
+@if (featured != null)
 {
-    var spotlightMovie = Model.NowShowingMovies.OrderByDescending(m => m.VoteAverage).FirstOrDefault() ?? featuredMovie;
-    <section class="spotlight-strip py-20 md:py-28 reveal-up">
-        <div class="spot-bg">
-            <img src="@spotlightMovie.FullBackdropPath" alt="">
-        </div>
+    var spot = Model.NowShowingMovies.OrderByDescending(m => m.VoteAverage).FirstOrDefault() ?? featured;
+    <section class="spot py-20 md:py-28 reveal">
+        <div class="spot-bg"><img src="@spot.FullBackdropPath" alt=""></div>
         <div class="spot-fade"></div>
-        <div class="relative z-10 max-w-[1400px] mx-auto px-8">
-            <div class="flex flex-col md:flex-row gap-10 md:gap-16 items-center">
-                <a asp-controller="Movie" asp-action="Details" asp-route-id="@spotlightMovie.Id"
-                   class="block flex-shrink-0 group">
-                    <div class="w-52 md:w-64 rounded-lg overflow-hidden shadow-2xl shadow-black/60 transition-transform duration-500 group-hover:-translate-y-2">
-                        <img src="@spotlightMovie.FullPosterPath" alt="@spotlightMovie.Title" class="w-full aspect-[2/3] object-cover">
+        <div class="relative z-10 max-w-[1360px] mx-auto px-6">
+            <div class="flex flex-col md:flex-row gap-10 md:gap-14 items-center">
+                <a asp-controller="Movie" asp-action="Details" asp-route-id="@spot.Id" class="block flex-shrink-0 group">
+                    <div class="w-48 md:w-56 rounded-xl overflow-hidden ring-1 ring-white/[0.06] transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-2xl group-hover:shadow-accent-500/10">
+                        <img src="@spot.FullPosterPath" alt="@spot.Title" class="w-full aspect-[2/3] object-cover">
                     </div>
                 </a>
                 <div class="flex-1 text-center md:text-left">
-                    <span class="section-label">Highest Rated</span>
-                    <h2 class="font-display text-3xl md:text-5xl lg:text-6xl font-bold text-white mt-2 mb-4 leading-[1.05]">
-                        @spotlightMovie.Title
-                    </h2>
-                    <div class="flex flex-wrap items-center gap-3 justify-center md:justify-start mb-5">
-                        <div class="stat-pill">
-                            <svg class="w-3.5 h-3.5 text-gold-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                            <span class="stat-val">@spotlightMovie.VoteAverage.ToString("F1")</span>
-                            <span class="stat-lbl">Rating</span>
+                    <p class="text-xs font-medium text-accent-500 uppercase tracking-wider mb-2">Highest Rated</p>
+                    <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight">@spot.Title</h2>
+                    <div class="flex items-center gap-3 justify-center md:justify-start mb-5">
+                        <div class="flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <span class="text-sm font-semibold text-white">@spot.VoteAverage.ToString("F1")</span>
                         </div>
+                        @if (!string.IsNullOrEmpty(spot.ReleaseDate))
+                        {
+                            <span class="text-xs text-zinc-600">|</span>
+                            <span class="text-sm text-zinc-500">@spot.ReleaseDate</span>
+                        }
                     </div>
-                    <p class="text-gray-400 leading-relaxed mb-7 max-w-xl mx-auto md:mx-0">@spotlightMovie.Overview</p>
-                    <a asp-controller="Movie" asp-action="Details" asp-route-id="@spotlightMovie.Id" class="cta-gold">
+                    <p class="text-zinc-400 leading-relaxed mb-7 max-w-xl mx-auto md:mx-0">@spot.Overview</p>
+                    <a asp-controller="Movie" asp-action="Details" asp-route-id="@spot.Id" class="btn-accent">
                         <span>View Details</span>
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
                     </a>
@@ -526,77 +370,64 @@
     </section>
 }
 
-<!-- ══════════════════════════════════════════════
-     COMING SOON — HORIZONTAL SCROLL
-══════════════════════════════════════════════ -->
-<section id="coming-soon" class="max-w-[1400px] mx-auto px-8 py-20">
-    <div class="flex items-end justify-between mb-8 reveal-up">
+<!-- ═══ COMING SOON ═══ -->
+<section id="coming-soon" class="max-w-[1360px] mx-auto px-6 py-20">
+    <div class="flex items-end justify-between mb-8 reveal">
         <div>
-            <span class="section-label">On The Horizon</span>
-            <h2 class="section-title text-3xl md:text-4xl mt-2">Coming Soon</h2>
+            <p class="text-xs font-medium text-accent-500 uppercase tracking-wider mb-1">On The Horizon</p>
+            <h2 class="text-2xl md:text-3xl font-bold text-white">Coming Soon</h2>
         </div>
-        <hr class="gold-hr flex-1 ml-8 hidden md:block">
     </div>
-    <div class="relative reveal-up">
-        <div id="comingSoonTrack" class="cs-scroll">
+    <div class="relative reveal">
+        <div id="csTrack" class="scroll-x">
             @foreach (var movie in Model.ComingSoonMovies)
             {
                 <a asp-controller="Movie" asp-action="Details" asp-route-id="@movie.Id" class="block no-underline">
-                    <div class="m-card">
-                        <div class="m-poster">
+                    <div class="mc">
+                        <div class="mc-img">
                             <img src="@movie.FullPosterPath" alt="@movie.Title" loading="lazy">
                             @if (!string.IsNullOrEmpty(movie.ReleaseDate))
                             {
-                                <div class="m-badge">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
+                                <div class="mc-rating">
+                                    <svg class="!text-zinc-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
                                     <span>@movie.ReleaseDate</span>
                                 </div>
                             }
                         </div>
-                        <div class="m-info">
+                        <div class="mc-body">
                             <h3>@movie.Title</h3>
                         </div>
                     </div>
                 </a>
             }
         </div>
-        <button id="csPrev" class="scroll-arrow left hidden md:flex">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+        <button id="csPrev" class="s-arrow l hidden md:flex">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
         </button>
-        <button id="csNext" class="scroll-arrow right hidden md:flex">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+        <button id="csNext" class="s-arrow r hidden md:flex">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
         </button>
     </div>
 </section>
 
 @section Scripts {
     <script>
-        // Hero load
         window.addEventListener('load', () => {
-            const hero = document.getElementById('hero');
-            if (hero) setTimeout(() => hero.classList.add('loaded'), 100);
+            const h = document.getElementById('hero');
+            if (h) setTimeout(() => h.classList.add('loaded'), 80);
         });
 
-        // Reveals
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                    observer.unobserve(entry.target);
-                }
-            });
+        const obs = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('vis'); obs.unobserve(e.target); } });
         }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
-        document.querySelectorAll('.reveal-up, .stagger-children').forEach(el => observer.observe(el));
+        document.querySelectorAll('.reveal, .stagger').forEach(el => obs.observe(el));
 
-        // Carousel
-        function setupCarousel(trackId, prevId, nextId) {
-            const track = document.getElementById(trackId);
-            const prev = document.getElementById(prevId);
-            const next = document.getElementById(nextId);
-            if (!track || !prev || !next) return;
-            next.addEventListener('click', () => track.scrollBy({ left: track.clientWidth * 0.7, behavior: 'smooth' }));
-            prev.addEventListener('click', () => track.scrollBy({ left: -track.clientWidth * 0.7, behavior: 'smooth' }));
+        function setupScroll(tId, pId, nId) {
+            const t = document.getElementById(tId), p = document.getElementById(pId), n = document.getElementById(nId);
+            if (!t || !p || !n) return;
+            n.addEventListener('click', () => t.scrollBy({ left: t.clientWidth * 0.7, behavior: 'smooth' }));
+            p.addEventListener('click', () => t.scrollBy({ left: -t.clientWidth * 0.7, behavior: 'smooth' }));
         }
-        setupCarousel('comingSoonTrack', 'csPrev', 'csNext');
+        setupScroll('csTrack', 'csPrev', 'csNext');
     </script>
 }
