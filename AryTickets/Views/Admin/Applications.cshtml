@@ -1,0 +1,431 @@
+@using AryTickets.Models
+@model List<AryTickets.Models.CriticApplication>
+@{
+    ViewData["Title"] = "Critic Applications";
+    Layout = "_Layout";
+
+    var currentFilter = ViewData["CurrentFilter"] as string ?? "pending";
+    var pendingCount = (int)(ViewData["PendingCount"] ?? 0);
+}
+
+@section Styles {
+    <style>
+        .admin-sidebar {
+            position: fixed;
+            top: 72px;
+            left: 0;
+            bottom: 0;
+            width: 240px;
+            background: #141416;
+            border-right: 1px solid rgba(255,255,255,0.06);
+            z-index: 40;
+            padding: 28px 0;
+            overflow-y: auto;
+        }
+
+        .admin-main {
+            margin-left: 240px;
+            padding: 104px 40px 60px 40px;
+            min-height: 100vh;
+        }
+
+        .admin-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 24px;
+            font-size: 14px;
+            color: #a1a1aa;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+        .admin-nav-link:hover {
+            color: #fff;
+            background: rgba(255,255,255,0.03);
+        }
+        .admin-nav-link.active {
+            color: #fff;
+            background: rgba(225,29,72,0.06);
+            border-left-color: #e11d48;
+        }
+        .admin-nav-link.active svg {
+            color: #e11d48;
+        }
+
+        .filter-tab {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #71717a;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            font-family: 'Outfit', sans-serif;
+        }
+        .filter-tab:hover {
+            color: #d4d4d8;
+            background: rgba(255,255,255,0.04);
+        }
+        .filter-tab.active {
+            color: #e11d48;
+            background: rgba(225,29,72,0.1);
+        }
+        .filter-tab .count-badge {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 1px 7px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.06);
+            color: #a1a1aa;
+        }
+        .filter-tab.active .count-badge {
+            background: rgba(225,29,72,0.2);
+            color: #e11d48;
+        }
+
+        .app-card {
+            background: #141416;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.06);
+            padding: 24px;
+            transition: all 0.25s ease;
+        }
+        .app-card:hover {
+            border-color: rgba(255,255,255,0.1);
+        }
+
+        .badge-pending {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 100px;
+            background: rgba(234,179,8,0.1);
+            color: #facc15;
+            border: 1px solid rgba(234,179,8,0.15);
+        }
+        .badge-approved {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 100px;
+            background: rgba(34,197,94,0.1);
+            color: #4ade80;
+            border: 1px solid rgba(34,197,94,0.15);
+        }
+        .badge-denied {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 100px;
+            background: rgba(239,68,68,0.1);
+            color: #f87171;
+            border: 1px solid rgba(239,68,68,0.15);
+        }
+
+        .btn-approve {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            background: rgba(34,197,94,0.12);
+            color: #4ade80;
+            border: 1px solid rgba(34,197,94,0.2);
+            transition: all 0.2s ease;
+        }
+        .btn-approve:hover {
+            background: rgba(34,197,94,0.2);
+            color: #22c55e;
+        }
+
+        .btn-deny {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            background: rgba(239,68,68,0.12);
+            color: #f87171;
+            border: 1px solid rgba(239,68,68,0.2);
+            transition: all 0.2s ease;
+        }
+        .btn-deny:hover {
+            background: rgba(239,68,68,0.2);
+            color: #ef4444;
+        }
+
+        .section-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #52525b;
+            margin-bottom: 6px;
+        }
+
+        .review-link {
+            color: #e11d48;
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.15s ease;
+        }
+        .review-link:hover {
+            color: #fb7185;
+            text-decoration: underline;
+        }
+
+        @@media (max-width: 768px) {
+            .admin-sidebar { display: none; }
+            .admin-main { margin-left: 0; padding: 100px 16px 40px 16px; }
+        }
+    </style>
+}
+
+<!-- Admin Sidebar -->
+<aside class="admin-sidebar">
+    <div class="px-6 mb-8">
+        <div class="flex items-center gap-2.5">
+            <div class="w-2 h-2 rounded-full bg-accent-500 animate-pulse"></div>
+            <span class="text-[15px] font-semibold text-white tracking-tight">Admin Panel</span>
+        </div>
+        <p class="text-[11px] text-zinc-600 mt-1 pl-[18px]">Management Console</p>
+    </div>
+
+    <nav class="flex flex-col gap-1">
+        <a href="/Admin" class="admin-nav-link">
+            <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+            </svg>
+            Dashboard
+        </a>
+        <a href="/Admin/Users" class="admin-nav-link">
+            <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+            </svg>
+            Users
+        </a>
+        <a href="/Admin/Bookings" class="admin-nav-link">
+            <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 010 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 010-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375z" />
+            </svg>
+            Bookings
+        </a>
+        <a href="/Admin/Applications" class="admin-nav-link active">
+            <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15a2.25 2.25 0 012.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
+            </svg>
+            Applications
+            @if (pendingCount > 0)
+            {
+                <span class="ml-auto text-[11px] font-bold px-1.5 py-0.5 rounded-full bg-accent-500/20 text-accent-400">@pendingCount</span>
+            }
+        </a>
+    </nav>
+
+    <div class="mt-auto px-6 pt-8">
+        <div class="border-t border-white/[0.06] pt-5">
+            <a href="/" class="flex items-center gap-2 text-xs text-zinc-600 hover:text-zinc-400 transition-colors">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+                </svg>
+                Back to Site
+            </a>
+        </div>
+    </div>
+</aside>
+
+<!-- Main Content -->
+<div class="admin-main">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-[28px] font-bold text-white tracking-tight" style="font-family: 'Outfit', sans-serif;">Critic Applications</h1>
+        <p class="text-sm text-zinc-500 mt-1" style="font-family: 'Outfit', sans-serif;">Review and manage critic role applications</p>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="flex items-center gap-2 mb-8">
+        <a href="/Admin/Applications?filter=pending" class="filter-tab @(currentFilter == "pending" ? "active" : "")">
+            Pending
+            <span class="count-badge">@pendingCount</span>
+        </a>
+        <a href="/Admin/Applications?filter=approved" class="filter-tab @(currentFilter == "approved" ? "active" : "")">
+            Approved
+        </a>
+        <a href="/Admin/Applications?filter=denied" class="filter-tab @(currentFilter == "denied" ? "active" : "")">
+            Denied
+        </a>
+        <a href="/Admin/Applications?filter=all" class="filter-tab @(currentFilter == "all" ? "active" : "")">
+            All
+        </a>
+    </div>
+
+    <!-- Application Cards -->
+    @if (Model != null && Model.Any())
+    {
+        <div class="flex flex-col gap-5">
+            @foreach (var app in Model)
+            {
+                <div class="app-card">
+                    <!-- Card Header -->
+                    <div class="flex items-start justify-between mb-5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-accent-500/10 border border-accent-500/20 flex items-center justify-center flex-shrink-0">
+                                <span class="text-[14px] font-semibold text-accent-400">@(app.FullName?.Length > 0 ? app.FullName[0].ToString().ToUpper() : "?")</span>
+                            </div>
+                            <div>
+                                <p class="text-[15px] font-semibold text-white" style="font-family: 'Outfit', sans-serif;">@app.FullName</p>
+                                <div class="flex items-center gap-2 mt-0.5">
+                                    <span class="text-[12px] text-zinc-500">@@@app.User?.UserName</span>
+                                    <span class="text-zinc-700">|</span>
+                                    <span class="text-[12px] text-zinc-500">@app.User?.Email</span>
+                                    <span class="text-zinc-700">|</span>
+                                    <span class="text-[12px] text-zinc-600">Applied @app.AppliedAt.ToString("MMM dd, yyyy")</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            @if (app.Status == ApplicationStatus.Pending)
+                            {
+                                <span class="badge-pending">Pending</span>
+                            }
+                            else if (app.Status == ApplicationStatus.Approved)
+                            {
+                                <span class="badge-approved">Approved</span>
+                            }
+                            else
+                            {
+                                <span class="badge-denied">Denied</span>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Bio -->
+                    <div class="mb-4">
+                        <p class="section-label">Bio</p>
+                        <p class="text-[13px] text-zinc-300 leading-relaxed" style="font-family: 'Outfit', sans-serif;">@app.Bio</p>
+                    </div>
+
+                    <!-- Experience & Employers Row -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <p class="section-label">Experience</p>
+                            <p class="text-[13px] text-zinc-300" style="font-family: 'Outfit', sans-serif;">@app.YearsOfExperience years</p>
+                        </div>
+                        <div>
+                            <p class="section-label">Past Employers</p>
+                            <p class="text-[13px] text-zinc-300" style="font-family: 'Outfit', sans-serif;">@app.PastEmployers</p>
+                        </div>
+                    </div>
+
+                    <!-- Review Links -->
+                    @if (app.ReviewLinks != null && app.ReviewLinks.Any())
+                    {
+                        <div class="mb-4">
+                            <p class="section-label">Review Links</p>
+                            <div class="flex flex-wrap gap-3">
+                                @for (var i = 0; i < app.ReviewLinks.Count; i++)
+                                {
+                                    <a href="@app.ReviewLinks[i]" target="_blank" rel="noopener noreferrer" class="review-link inline-flex items-center gap-1">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                                        </svg>
+                                        Review @(i + 1)
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Motivation -->
+                    <div class="mb-5">
+                        <p class="section-label">Motivation</p>
+                        <p class="text-[13px] text-zinc-300 leading-relaxed" style="font-family: 'Outfit', sans-serif;">@app.Motivation</p>
+                    </div>
+
+                    <!-- Action Buttons (only for pending) -->
+                    @if (app.Status == ApplicationStatus.Pending)
+                    {
+                        <div class="flex items-center gap-3 pt-4 border-t border-white/[0.06]">
+                            <form asp-action="ApproveApplication" method="post" class="inline">
+                                <input type="hidden" name="id" value="@app.Id" />
+                                <button type="submit" class="btn-approve" onclick="return confirm('Are you sure you want to approve this application?');">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                    </svg>
+                                    Approve
+                                </button>
+                            </form>
+                            <form asp-action="DenyApplication" method="post" class="inline">
+                                <input type="hidden" name="id" value="@app.Id" />
+                                <button type="submit" class="btn-deny" onclick="return confirm('Are you sure you want to deny this application?');">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                    Deny
+                                </button>
+                            </form>
+                        </div>
+                    }
+
+                    <!-- Reviewed timestamp -->
+                    @if (app.ReviewedAt.HasValue)
+                    {
+                        <div class="pt-3 mt-3 border-t border-white/[0.06]">
+                            <p class="text-[11px] text-zinc-600" style="font-family: 'Outfit', sans-serif;">Reviewed on @app.ReviewedAt.Value.ToString("MMM dd, yyyy 'at' HH:mm")</p>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <!-- Empty State -->
+        <div class="text-center py-20">
+            <svg class="w-12 h-12 mx-auto mb-4 text-zinc-700" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15a2.25 2.25 0 012.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
+            </svg>
+            <p class="text-[15px] font-semibold text-zinc-500 mb-1" style="font-family: 'Outfit', sans-serif;">No applications found</p>
+            <p class="text-[13px] text-zinc-600" style="font-family: 'Outfit', sans-serif;">
+                @if (currentFilter == "pending")
+                {
+                    @:There are no pending applications to review.
+                }
+                else if (currentFilter == "approved")
+                {
+                    @:No applications have been approved yet.
+                }
+                else if (currentFilter == "denied")
+                {
+                    @:No applications have been denied.
+                }
+                else
+                {
+                    @:No critic applications have been submitted yet.
+                }
+            </p>
+        </div>
+    }
+</div>
