@@ -74,6 +74,7 @@ namespace AryTickets.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user != null)
             {
+                var confirmCode = Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper();
                 var booking = new Booking
                 {
                     UserId = user.Id,
@@ -83,26 +84,28 @@ namespace AryTickets.Controllers
                     Showtime = model.Showtime,
                     Seats = model.SelectedSeats,
                     TotalPrice = model.TotalPrice,
-                    BookedAt = System.DateTime.UtcNow
+                    BookedAt = System.DateTime.UtcNow,
+                    ConfirmationCode = confirmCode
                 };
                 _db.Bookings.Add(booking);
                 await _db.SaveChangesAsync();
 
                 try
                 {
-                    var emailBody = BuildTicketEmail(model, user.UserName);
+                    var emailBody = BuildTicketEmail(model, user.UserName, confirmCode);
                     await _emailSender.SendEmailAsync(user.Email, "Your Tickets for " + model.MovieTitle, emailBody);
                 }
                 catch
                 {
                     // Email sending failed but payment still succeeds
                 }
+                return Json(new { success = true, confirmationCode = booking.ConfirmationCode, qrCodeUrl = booking.QrCodeUrl });
             }
 
             return Json(new { success = true });
         }
 
-        private string BuildTicketEmail(CheckoutViewModel model, string username)
+        private string BuildTicketEmail(CheckoutViewModel model, string username, string confirmCode)
         {
             var sb = new StringBuilder();
             sb.Append("<div style='font-family: Arial, Helvetica, sans-serif; background-color: #09090b; color: #e4e4e7; padding: 40px 20px; text-align: center;'>");
@@ -120,7 +123,12 @@ namespace AryTickets.Controllers
             sb.Append("<tr><td colspan='2' style='padding: 12px 0 0 0;'><div style='border-top: 1px solid rgba(255,255,255,0.06);'></div></td></tr>");
             sb.AppendFormat("<tr><td style='padding: 12px 0 0 0; color: #71717a; font-size: 13px;'>Total</td><td style='padding: 12px 0 0 0; color: #e11d48; font-size: 18px; font-weight: 700; text-align: right;'>${0:F2}</td></tr>", model.TotalPrice);
             sb.Append("</table></div>");
-            sb.Append("<p style='color: #52525b; font-size: 12px; text-align: center; margin: 0;'>Show this confirmation at the theater entrance.</p>");
+            var qrUrl = $"https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=ARYTIX-{confirmCode}|{model.MovieTitle}|{model.Showtime}|{model.SelectedSeats}";
+            sb.Append("<div style='text-align: center; margin: 24px 0 16px;'>");
+            sb.AppendFormat("<img src='{0}' alt='QR Code' style='border-radius: 8px;' width='180' height='180' />", qrUrl);
+            sb.AppendFormat("<p style='color: #71717a; font-size: 11px; margin-top: 8px; letter-spacing: 0.1em;'>CODE: {0}</p>", confirmCode);
+            sb.Append("</div>");
+            sb.Append("<p style='color: #52525b; font-size: 12px; text-align: center; margin: 0;'>Scan the QR code or show this confirmation at the theater entrance.</p>");
             sb.Append("</div>");
             sb.Append("<p style='color: #3f3f46; font-size: 11px; margin-top: 24px;'>&copy; 2026 AryTix. All rights reserved.</p>");
             sb.Append("</div></div>");
