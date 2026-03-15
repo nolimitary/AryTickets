@@ -127,6 +127,10 @@
                                 <p class="text-sm text-white truncate">@User.Identity?.Name</p>
                             </div>
                             <a asp-controller="Profile" asp-action="Index" class="block px-4 py-2.5 text-sm text-zinc-400 hover:text-white hover:bg-white/[0.04] transition-all">My Profile</a>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <a asp-controller="Admin" asp-action="Index" class="block px-4 py-2.5 text-sm text-accent-400 hover:text-accent-300 hover:bg-accent-500/5 transition-all">Admin Panel</a>
+                            }
                             <form class="w-full" asp-area="" asp-controller="Account" asp-action="Logout" method="post">
                                 <button type="submit" class="w-full text-left px-4 py-2.5 text-sm text-zinc-400 hover:text-white hover:bg-white/[0.04] transition-all">Sign out</button>
                             </form>
