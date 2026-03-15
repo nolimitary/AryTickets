@@ -38,7 +38,7 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-builder.Services.AddTransient<IEmailSender, SendGridEmailSender>();
+builder.Services.AddTransient<IEmailSender, ResendEmailSender>();
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient();
 
