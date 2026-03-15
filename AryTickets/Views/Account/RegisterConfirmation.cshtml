@@ -18,60 +18,54 @@
             }
         }
 
-        .noir-card {
+        .fade-in {
             animation: fadeUpBlur 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
 
-        .noir-delay-1 { animation-delay: 0.1s; opacity: 0; }
-        .noir-delay-2 { animation-delay: 0.25s; opacity: 0; }
-        .noir-delay-3 { animation-delay: 0.4s; opacity: 0; }
-        .noir-delay-4 { animation-delay: 0.55s; opacity: 0; }
-        .noir-delay-5 { animation-delay: 0.7s; opacity: 0; }
+        .fade-delay-1 { animation-delay: 0.1s; opacity: 0; }
+        .fade-delay-2 { animation-delay: 0.25s; opacity: 0; }
+        .fade-delay-3 { animation-delay: 0.4s; opacity: 0; }
+        .fade-delay-4 { animation-delay: 0.55s; opacity: 0; }
+        .fade-delay-5 { animation-delay: 0.7s; opacity: 0; }
     </style>
 }
 
-<div class="min-h-screen flex items-center justify-center px-4 py-12" style="background-color: #0a0a0a;">
-    <div class="max-w-md w-full rounded-2xl border p-10 text-center space-y-8"
-         style="background-color: #1a1a1a; border-color: rgba(201,169,110,0.2);">
+<div class="min-h-screen flex items-center justify-center px-4 py-12 bg-surface-400">
+    <div class="max-w-md w-full bg-surface-200 border border-white/[0.06] rounded-2xl p-10 text-center space-y-8">
 
         <!-- Logo -->
-        <div class="noir-card noir-delay-1">
-            <span class="text-3xl" style="font-family: 'Playfair Display', serif;">
-                <span class="text-white">Ary</span><span style="color: #C9A96E;">Tix</span>
+        <div class="fade-in fade-delay-1">
+            <span class="text-3xl font-bold">
+                <span class="text-white">Ary</span><span class="text-accent-500">Tix</span>
             </span>
         </div>
 
-        <!-- Envelope icon -->
-        <div class="noir-card noir-delay-2">
-            <div class="mx-auto flex items-center justify-center w-20 h-20 rounded-full" style="border: 1px solid rgba(201,169,110,0.25);">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="#C9A96E">
+        <!-- Mail icon -->
+        <div class="fade-in fade-delay-2">
+            <div class="mx-auto flex items-center justify-center w-20 h-20 rounded-full border border-accent-500/25">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-accent-500" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
                 </svg>
             </div>
         </div>
 
         <!-- Title -->
-        <div class="noir-card noir-delay-3">
-            <h1 class="text-3xl font-bold text-white" style="font-family: 'Playfair Display', serif;">
+        <div class="fade-in fade-delay-3">
+            <h1 class="text-2xl font-bold text-white">
                 Check Your Email
             </h1>
-            <!-- Gold decorative line -->
-            <div class="mx-auto mt-4 w-16 h-px" style="background-color: #C9A96E;"></div>
         </div>
 
         <!-- Description -->
-        <p class="text-sm leading-relaxed noir-card noir-delay-4" style="color: #9ca3af; font-family: 'DM Sans', sans-serif;">
+        <p class="text-sm text-zinc-400 leading-relaxed fade-in fade-delay-4">
             Thank you for registering! We've sent a verification code to your email address.
             Please enter it on the confirmation page to activate your account.
         </p>
 
         <!-- CTA Button -->
-        <div class="noir-card noir-delay-5">
+        <div class="fade-in fade-delay-5">
             <a asp-action="ConfirmEmail"
-               class="inline-block py-3 px-10 rounded-lg text-sm font-semibold tracking-wide uppercase transition-all duration-300"
-               style="font-family: 'DM Sans', sans-serif; color: #C9A96E; border: 1px solid #C9A96E; background: transparent;"
-               onmouseenter="this.style.backgroundColor='#C9A96E'; this.style.color='#0a0a0a';"
-               onmouseleave="this.style.backgroundColor='transparent'; this.style.color='#C9A96E';">
+               class="inline-block py-3 px-10 rounded-lg text-sm font-semibold tracking-wide uppercase bg-accent-500 text-white hover:bg-accent-600 transition-all duration-300">
                 Enter Code
             </a>
         </div>
