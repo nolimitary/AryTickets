@@ -13,5 +13,6 @@ namespace AryTickets.Data
 
         public DbSet<UserFavorite> UserFavorites { get; set; }
         public DbSet<Booking> Bookings { get; set; }
+        public DbSet<CriticApplication> CriticApplications { get; set; }
     }
 }
