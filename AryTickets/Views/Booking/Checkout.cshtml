@@ -5,29 +5,28 @@
 }
 
 @section Styles {
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        .font-display { font-family: 'Playfair Display', serif; }
-        .font-body { font-family: 'DM Sans', sans-serif; }
+        *, *::before, *::after { font-family: 'Outfit', sans-serif; }
 
         .form-group {
             position: relative;
         }
 
         .form-input {
-            background-color: #0f0f0f;
-            border: 1px solid #333;
+            background-color: #0c0c0e;
+            border: 1px solid rgba(255, 255, 255, 0.08);
             color: white;
             width: 100%;
             padding: 0.75rem 0.75rem 0.25rem 0.75rem;
             border-radius: 0.375rem;
             outline: none;
             transition: border-color 0.2s;
-            font-family: 'DM Sans', sans-serif;
+            font-family: 'Outfit', sans-serif;
         }
 
             .form-input:focus {
-                border-color: rgba(201, 169, 110, 0.4);
+                border-color: rgba(225, 29, 72, 0.4);
             }
 
         .form-label {
@@ -38,24 +37,24 @@
             pointer-events: none;
             transition: all 0.2s ease-out;
             transform-origin: left top;
-            font-family: 'DM Sans', sans-serif;
+            font-family: 'Outfit', sans-serif;
         }
 
         .form-input:focus + .form-label,
         .form-input:not(:placeholder-shown) + .form-label {
             transform: translateY(-0.6rem) scale(0.75);
-            color: #C9A96E;
+            color: #e11d48;
         }
 
         .payment-overlay {
-            background-color: rgba(10, 10, 10, 0.92);
+            background-color: rgba(9, 9, 11, 0.92);
             backdrop-filter: blur(5px);
             transition: opacity 0.4s ease-in-out;
         }
 
         .spinner {
-            border-color: rgba(201, 169, 110, 0.2);
-            border-top-color: #C9A96E;
+            border-color: rgba(225, 29, 72, 0.2);
+            border-top-color: #e11d48;
             animation: spin 1s linear infinite;
         }
 
@@ -110,32 +109,32 @@
             r: 24;
         }
 
-        .noir-panel {
-            background-color: #1a1a1a;
-            border: 1px solid #2a2a2a;
+        .electric-panel {
+            background-color: #141416;
+            border-radius: 1rem;
         }
     </style>
 }
 
-<div class="container mx-auto px-6 py-16 min-h-screen" style="background-color: #0a0a0a;">
+<div class="container mx-auto px-6 py-16 min-h-screen" style="background-color: #09090b;">
     <div class="pt-24 max-w-4xl mx-auto">
-        <h1 class="text-4xl font-extrabold text-center text-white" style="font-family: 'Playfair Display', serif;">Final Step: Secure Checkout</h1>
-        <p class="text-center mt-2" style="color: #888; font-family: 'DM Sans', sans-serif;">Complete your booking for <span style="color: #C9A96E;">@Model.MovieTitle</span></p>
+        <h1 class="text-4xl font-extrabold text-center text-white" style="font-family: 'Outfit', sans-serif;">Final Step: Secure Checkout</h1>
+        <p class="text-center mt-2" style="color: #888; font-family: 'Outfit', sans-serif;">Complete your booking for <span style="color: #e11d48;">@Model.MovieTitle</span></p>
 
         <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-12">
-            <div class="noir-panel p-8 rounded-xl">
-                <h3 class="text-2xl font-bold mb-6 text-white" style="font-family: 'Playfair Display', serif;">Order Summary</h3>
-                <div class="space-y-4" style="font-family: 'DM Sans', sans-serif;">
+            <div class="electric-panel p-8 rounded-2xl">
+                <h3 class="text-2xl font-bold mb-6 text-white" style="font-family: 'Outfit', sans-serif;">Order Summary</h3>
+                <div class="space-y-4" style="font-family: 'Outfit', sans-serif;">
                     <div class="flex justify-between"><span style="color: #666;">Movie:</span> <span class="font-semibold text-white">@Model.MovieTitle</span></div>
-                    <div class="flex justify-between"><span style="color: #666;">Showtime:</span> <span class="font-semibold" style="color: #C9A96E;">@Model.Showtime</span></div>
+                    <div class="flex justify-between"><span style="color: #666;">Showtime:</span> <span class="font-semibold" style="color: #e11d48;">@Model.Showtime</span></div>
                     <div class="flex justify-between"><span style="color: #666;">Seats:</span> <span class="font-semibold text-white">@Model.SelectedSeats</span></div>
-                    <div class="my-4" style="border-top: 1px solid #2a2a2a;"></div>
-                    <div class="flex justify-between text-xl"><span style="color: #666;">Total:</span> <span class="font-bold" style="color: #C9A96E;">$@Model.TotalPrice.ToString("F2")</span></div>
+                    <div class="my-4" style="border-top: 1px solid rgba(255, 255, 255, 0.06);"></div>
+                    <div class="flex justify-between text-xl"><span style="color: #666;">Total:</span> <span class="font-bold" style="color: #fb7185;">$@Model.TotalPrice.ToString("F2")</span></div>
                 </div>
             </div>
 
-            <div class="noir-panel p-8 rounded-xl">
-                <h3 class="text-2xl font-bold mb-6 text-white" style="font-family: 'Playfair Display', serif;">Payment Details</h3>
+            <div class="electric-panel p-8 rounded-2xl">
+                <h3 class="text-2xl font-bold mb-6 text-white" style="font-family: 'Outfit', sans-serif;">Payment Details</h3>
                 <form id="payment-form" class="space-y-6">
                     @Html.AntiForgeryToken()
                     <input type="hidden" asp-for="MovieTitle" />
@@ -162,7 +161,7 @@
                         </div>
                     </div>
                     <div class="pt-4">
-                        <button type="submit" class="w-full font-bold py-3 px-8 rounded-full text-lg transition-all transform hover:scale-105" style="background-color: #C9A96E; color: #0a0a0a; font-family: 'DM Sans', sans-serif;">Pay $@Model.TotalPrice.ToString("F2")</button>
+                        <button type="submit" class="w-full font-bold py-3 px-8 rounded-lg text-lg transition-all transform hover:scale-105 text-white" style="background-color: #e11d48; font-family: 'Outfit', sans-serif;">Pay $@Model.TotalPrice.ToString("F2")</button>
                     </div>
                 </form>
             </div>
@@ -173,16 +172,16 @@
 <div id="payment-overlay" class="payment-overlay fixed inset-0 z-50 flex flex-col items-center justify-center text-white opacity-0 pointer-events-none">
     <div id="spinner-container">
         <div class="spinner w-16 h-16 rounded-full border-4"></div>
-        <p class="mt-4 text-xl" style="font-family: 'DM Sans', sans-serif;">Processing Payment...</p>
+        <p class="mt-4 text-xl" style="font-family: 'Outfit', sans-serif;">Processing Payment...</p>
     </div>
     <div id="success-container" class="text-center hidden">
         <svg class="checkmark mx-auto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52" width="100px" height="100px">
-            <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none" stroke="#C9A96E" stroke-width="4" />
-            <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" stroke="#E8D5A8" stroke-width="5" />
+            <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none" stroke="#e11d48" stroke-width="4" />
+            <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" stroke="#fb7185" stroke-width="5" />
         </svg>
-        <h2 class="text-3xl font-bold mt-4 text-white" style="font-family: 'Playfair Display', serif;">Payment Confirmed!</h2>
-        <p class="mt-2" style="color: #888; font-family: 'DM Sans', sans-serif;">Your tickets have been sent to your account email.</p>
-        <a asp-controller="Home" asp-action="Index" class="mt-8 inline-block font-semibold py-2 px-6 rounded-lg transition-all hover:scale-105" style="border: 2px solid #C9A96E; color: #C9A96E; background: transparent; font-family: 'DM Sans', sans-serif;">Back to Home</a>
+        <h2 class="text-3xl font-bold mt-4 text-white" style="font-family: 'Outfit', sans-serif;">Payment Confirmed!</h2>
+        <p class="mt-2" style="color: #888; font-family: 'Outfit', sans-serif;">Your tickets have been sent to your account email.</p>
+        <a asp-controller="Home" asp-action="Index" class="mt-8 inline-block font-semibold py-2 px-6 rounded-lg transition-all hover:scale-105" style="border: 2px solid #e11d48; color: #e11d48; background: transparent; font-family: 'Outfit', sans-serif;">Back to Home</a>
     </div>
 </div>
 
