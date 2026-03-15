@@ -204,35 +204,25 @@
         }
 
         /* ═══════════════════════════════════════════
-           BENTO GRID — NOW SHOWING
+           NOW SHOWING CAROUSEL
         ═══════════════════════════════════════════ */
-        .bento-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            grid-template-rows: auto auto;
+        .ns-scroll {
+            display: flex;
             gap: 1rem;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+            scroll-behavior: smooth;
+            padding-bottom: 0.5rem;
         }
-        .bento-grid .bento-hero {
-            grid-column: 1 / 3;
-            grid-row: 1 / 3;
+        .ns-scroll::-webkit-scrollbar { display: none; }
+        .ns-scroll > * {
+            flex: 0 0 180px;
+            min-width: 180px;
+            scroll-snap-align: start;
         }
-        .bento-grid .bento-hero .m-poster { aspect-ratio: auto; height: 100%; }
-        .bento-grid .bento-hero .m-poster img { height: 100%; }
-        .bento-grid .bento-hero .m-info h3 { font-size: 1.2rem; }
-        .bento-grid .bento-hero .m-badge { top: 14px; left: 14px; padding: 5px 10px; }
-        .bento-grid .bento-hero .m-badge span { font-size: 13px; }
-
-        @@media (max-width: 1024px) {
-            .bento-grid { grid-template-columns: repeat(3, 1fr); }
-            .bento-grid .bento-hero { grid-column: 1 / 3; }
-        }
-        @@media (max-width: 768px) {
-            .bento-grid { grid-template-columns: repeat(2, 1fr); }
-            .bento-grid .bento-hero { grid-column: 1 / 3; }
-        }
-        @@media (max-width: 500px) {
-            .bento-grid { grid-template-columns: 1fr 1fr; }
-            .bento-grid .bento-hero { grid-column: 1 / -1; }
+        @@media (max-width: 640px) {
+            .ns-scroll > * { flex: 0 0 150px; min-width: 150px; }
         }
 
         /* ═══════════════════════════════════════════
@@ -468,29 +458,9 @@
         <hr class="gold-hr flex-1 ml-8 hidden md:block">
     </div>
 
-    @if (heroSide.Any())
-    {
-        <div class="bento-grid stagger-children">
-            <!-- Bento hero: first side movie (large) -->
-            @{var bentoHero = heroSide.First();}
-            <a asp-controller="Movie" asp-action="Details" asp-route-id="@bentoHero.Id" class="bento-hero block no-underline">
-                <div class="m-card h-full">
-                    <div class="m-poster">
-                        <img src="@bentoHero.FullPosterPath" alt="@bentoHero.Title" loading="lazy">
-                        <div class="m-badge">
-                            <svg fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                            <span>@bentoHero.VoteAverage.ToString("F1")</span>
-                        </div>
-                    </div>
-                    <div class="m-info">
-                        <h3>@bentoHero.Title</h3>
-                        <span class="m-date">@bentoHero.ReleaseDate</span>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Remaining bento items -->
-            @foreach (var movie in heroSide.Skip(1).Concat(gridMovies))
+    <div class="relative reveal-up">
+        <div id="nowShowingTrack" class="ns-scroll">
+            @foreach (var movie in Model.NowShowingMovies.Skip(1))
             {
                 <a asp-controller="Movie" asp-action="Details" asp-route-id="@movie.Id" class="block no-underline">
                     <div class="m-card">
@@ -509,7 +479,13 @@
                 </a>
             }
         </div>
-    }
+        <button id="nsPrev" class="scroll-arrow left hidden md:flex">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+        </button>
+        <button id="nsNext" class="scroll-arrow right hidden md:flex">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+        </button>
+    </div>
 </section>
 
 <!-- ══════════════════════════════════════════════
@@ -625,6 +601,7 @@
             next.addEventListener('click', () => track.scrollBy({ left: track.clientWidth * 0.7, behavior: 'smooth' }));
             prev.addEventListener('click', () => track.scrollBy({ left: -track.clientWidth * 0.7, behavior: 'smooth' }));
         }
+        setupCarousel('nowShowingTrack', 'nsPrev', 'nsNext');
         setupCarousel('comingSoonTrack', 'csPrev', 'csNext');
     </script>
 }
