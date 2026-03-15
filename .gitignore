@@ -362,6 +362,11 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
+# SQLite database
+*.db
+*.db-shm
+*.db-wal
+
 # IDE config
 .claude/
 CLAUDE.md
