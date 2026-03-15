@@ -1,38 +1,85 @@
-﻿@model ConfirmEmailViewModel
+@model ConfirmEmailViewModel
 @{
-    ViewData["Title"] = "Confirm Email";
+    ViewData["Title"] = "Verify Your Account";
     Layout = "_Layout";
 }
 
 @section Styles {
-     <style>
-                          .form-container {
-                              background-color: rgba(31, 41, 55, 0.6);
-                              backdrop-filter: blur(10px);
-                              animation: fadeUpBlur 0.8s forwards;
-                          }
+    <style>
+        @@keyframes fadeUpBlur {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+                filter: blur(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+                filter: blur(0);
+            }
+        }
+
+        .noir-card {
+            animation: fadeUpBlur 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        .noir-card-delay-1 { animation-delay: 0.1s; opacity: 0; }
+        .noir-card-delay-2 { animation-delay: 0.25s; opacity: 0; }
+        .noir-card-delay-3 { animation-delay: 0.4s; opacity: 0; }
+        .noir-card-delay-4 { animation-delay: 0.55s; opacity: 0; }
     </style>
 }
 
-<div class="min-h-screen flex items-center justify-center py-12 px-4" style="background-image: url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=2525&auto=format&fit=crop'); background-size: cover; background-position: center;">
-    <div class="absolute inset-0 bg-gray-900/80"></div>
-    <div class="form-container max-w-md w-full space-y-8 p-10 rounded-xl border border-gray-700">
-        <div>
-            <h2 class="mt-6 text-center text-3xl font-extrabold text-white">Verify Your Account</h2>
-            <p class="text-center text-gray-400 mt-2">A 4-digit code was sent to @Model.Email</p>
+<div class="min-h-screen flex items-center justify-center px-4 py-12" style="background-color: #0a0a0a;">
+    <div class="max-w-md w-full rounded-2xl border p-10 space-y-8"
+         style="background-color: #1a1a1a; border-color: rgba(201,169,110,0.2);">
+
+        <!-- Logo -->
+        <div class="text-center noir-card noir-card-delay-1">
+            <span class="text-3xl" style="font-family: 'Playfair Display', serif;">
+                <span class="text-white">Ary</span><span style="color: #C9A96E;">Tix</span>
+            </span>
         </div>
-        <form class="mt-8 space-y-6" asp-action="ConfirmEmail" method="post">
-            <div asp-validation-summary="All" class="text-red-400 list-disc pl-5 text-sm"></div>
+
+        <!-- Title -->
+        <div class="text-center noir-card noir-card-delay-2">
+            <h2 class="text-3xl font-bold text-white" style="font-family: 'Playfair Display', serif;">
+                Verify Your Account
+            </h2>
+            <!-- Gold decorative line -->
+            <div class="mx-auto mt-4 w-16 h-px" style="background-color: #C9A96E;"></div>
+            <p class="mt-4 text-sm" style="color: #9ca3af; font-family: 'DM Sans', sans-serif;">
+                A 4-digit code was sent to
+                <span class="text-white">@Model.Email</span>
+            </p>
+        </div>
+
+        <!-- Form -->
+        <form class="space-y-6 noir-card noir-card-delay-3" asp-action="ConfirmEmail" method="post">
+            <div asp-validation-summary="All" class="text-red-400 list-disc pl-5 text-sm" style="font-family: 'DM Sans', sans-serif;"></div>
             <input type="hidden" asp-for="Email" />
-            <div class="rounded-md shadow-sm">
-                <div>
-                    <label asp-for="Code" class="sr-only">Verification Code</label>
-                    <input asp-for="Code" class="mt-1 appearance-none relative block w-full px-3 py-3 border border-gray-700 bg-gray-800 text-white placeholder-gray-400 rounded-md text-center text-2xl tracking-[1rem]" placeholder="----" maxlength="4" autofocus>
-                    <span asp-validation-for="Code" class="text-red-400 text-xs pt-1"></span>
-                </div>
-            </div>
+
             <div>
-                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">Verify Account</button>
+                <label asp-for="Code" class="sr-only">Verification Code</label>
+                <input asp-for="Code"
+                       class="w-full px-4 py-4 rounded-lg text-center text-2xl text-white placeholder-gray-600 outline-none transition-colors duration-300"
+                       style="background-color: #0f0f0f; border: 1px solid #374151; font-family: 'DM Sans', sans-serif; letter-spacing: 1rem;"
+                       onfocus="this.style.borderColor='rgba(201,169,110,0.4)'"
+                       onblur="this.style.borderColor='#374151'"
+                       placeholder="----"
+                       maxlength="4"
+                       autofocus />
+                <span asp-validation-for="Code" class="text-red-400 text-xs pt-1 block" style="font-family: 'DM Sans', sans-serif;"></span>
+            </div>
+
+            <div class="noir-card noir-card-delay-4">
+                <button type="submit"
+                        class="w-full py-3 px-4 rounded-lg text-sm font-semibold tracking-wide uppercase transition-all duration-300"
+                        style="font-family: 'DM Sans', sans-serif; color: #C9A96E; border: 1px solid #C9A96E; background: transparent;"
+                        onmouseenter="this.style.backgroundColor='#C9A96E'; this.style.color='#0a0a0a';"
+                        onmouseleave="this.style.backgroundColor='transparent'; this.style.color='#C9A96E';">
+                    Verify Account
+                </button>
             </div>
         </form>
     </div>

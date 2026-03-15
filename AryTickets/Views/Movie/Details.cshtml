@@ -1,4 +1,4 @@
-﻿@model Movie
+@model Movie
 @using Microsoft.AspNetCore.Identity
 @using AryTickets.Models
 @inject SignInManager<ApplicationUser> SignInManager
@@ -10,51 +10,40 @@
 
 @section Styles {
     <style>
-        .hero-text-panel {
-            background-color: rgba(17, 24, 39, 0.6);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding: 2rem;
-            border-radius: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        @@keyframes slowPan {
-            0% {
-                transform: scale(1.1) translate(2%, -2%);
-            }
-
-            100% {
-                transform: scale(1.2) translate(-2%, 2%);
-            }
-        }
-
-        .movie-hero-bg {
-            animation: slowPan 40s ease-in-out infinite alternate;
-        }
-
-        .detail-animate {
-            opacity: 0;
-            animation: fadeUpBlur 1s forwards;
-        }
-
-        .reviews-coming-soon {
-            text-align: center;
-            padding: 4rem 2rem;
-            background-color: rgba(31, 41, 55, 0.5);
-            border-radius: 1rem;
-            border: 1px dashed #4B5563;
-        }
+        /* ── Cinematic Noir Editorial: Details ── */
 
         .movie-hero {
             position: relative;
-            padding-top: 10rem;
-            padding-bottom: 5rem;
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-end;
+            padding-bottom: 4rem;
+            overflow: hidden;
         }
 
-        .hero-overlay {
+        .movie-hero-bg {
             position: absolute;
             inset: 0;
+            background-size: cover;
+            background-position: center top;
+            animation: slowPan 50s ease-in-out infinite alternate;
+            will-change: transform;
+        }
+
+        @@keyframes slowPan {
+            0%   { transform: scale(1.08) translate(1%, -1%); }
+            100% { transform: scale(1.15) translate(-1%, 1%); }
+        }
+
+        /* Deep vignette overlay */
+        .hero-vignette {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 60% 30%, transparent 0%, rgba(10,10,10,0.45) 55%, #0a0a0a 100%),
+                linear-gradient(to top, #0a0a0a 0%, transparent 50%),
+                linear-gradient(to right, rgba(10,10,10,0.8) 0%, transparent 60%);
+            z-index: 2;
         }
 
         .hero-content {
@@ -62,240 +51,483 @@
             z-index: 10;
         }
 
-        .movie-poster-details {
-            border-radius: 1rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        /* Glass-morphism panel – noir tones */
+        .hero-glass {
+            background: rgba(10, 10, 10, 0.55);
+            backdrop-filter: blur(20px) saturate(1.2);
+            -webkit-backdrop-filter: blur(20px) saturate(1.2);
+            border: 1px solid rgba(201, 169, 110, 0.12);
+            border-radius: 1.25rem;
+            padding: 2.5rem;
         }
 
-        .rating-circle, .rating-placeholder {
-            width: 70px;
-            height: 70px;
+        /* Poster */
+        .movie-poster-details {
+            border-radius: 1rem;
+            box-shadow:
+                0 20px 60px rgba(0,0,0,0.7),
+                0 0 0 1px rgba(201, 169, 110, 0.1);
+            transition: transform 0.5s cubic-bezier(.22,.61,.36,1), box-shadow 0.5s ease;
+        }
+
+        .movie-poster-details:hover {
+            transform: translateY(-6px);
+            box-shadow:
+                0 30px 80px rgba(0,0,0,0.8),
+                0 0 0 1px rgba(201, 169, 110, 0.25);
+        }
+
+        /* Rating ring */
+        .rating-ring {
+            width: 64px;
+            height: 64px;
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
+            background: conic-gradient(#C9A96E calc(@Model.RatingPercentage * 1%), #2a2a2a 0);
+            position: relative;
+            flex-shrink: 0;
         }
 
-        .rating-circle {
-            background: conic-gradient(#4f46e5 @Model.RatingPercentage, #374151 0);
-        }
-
-        .rating-placeholder {
-            background-color: #374151;
-        }
-
-        .trailer-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.8);
+        .rating-ring-inner {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: #0a0a0a;
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 100;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
         }
 
-            .trailer-modal.active {
-                opacity: 1;
-                pointer-events: auto;
-            }
-
-        .trailer-modal-content {
-            position: relative;
-            width: 90%;
-            max-width: 900px;
-            aspect-ratio: 16 / 9;
+        .rating-placeholder {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #1a1a1a;
+            border: 2px solid #333;
+            flex-shrink: 0;
         }
 
-        .close-modal {
-            position: absolute;
-            top: -40px;
-            right: 0;
-            font-size: 2rem;
-            color: white;
-            cursor: pointer;
+        /* Showtime pills */
+        .showtime-pill {
+            border: 1px solid #C9A96E;
+            color: #C9A96E;
+            font-weight: 600;
+            padding: 0.625rem 1.75rem;
+            border-radius: 9999px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-size: 0.9rem;
+            letter-spacing: 0.04em;
+        }
+
+        .showtime-pill:hover {
+            background: #C9A96E;
+            color: #0a0a0a;
+            box-shadow: 0 0 20px rgba(201, 169, 110, 0.25);
+        }
+
+        /* Cast */
+        .cast-photo {
+            width: 110px;
+            height: 110px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            transition: border-color 0.4s ease, transform 0.4s ease;
+        }
+
+        .cast-card:hover .cast-photo {
+            border-color: #C9A96E;
+            transform: scale(1.05);
+        }
+
+        /* Tabs */
+        .tab-button {
+            color: #888;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1.25rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .tab-button:hover {
+            color: #C9A96E;
         }
 
         .tab-button.active {
-            background-color: #4F46E5;
-            color: white;
+            color: #C9A96E;
+            border-bottom-color: #C9A96E;
+            background: transparent;
         }
 
         .tab-panel {
             display: none;
         }
 
-            .tab-panel.active {
-                display: block;
-            }
-
-        .reveal {
-            opacity: 1 !important;
-            transform: none !important;
+        .tab-panel.active {
+            display: block;
         }
 
-        .detail-animate {
-            opacity: 1 !important;
-            animation: none !important;
+        /* Review cards */
+        .review-card {
+            background: #1a1a1a;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 1rem;
+            padding: 1.75rem;
+            transition: border-color 0.3s ease;
         }
 
+        .review-card:hover {
+            border-color: rgba(201, 169, 110, 0.2);
+        }
+
+        /* Reviews placeholder */
+        .reviews-placeholder {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: #1a1a1a;
+            border-radius: 1rem;
+            border: 1px dashed rgba(201, 169, 110, 0.2);
+        }
+
+        /* Trailer modal */
+        .trailer-modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.92);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .trailer-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .trailer-modal-content {
+            position: relative;
+            width: 90%;
+            max-width: 960px;
+            aspect-ratio: 16 / 9;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: -48px;
+            right: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(201, 169, 110, 0.4);
+            border-radius: 50%;
+            color: #C9A96E;
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(10,10,10,0.8);
+        }
+
+        .close-modal:hover {
+            background: #C9A96E;
+            color: #0a0a0a;
+        }
+
+        /* Action buttons */
+        .action-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(201, 169, 110, 0.3);
+            background: rgba(26, 26, 26, 0.6);
+            color: #C9A96E;
+            transition: all 0.3s ease;
+        }
+
+        .action-circle:hover {
+            background: #C9A96E;
+            color: #0a0a0a;
+            border-color: #C9A96E;
+        }
+
+        .action-circle-active {
+            background: #C9A96E;
+            color: #0a0a0a;
+            border-color: #C9A96E;
+        }
+
+        /* Section divider line */
+        .gold-line {
+            width: 48px;
+            height: 1px;
+            background: #C9A96E;
+            margin-bottom: 1rem;
+        }
     </style>
 }
 
+<!-- ════════════════  HERO  ════════════════ -->
 <div class="movie-hero">
-    <div class="hero-overlay"></div>
-    <div class="absolute inset-0 overflow-hidden">
-        <div class="movie-hero-bg h-full w-full" style="background-image: url('@Model.FullBackdropPath'); background-size: cover; background-position: center;"></div>
-    </div>
-    <div class="hero-content container mx-auto">
-        <div class="grid md:grid-cols-3 gap-12 items-center">
-            <div class="md:col-span-1 reveal">
-                <img src="@Model.FullPosterPath" alt="@Model.Title Poster" class="movie-poster-details mx-auto">
-            </div>
-            <div class="md:col-span-2 text-white">
-                <div class="hero-text-panel">
-                    <h1 class="text-5xl md:text-6xl font-extrabold detail-animate" style="animation-delay: 0.2s;">@Model.Title</h1>
-                    <div class="flex items-center flex-wrap space-x-4 my-4 text-gray-300 detail-animate" style="animation-delay: 0.4s;">
-                        <span>@Model.ReleaseDate.Split('-')[0]</span>
-                        <span>&bull;</span>
-                        <span>@string.Join(", ", Model.Genres.Select(g => g.Name))</span>
-                        <span>&bull;</span>
-                        <span>@Model.FormattedRuntime</span>
-                    </div>
-                    <div class="flex items-center space-x-6 my-6 detail-animate" style="animation-delay: 0.6s;">
-                        @if (releaseDate > DateTime.Now || Model.VoteAverage == 0)
-                        {
-                            <div class="rating-placeholder" title="Not yet rated"><span class="text-white font-bold text-xl">N/A</span></div>
-                        }
-                        else
-                        {
-                            <div class="rating-circle"><span class="text-white font-bold text-xl">@Model.RatingPercentage</span></div>
-                        }
-                        @if (Model.FirstTrailer != null)
-                        {
-                            <button id="playTrailerBtn" class="flex items-center space-x-2 text-lg font-semibold hover:text-indigo-400 transition"> <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg> <span>Play Trailer</span></button>
-                        }
-                    </div>
-                    <h3 class="text-2xl font-semibold mb-2 detail-animate" style="animation-delay: 0.8s;">Overview</h3>
-                    <p class="text-gray-300 max-w-2xl leading-relaxed detail-animate" style="animation-delay: 1s;">@Model.Overview</p>
+    <div class="movie-hero-bg" style="background-image: url('@Model.FullBackdropPath');"></div>
+    <div class="hero-vignette"></div>
 
-                    <div class="flex space-x-4 mt-8 detail-animate" style="animation-delay: 1.2s;">
-                        <button class="bg-gray-700/50 text-white w-12 h-12 flex items-center justify-center rounded-full hover:bg-gray-700 transition">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                            </svg>
-                        </button>
+    <div class="hero-content w-full px-6 lg:px-16">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-12 gap-10 items-end">
 
+                <!-- Poster -->
+                <div class="md:col-span-3 reveal-up">
+                    <img src="@Model.FullPosterPath"
+                         alt="@Model.Title Poster"
+                         class="movie-poster-details w-full max-w-[280px] mx-auto md:mx-0" />
+                </div>
 
-                        @if (SignInManager.IsSignedIn(User))
-                        {
-                            <form asp-controller="UserFavorites" asp-action="ToggleFavorite" method="post">
-                                <input type="hidden" name="movieId" value="@Model.Id" /> <input type="hidden" name="movieTitle" value="@Model.Title" /> <input type="hidden" name="posterPath" value="@Model.PosterPath" />
-                                @if ((bool)ViewData["IsFavorite"])
+                <!-- Info panel -->
+                <div class="md:col-span-9 reveal-up">
+                    <div class="hero-glass">
+
+                        <!-- Title -->
+                        <h1 class="font-display font-semibold text-white text-4xl sm:text-5xl lg:text-6xl leading-tight tracking-tight mb-4">
+                            @Model.Title
+                        </h1>
+
+                        <!-- Meta line -->
+                        <div class="flex items-center flex-wrap gap-3 text-sm text-gray-400 font-body mb-6">
+                            <span class="text-[#C9A96E] font-semibold">@Model.ReleaseDate.Split('-')[0]</span>
+                            <span class="text-gray-600">/</span>
+                            <span>@string.Join(", ", Model.Genres.Select(g => g.Name))</span>
+                            <span class="text-gray-600">/</span>
+                            <span>@Model.FormattedRuntime</span>
+                        </div>
+
+                        <!-- Rating + Trailer -->
+                        <div class="flex items-center gap-6 mb-8">
+                            @if (releaseDate > DateTime.Now || Model.VoteAverage == 0)
+                            {
+                                <div class="rating-placeholder" title="Not yet rated">
+                                    <span class="text-gray-500 font-semibold text-sm">N/A</span>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="rating-ring" title="@Model.RatingPercentage% rating">
+                                    <div class="rating-ring-inner">
+                                        <span class="text-white font-bold text-sm">@Model.RatingPercentage<span class="text-[10px] text-gray-500">%</span></span>
+                                    </div>
+                                </div>
+                            }
+                            @if (Model.FirstTrailer != null)
+                            {
+                                <button id="playTrailerBtn"
+                                        class="flex items-center gap-2 text-[#C9A96E] hover:text-white transition-colors duration-300 font-body font-semibold text-sm tracking-wide">
+                                    <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Play Trailer</span>
+                                </button>
+                            }
+                        </div>
+
+                        <!-- Overview -->
+                        <div class="mb-8">
+                            <p class="text-[11px] uppercase tracking-[0.3em] text-[#C9A96E] font-body mb-2">Overview</p>
+                            <p class="text-gray-300 font-body leading-relaxed max-w-2xl text-[15px]">@Model.Overview</p>
+                        </div>
+
+                        <!-- Action buttons -->
+                        <div class="flex items-center gap-4 mb-10">
+                            <button class="action-circle" title="Like">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                </svg>
+                            </button>
+
+                            @if (SignInManager.IsSignedIn(User))
+                            {
+                                <form asp-controller="UserFavorites" asp-action="ToggleFavorite" method="post">
+                                    <input type="hidden" name="movieId" value="@Model.Id" /> <input type="hidden" name="movieTitle" value="@Model.Title" /> <input type="hidden" name="posterPath" value="@Model.PosterPath" />
+                                    @if ((bool)ViewData["IsFavorite"])
+                                    {
+                                        <button type="submit" class="action-circle action-circle-active" title="Remove from Favorites">
+                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                                            </svg>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="submit" class="action-circle" title="Add to Favorites">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                                            </svg>
+                                        </button>
+                                    }
+                                </form>
+                            }
+                            else
+                            {
+                                <a asp-controller="Account" asp-action="Register" class="action-circle" title="Add to Favorites">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                                    </svg>
+                                </a>
+                            }
+                        </div>
+
+                        <!-- Showtimes -->
+                        <div>
+                            <p class="text-[11px] uppercase tracking-[0.3em] text-[#C9A96E] font-body mb-4">Select Showtime</p>
+                            <div class="flex flex-wrap gap-3">
+                                @if (SignInManager.IsSignedIn(User))
                                 {
-                                    <button type="submit" class="bg-indigo-600 text-white p-3 rounded-full hover:bg-indigo-700 transition" title="Remove from Favorites"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg></button>
+                                    <a asp-controller="Booking" asp-action="SelectSeats" asp-route-movieId="@Model.Id" asp-route-movieTitle="@Model.Title" asp-route-showtime="Today - 7:00 PM" class="showtime-pill">7:00 PM</a>
+                                    <a asp-controller="Booking" asp-action="SelectSeats" asp-route-movieId="@Model.Id" asp-route-movieTitle="@Model.Title" asp-route-showtime="Today - 8:30 PM" class="showtime-pill">8:30 PM</a>
+                                    <a asp-controller="Booking" asp-action="SelectSeats" asp-route-movieId="@Model.Id" asp-route-movieTitle="@Model.Title" asp-route-showtime="Today - 9:45 PM" class="showtime-pill">9:45 PM</a>
                                 }
                                 else
                                 {
-                                    <button type="submit" class="bg-gray-700/50 text-white p-3 rounded-full hover:bg-gray-700 transition" title="Add to Favorites"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg></button>
+                                    <a asp-controller="Account" asp-action="Register" class="showtime-pill">7:00 PM</a>
+                                    <a asp-controller="Account" asp-action="Register" class="showtime-pill">8:30 PM</a>
+                                    <a asp-controller="Account" asp-action="Register" class="showtime-pill">9:45 PM</a>
                                 }
-                            </form>
-                        }
-                        else
-                        {
-                            <a asp-controller="Account" asp-action="Register" class="bg-gray-700/50 text-white p-3 rounded-full hover:bg-gray-700 transition" title="Add to Favorites"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg></a>
-                        }
-                    </div>
+                            </div>
+                        </div>
 
-                    <h3 class="text-2xl font-semibold mt-10 mb-4 detail-animate" style="animation-delay: 1.4s;">Select Showtime</h3>
-                    <div class="flex flex-wrap gap-4 detail-animate" style="animation-delay: 1.6s;">
-                        @if (SignInManager.IsSignedIn(User))
-                        {
-                            <a asp-controller="Booking" asp-action="SelectSeats" asp-route-movieId="@Model.Id" asp-route-movieTitle="@Model.Title" asp-route-showtime="Today - 7:00 PM" class="bg-gray-700/50 text-white font-bold py-3 px-6 rounded-full hover:bg-indigo-600 transition">7:00 PM</a>
-                            <a asp-controller="Booking" asp-action="SelectSeats" asp-route-movieId="@Model.Id" asp-route-movieTitle="@Model.Title" asp-route-showtime="Today - 8:30 PM" class="bg-gray-700/50 text-white font-bold py-3 px-6 rounded-full hover:bg-indigo-600 transition">8:30 PM</a>
-                            <a asp-controller="Booking" asp-action="SelectSeats" asp-route-movieId="@Model.Id" asp-route-movieTitle="@Model.Title" asp-route-showtime="Today - 9:45 PM" class="bg-gray-700/50 text-white font-bold py-3 px-6 rounded-full hover:bg-indigo-600 transition">9:45 PM</a>
-                        }
-                        else
-                        {
-                            <a asp-controller="Account" asp-action="Register" class="bg-gray-700/50 text-white font-bold py-3 px-6 rounded-full hover:bg-indigo-600 transition">7:00 PM</a>
-                            <a asp-controller="Account" asp-action="Register" class="bg-gray-700/50 text-white font-bold py-3 px-6 rounded-full hover:bg-indigo-600 transition">8:30 PM</a>
-                            <a asp-controller="Account" asp-action="Register" class="bg-gray-700/50 text-white font-bold py-3 px-6 rounded-full hover:bg-indigo-600 transition">9:45 PM</a>
-                        }
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
 </div>
 
-<div class="container mx-auto px-6 py-16">
-    <div class="mb-16 reveal">
-        <h2 class="text-3xl font-bold mb-8">Top Billed Cast</h2>
-        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8">
+<!-- ════════════════  CAST  ════════════════ -->
+<section class="py-20 px-6 lg:px-16" style="background: #0a0a0a;">
+    <div class="max-w-7xl mx-auto reveal-up">
+        <div class="gold-line"></div>
+        <p class="text-[11px] uppercase tracking-[0.3em] text-[#C9A96E] font-body mb-2">The Ensemble</p>
+        <h2 class="font-display font-semibold text-white text-3xl mb-10">Top Billed Cast</h2>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8">
             @foreach (var castMember in Model.Credits.Cast.Take(6))
             {
-                <div class="text-center cast-member">
-                    <img src="@castMember.FullProfilePath" alt="@castMember.Name" class="rounded-lg mb-2">
-                    <h4 class="font-bold">@castMember.Name</h4>
+                <div class="cast-card text-center group cursor-default">
+                    <div class="mx-auto mb-3 w-[110px] h-[110px] rounded-full overflow-hidden">
+                        <img src="@castMember.FullProfilePath"
+                             alt="@castMember.Name"
+                             class="cast-photo" />
+                    </div>
+                    <h4 class="font-body font-semibold text-white text-sm">@castMember.Name</h4>
                 </div>
             }
         </div>
     </div>
-    <div class="reveal">
-        <div class="flex justify-between items-center mb-8">
-            <h2 class="text-3xl font-bold">Reviews</h2>
-            <a asp-controller="Account" asp-action="Register" class="bg-transparent border-2 border-indigo-500 text-indigo-400 font-bold py-2 px-6 rounded-full text-md transition-all duration-300 transform hover:scale-110 hover:bg-indigo-500 hover:text-white">
+</section>
+
+<!-- ════════════════  REVIEWS  ════════════════ -->
+<section class="py-20 px-6 lg:px-16" style="background: #0a0a0a;">
+    <div class="max-w-7xl mx-auto reveal-up">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 mb-10">
+            <div>
+                <div class="gold-line"></div>
+                <p class="text-[11px] uppercase tracking-[0.3em] text-[#C9A96E] font-body mb-2">Audience &amp; Critics</p>
+                <h2 class="font-display font-semibold text-white text-3xl">Reviews</h2>
+            </div>
+            <a asp-controller="Account" asp-action="Register"
+               class="showtime-pill text-sm self-start sm:self-auto">
                 Write a Review
             </a>
         </div>
+
         @if (releaseDate > DateTime.Now)
         {
-            <div class="reviews-coming-soon"><h3 class="text-2xl font-bold mb-2">This movie is coming soon!</h3><p class="text-gray-400">Reviews will be available after the release date. Check back then!</p></div>
+            <div class="reviews-placeholder">
+                <h3 class="font-display font-semibold text-white text-2xl mb-2">This movie is coming soon!</h3>
+                <p class="text-gray-500 font-body">Reviews will be available after the release date. Check back then!</p>
+            </div>
         }
         else if (!Model.Reviews.Results.Any())
         {
-            <div class="reviews-coming-soon"><h3 class="text-2xl font-bold mb-2">No Reviews Yet</h3><p class="text-gray-400">Be the first one to share your thoughts!</p></div>
+            <div class="reviews-placeholder">
+                <h3 class="font-display font-semibold text-white text-2xl mb-2">No Reviews Yet</h3>
+                <p class="text-gray-500 font-body">Be the first one to share your thoughts!</p>
+            </div>
         }
         else
         {
-            <div class="flex space-x-2 border-b border-gray-700 mb-6">
-                <button class="tab-button active py-2 px-4 font-semibold" data-tab="user-reviews">User Reviews</button>
-                <button class="tab-button py-2 px-4 font-semibold" data-tab="critic-reviews">Critic Reviews</button>
+            <div class="flex gap-1 border-b border-gray-800/50 mb-8">
+                <button class="tab-button active" data-tab="user-reviews">User Reviews</button>
+                <button class="tab-button" data-tab="critic-reviews">Critic Reviews</button>
             </div>
-            <div id="user-reviews" class="tab-panel active space-y-6">
+
+            <div id="user-reviews" class="tab-panel active space-y-5">
                 @foreach (var review in Model.Reviews.Results.Take(5))
                 {
-                    <div class="bg-gray-800 p-6 rounded-lg">
-                        <div class="flex items-center mb-2">
-                            <h4 class="font-bold text-lg">@review.Author</h4>
+                    <div class="review-card">
+                        <div class="flex items-center gap-3 mb-3">
+                            <h4 class="font-body font-semibold text-white">@review.Author</h4>
                             @if (review.AuthorDetails.Rating.HasValue)
                             {
-                                <span class="ml-4 bg-indigo-600 text-xs font-bold px-2 py-1 rounded-full">@review.AuthorDetails.Rating / 10</span>
+                                <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#C9A96E]/15 text-[#C9A96E] border border-[#C9A96E]/30">
+                                    @review.AuthorDetails.Rating / 10
+                                </span>
                             }
                         </div>
-                        <p class="text-gray-400 line-clamp-4">@review.Content</p>
+                        <p class="text-gray-400 font-body text-sm leading-relaxed line-clamp-4">@review.Content</p>
                     </div>
                 }
             </div>
-            <div id="critic-reviews" class="tab-panel"><div class="reviews-coming-soon"><h3 class="text-2xl font-bold mb-2">No Critic Reviews Yet</h3><p class="text-gray-400">Professional critic reviews will be added as they become available.</p></div></div>
+
+            <div id="critic-reviews" class="tab-panel">
+                <div class="reviews-placeholder">
+                    <h3 class="font-display font-semibold text-white text-2xl mb-2">No Critic Reviews Yet</h3>
+                    <p class="text-gray-500 font-body">Professional critic reviews will be added as they become available.</p>
+                </div>
+            </div>
         }
     </div>
-</div>
+</section>
 
+<!-- ════════════════  TRAILER MODAL  ════════════════ -->
 @if (Model.FirstTrailer != null)
 {
-     <div id="trailerModal" class="trailer-modal"><div class="trailer-modal-content"><span id="closeModalBtn" class="close-modal">&times;</span><iframe id="youtube-player" class="w-full h-full" src="" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>
+    <div id="trailerModal" class="trailer-modal">
+        <div class="trailer-modal-content">
+            <span id="closeModalBtn" class="close-modal">&times;</span>
+            <iframe id="youtube-player"
+                    class="w-full h-full rounded-lg"
+                    src=""
+                    title="YouTube video player"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen></iframe>
+        </div>
+    </div>
 }
 
 @section Scripts {
     <script>
+        // ── Reveal animations ──
         function revealDetails() {
-            const reveals = document.querySelectorAll('.reveal');
+            const reveals = document.querySelectorAll('.reveal-up');
             reveals.forEach(el => {
                 const windowHeight = window.innerHeight;
                 const elementTop = el.getBoundingClientRect().top;
@@ -303,11 +535,16 @@
                 if (elementTop < windowHeight - elementVisible) {
                     if (!el.classList.contains('active')) {
                         el.classList.add('active');
-                        const castMembers = el.querySelectorAll('.cast-member');
-                        if (castMembers.length > 0) {
-                            castMembers.forEach((member, index) => {
-                                member.classList.add('detail-animate');
-                                member.style.animationDelay = `${index * 100}ms`;
+                        const castCards = el.querySelectorAll('.cast-card');
+                        if (castCards.length > 0) {
+                            castCards.forEach((card, index) => {
+                                card.style.opacity = '0';
+                                card.style.transform = 'translateY(20px)';
+                                card.style.transition = `opacity 0.6s ease ${index * 0.08}s, transform 0.6s ease ${index * 0.08}s`;
+                                requestAnimationFrame(() => {
+                                    card.style.opacity = '1';
+                                    card.style.transform = 'translateY(0)';
+                                });
                             });
                         }
                     }
@@ -317,6 +554,7 @@
         window.addEventListener('scroll', revealDetails);
         document.addEventListener('DOMContentLoaded', revealDetails);
 
+        // ── Trailer modal ──
         const playTrailerBtn = document.getElementById('playTrailerBtn');
         const trailerModal = document.getElementById('trailerModal');
         const closeModalBtn = document.getElementById('closeModalBtn');
@@ -341,6 +579,7 @@
             });
         }
 
+        // ── Review tabs ──
         const tabButtons = document.querySelectorAll('.tab-button');
         const tabPanels = document.querySelectorAll('.tab-panel');
         tabButtons.forEach(button => {

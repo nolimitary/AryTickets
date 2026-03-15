@@ -1,59 +1,135 @@
-﻿@model RegisterViewModel
+@model RegisterViewModel
 @{
     ViewData["Title"] = "Register";
     Layout = "_Layout";
 }
 
 @section Styles {
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        .form-container {
-            background-color: rgba(31, 41, 55, 0.6);
-            backdrop-filter: blur(10px);
-            animation: fadeUpBlur 0.8s forwards;
+        :root {
+            --noir-400: #0a0a0a;
+            --noir-300: #0f0f0f;
+            --noir-100: #1a1a1a;
+            --gold-500: #C9A96E;
+        }
+
+        .font-display { font-family: 'Playfair Display', serif; }
+        .font-body { font-family: 'DM Sans', sans-serif; }
+
+        .bg-noir-400 { background-color: var(--noir-400); }
+        .bg-noir-300 { background-color: var(--noir-300); }
+        .bg-noir-100 { background-color: var(--noir-100); }
+        .text-gold-500 { color: var(--gold-500); }
+        .bg-gold-500 { background-color: var(--gold-500); }
+        .border-gold-500 { border-color: var(--gold-500); }
+
+        .noir-card {
+            animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            opacity: 0;
+        }
+
+        @@keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .noir-input {
+            background-color: var(--noir-300);
+            border: 1px solid #2a2a2a;
+            color: #fff;
+            transition: border-color 0.3s ease;
+        }
+        .noir-input:focus {
+            outline: none;
+            border-color: rgba(201, 169, 110, 0.5);
+        }
+        .noir-input::placeholder {
+            color: #555;
+        }
+
+        .noir-btn {
+            border: 1px solid var(--gold-500);
+            color: var(--gold-500);
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+        .noir-btn:hover {
+            background-color: var(--gold-500);
+            color: var(--noir-400);
+        }
+
+        .noir-link {
+            color: #6b7280;
+            transition: color 0.3s ease;
+        }
+        .noir-link:hover {
+            color: var(--gold-500);
         }
     </style>
 }
 
-<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8" style="background-image: url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=2525&auto-format&fit=crop'); background-size: cover; background-position: center;">
-    <div class="absolute inset-0 bg-gray-900/80"></div>
-    <div class="form-container max-w-md w-full space-y-8 p-10 rounded-xl border border-gray-700">
-        <div>
-            <h2 class="mt-6 text-center text-3xl font-extrabold text-white">
-                Create a new account
-            </h2>
+<div class="min-h-screen flex items-center justify-center px-4 bg-noir-400 font-body">
+    <div class="noir-card w-full max-w-md p-10 bg-noir-100 rounded-sm" style="border: 1px solid rgba(201, 169, 110, 0.2);">
+
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <span class="font-display text-3xl tracking-wide">
+                <span class="text-white">Ary</span><span class="text-gold-500">Tix</span>
+            </span>
         </div>
-        <form class="mt-8 space-y-6" asp-action="Register" method="post">
-            <div asp-validation-summary="All" class="text-red-400 list-disc pl-5 mb-4 text-sm"></div>
-            <div class="rounded-md shadow-sm space-y-4">
-                <div>
-                    <label asp-for="Username" class="sr-only">Username</label>
-                    <input asp-for="Username" class="appearance-none relative block w-full px-3 py-3 border border-gray-700 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm rounded-md" placeholder="Username">
-                    <span asp-validation-for="Username" class="text-red-400 text-xs pt-1"></span>
-                </div>
-                <div>
-                    <label asp-for="Email" class="sr-only">Email address</label>
-                    <input asp-for="Email" class="appearance-none relative block w-full px-3 py-3 border border-gray-700 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm rounded-md" placeholder="Email address">
-                    <span asp-validation-for="Email" class="text-red-400 text-xs pt-1"></span>
-                </div>
-                <div>
-                    <label asp-for="Password" class="sr-only">Password</label>
-                    <input asp-for="Password" class="appearance-none relative block w-full px-3 py-3 border border-gray-700 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm rounded-md" placeholder="Password">
-                    <span asp-validation-for="Password" class="text-red-400 text-xs pt-1"></span>
-                </div>
-                <div>
-                    <label asp-for="ConfirmPassword" class="sr-only">Confirm Password</label>
-                    <input asp-for="ConfirmPassword" class="appearance-none relative block w-full px-3 py-3 border border-gray-700 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm rounded-md" placeholder="Confirm Password">
-                    <span asp-validation-for="ConfirmPassword" class="text-red-400 text-xs pt-1"></span>
-                </div>
+
+        <!-- Title -->
+        <h2 class="font-display text-center text-2xl text-white mb-3">Join AryTix</h2>
+        <div class="w-16 h-px bg-gold-500 mx-auto mb-8"></div>
+
+        <form class="space-y-6" asp-action="Register" method="post">
+            <div asp-validation-summary="All" class="text-red-400 text-sm list-disc pl-5 mb-4"></div>
+
+            <!-- Username -->
+            <div>
+                <label asp-for="Username" class="block text-[12px] uppercase tracking-widest text-gray-500 mb-2">Username</label>
+                <input asp-for="Username" class="noir-input w-full px-4 py-3 rounded-sm text-sm" placeholder="Choose a username">
+                <span asp-validation-for="Username" class="text-red-400 text-xs mt-1 block"></span>
             </div>
 
+            <!-- Email -->
             <div>
-                <button type="submit" class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-gray-900 transition-all duration-300 transform hover:scale-105">
+                <label asp-for="Email" class="block text-[12px] uppercase tracking-widest text-gray-500 mb-2">Email address</label>
+                <input asp-for="Email" class="noir-input w-full px-4 py-3 rounded-sm text-sm" placeholder="you@example.com">
+                <span asp-validation-for="Email" class="text-red-400 text-xs mt-1 block"></span>
+            </div>
+
+            <!-- Password -->
+            <div>
+                <label asp-for="Password" class="block text-[12px] uppercase tracking-widest text-gray-500 mb-2">Password</label>
+                <input asp-for="Password" class="noir-input w-full px-4 py-3 rounded-sm text-sm" placeholder="Create a password">
+                <span asp-validation-for="Password" class="text-red-400 text-xs mt-1 block"></span>
+            </div>
+
+            <!-- Confirm Password -->
+            <div>
+                <label asp-for="ConfirmPassword" class="block text-[12px] uppercase tracking-widest text-gray-500 mb-2">Confirm password</label>
+                <input asp-for="ConfirmPassword" class="noir-input w-full px-4 py-3 rounded-sm text-sm" placeholder="Confirm your password">
+                <span asp-validation-for="ConfirmPassword" class="text-red-400 text-xs mt-1 block"></span>
+            </div>
+
+            <!-- Submit -->
+            <div>
+                <button type="submit" class="noir-btn w-full py-3 text-sm font-medium uppercase tracking-widest rounded-sm">
                     Register
                 </button>
             </div>
-            <div class="text-sm text-center">
-                <a asp-action="Login" class="font-medium text-indigo-400 hover:text-indigo-300">
+
+            <!-- Login Link -->
+            <div class="text-center pt-2">
+                <a asp-action="Login" class="noir-link text-sm">
                     Already have an account? Sign in
                 </a>
             </div>

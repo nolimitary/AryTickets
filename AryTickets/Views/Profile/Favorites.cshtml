@@ -1,29 +1,33 @@
-﻿@model IEnumerable<UserFavorite>
+@model IEnumerable<UserFavorite>
 @{
     ViewData["Title"] = "My Favorites";
     Layout = "_ProfileLayout";
 }
 
-<div class="bg-gray-800 p-8 rounded-xl shadow-lg">
-    <h3 class="text-2xl font-bold mb-6">My Favorite Movies</h3>
+<div class="p-8 rounded-xl shadow-lg" style="background-color: #1a1a1a;">
+    <h3 class="text-2xl font-bold mb-8 text-white" style="font-family: 'Playfair Display', serif;">My Favorite Movies</h3>
 
     @if (Model.Any())
     {
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
             @foreach (var favorite in Model)
             {
-                <a asp-controller="Movie" asp-action="Details" asp-route-id="@favorite.MovieId">
-                    <div class="movie-card bg-gray-900 rounded-xl overflow-hidden">
+                <a asp-controller="Movie" asp-action="Details" asp-route-id="@favorite.MovieId" class="group block">
+                    <div class="rounded-xl overflow-hidden transition-all duration-300" style="background-color: #111; border: 2px solid transparent;" onmouseover="this.style.borderColor='#C9A96E'; this.style.boxShadow='0 0 20px rgba(201,169,110,0.15)';" onmouseout="this.style.borderColor='transparent'; this.style.boxShadow='none';">
                         <img src="@favorite.FullPosterPath" alt="@favorite.MovieTitle" class="w-full h-auto aspect-[2/3] object-cover">
                     </div>
+                    <p class="mt-2 text-sm text-gray-400 group-hover:text-white transition-colors truncate" style="font-family: 'DM Sans', sans-serif;">@favorite.MovieTitle</p>
                 </a>
             }
         </div>
     }
     else
     {
-        <div class="text-center text-gray-500 py-12">
-            <p class="mt-4">You haven't favorited any movies yet.</p>
+        <div class="text-center py-16">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style="background: rgba(201,169,110,0.1);">
+                <svg class="w-8 h-8" fill="none" stroke="#C9A96E" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+            </div>
+            <p class="text-gray-500" style="font-family: 'DM Sans', sans-serif;">You haven't favorited any movies yet.</p>
         </div>
     }
 </div>

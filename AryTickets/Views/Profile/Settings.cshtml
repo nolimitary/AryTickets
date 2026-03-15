@@ -1,4 +1,4 @@
-﻿@model SettingsViewModel
+@model SettingsViewModel
 @{
     ViewData["Title"] = "Settings";
     Layout = "_ProfileLayout";
@@ -12,80 +12,83 @@
     </style>
 }
 
-<div class="space-y-12">
+<div class="space-y-10">
 
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="bg-green-500/20 border border-green-500 text-green-300 px-4 py-3 rounded-lg" role="alert">
-            <p>@TempData["SuccessMessage"]</p>
+        <div class="bg-green-500/10 border border-green-500/30 text-green-400 px-5 py-3.5 rounded-sm" role="alert">
+            <p class="font-body text-sm">@TempData["SuccessMessage"]</p>
         </div>
     }
     @if (TempData["ErrorMessage"] != null)
     {
-        <div class="bg-red-500/20 border border-red-500 text-red-300 px-4 py-3 rounded-lg" role="alert">
-            <p>@TempData["ErrorMessage"]</p>
+        <div class="bg-red-500/10 border border-red-500/30 text-red-400 px-5 py-3.5 rounded-sm" role="alert">
+            <p class="font-body text-sm">@TempData["ErrorMessage"]</p>
         </div>
     }
 
-    <div class="bg-gray-800 p-8 rounded-xl shadow-lg">
-        <h3 class="text-2xl font-bold mb-1">Profile Information</h3>
-        <p class="text-gray-400 mb-6">Update your account's profile information and email address.</p>
-        <form asp-action="UpdateProfile" method="post" class="space-y-4">
+    <!-- Profile Information -->
+    <div class="bg-[#1a1a1a] border border-gray-800/30 p-8 rounded-sm">
+        <h3 class="font-display text-2xl text-white mb-1">Profile Information</h3>
+        <p class="font-body text-sm text-gray-500 mb-8">Update your account's profile information and email address.</p>
+        <form asp-action="UpdateProfile" method="post" class="space-y-6">
             <div>
-                <label asp-for="Username" class="text-sm font-medium text-gray-300"></label>
-                <input asp-for="Username" class="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:ring-indigo-500 focus:border-indigo-500">
+                <label asp-for="Username" class="block text-[12px] uppercase tracking-wider text-gray-500 mb-2 font-body"></label>
+                <input asp-for="Username" class="block w-full px-4 py-2.5 bg-[#0f0f0f] border border-gray-800 rounded-sm text-white font-body text-sm focus:border-[#C9A96E]/40 focus:outline-none transition-colors">
             </div>
             <div>
-                <label asp-for="Email" class="text-sm font-medium text-gray-300"></label>
-                <input asp-for="Email" class="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:ring-indigo-500 focus:border-indigo-500">
+                <label asp-for="Email" class="block text-[12px] uppercase tracking-wider text-gray-500 mb-2 font-body"></label>
+                <input asp-for="Email" class="block w-full px-4 py-2.5 bg-[#0f0f0f] border border-gray-800 rounded-sm text-white font-body text-sm focus:border-[#C9A96E]/40 focus:outline-none transition-colors">
             </div>
-            <div class="flex justify-end">
-                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg transition-transform transform hover:scale-105">Save</button>
+            <div class="flex justify-end pt-2">
+                <button type="submit" class="px-6 py-2.5 bg-transparent border border-[#C9A96E] text-[#C9A96E] font-body text-sm tracking-wide rounded-sm hover:bg-[#C9A96E] hover:text-[#0a0a0a] transition-all duration-300">Save</button>
             </div>
         </form>
     </div>
 
-    <div class="bg-gray-800 p-8 rounded-xl shadow-lg">
-        <h3 class="text-2xl font-bold mb-1">Update Password</h3>
-        <p class="text-gray-400 mb-6">Ensure your account is using a long, random password to stay secure.</p>
-        <form asp-action="ChangePassword" method="post" class="space-y-4">
-            <div asp-validation-summary="ModelOnly" class="text-red-400"></div>
+    <!-- Update Password -->
+    <div class="bg-[#1a1a1a] border border-gray-800/30 p-8 rounded-sm">
+        <h3 class="font-display text-2xl text-white mb-1">Update Password</h3>
+        <p class="font-body text-sm text-gray-500 mb-8">Ensure your account is using a long, random password to stay secure.</p>
+        <form asp-action="ChangePassword" method="post" class="space-y-6">
+            <div asp-validation-summary="ModelOnly" class="text-red-400 font-body text-sm"></div>
             <div>
-                <label asp-for="OldPassword" class="text-sm font-medium text-gray-300"></label>
-                <input asp-for="OldPassword" type="password" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                <label asp-for="OldPassword" class="block text-[12px] uppercase tracking-wider text-gray-500 mb-2 font-body"></label>
+                <input asp-for="OldPassword" type="password" class="block w-full px-4 py-2.5 bg-[#0f0f0f] border border-gray-800 rounded-sm text-white font-body text-sm focus:border-[#C9A96E]/40 focus:outline-none transition-colors">
             </div>
             <div>
-                <label asp-for="NewPassword" class="text-sm font-medium text-gray-300"></label>
-                <input asp-for="NewPassword" type="password" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                <label asp-for="NewPassword" class="block text-[12px] uppercase tracking-wider text-gray-500 mb-2 font-body"></label>
+                <input asp-for="NewPassword" type="password" class="block w-full px-4 py-2.5 bg-[#0f0f0f] border border-gray-800 rounded-sm text-white font-body text-sm focus:border-[#C9A96E]/40 focus:outline-none transition-colors">
             </div>
             <div>
-                <label asp-for="ConfirmPassword" class="text-sm font-medium text-gray-300"></label>
-                <input asp-for="ConfirmPassword" type="password" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                <label asp-for="ConfirmPassword" class="block text-[12px] uppercase tracking-wider text-gray-500 mb-2 font-body"></label>
+                <input asp-for="ConfirmPassword" type="password" class="block w-full px-4 py-2.5 bg-[#0f0f0f] border border-gray-800 rounded-sm text-white font-body text-sm focus:border-[#C9A96E]/40 focus:outline-none transition-colors">
             </div>
-            <div class="flex justify-end">
-                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg transition-transform transform hover:scale-105">Save Password</button>
+            <div class="flex justify-end pt-2">
+                <button type="submit" class="px-6 py-2.5 bg-transparent border border-[#C9A96E] text-[#C9A96E] font-body text-sm tracking-wide rounded-sm hover:bg-[#C9A96E] hover:text-[#0a0a0a] transition-all duration-300">Save Password</button>
             </div>
         </form>
     </div>
 
-    <div class="bg-gray-800 p-8 rounded-xl shadow-lg border border-red-500/30">
-        <h3 class="text-2xl font-bold text-red-400 mb-1">Delete Account</h3>
-        <p class="text-gray-400 mb-6">Once your account is deleted, all of its resources and data will be permanently deleted. This action cannot be undone.</p>
-        <button id="delete-account-button" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition-transform transform hover:scale-105">Delete Account</button>
+    <!-- Delete Account -->
+    <div class="bg-[#1a1a1a] border border-red-500/20 p-8 rounded-sm">
+        <h3 class="font-display text-2xl text-red-400 mb-1">Delete Account</h3>
+        <p class="font-body text-sm text-gray-500 mb-8">Once your account is deleted, all of its resources and data will be permanently deleted. This action cannot be undone.</p>
+        <button id="delete-account-button" class="px-6 py-2.5 bg-transparent border border-red-500/40 text-red-400 font-body text-sm tracking-wide rounded-sm hover:bg-red-500 hover:text-white transition-all duration-300">Delete Account</button>
     </div>
 </div>
 
-<div id="delete-modal" class="delete-modal fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none">
-    <div class="bg-gray-800 rounded-xl shadow-2xl p-8 max-w-md w-full border border-red-500/50">
-        <h3 class="text-2xl font-bold text-red-400">Are you absolutely sure?</h3>
-        <p class="text-gray-400 mt-4">This action cannot be undone. This will permanently delete your account and all associated data.</p>
-        <p class="text-gray-400 mt-2">Please type your username <strong class="text-white">@Model.Username</strong> to confirm.</p>
-        <input id="delete-confirm-input" type="text" class="mt-4 block w-full bg-gray-700 border-gray-600 rounded-md" placeholder="Type your username here">
+<div id="delete-modal" class="delete-modal fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none">
+    <div class="bg-[#1a1a1a] border border-red-500/30 rounded-sm shadow-2xl p-8 max-w-md w-full">
+        <h3 class="font-display text-2xl text-red-400">Are you absolutely sure?</h3>
+        <p class="font-body text-sm text-gray-500 mt-4">This action cannot be undone. This will permanently delete your account and all associated data.</p>
+        <p class="font-body text-sm text-gray-500 mt-2">Please type your username <strong class="text-white">@Model.Username</strong> to confirm.</p>
+        <input id="delete-confirm-input" type="text" class="mt-5 block w-full px-4 py-2.5 bg-[#0f0f0f] border border-gray-800 rounded-sm text-white font-body text-sm focus:border-red-500/40 focus:outline-none transition-colors" placeholder="Type your username here">
 
-        <div class="mt-6 flex justify-end space-x-4">
-            <button id="cancel-delete-button" class="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-2 px-4 rounded-lg">Cancel</button>
+        <div class="mt-8 flex justify-end space-x-4">
+            <button id="cancel-delete-button" class="px-6 py-2.5 bg-transparent border border-gray-700 text-gray-400 font-body text-sm tracking-wide rounded-sm hover:border-gray-500 hover:text-white transition-all duration-300">Cancel</button>
             <form asp-action="DeleteAccount" method="post">
-                <button id="confirm-delete-button" type="submit" class="bg-red-700 text-white font-semibold py-2 px-4 rounded-lg opacity-50 cursor-not-allowed" disabled>Delete Account</button>
+                <button id="confirm-delete-button" type="submit" class="px-6 py-2.5 bg-transparent border border-red-500/40 text-red-400 font-body text-sm tracking-wide rounded-sm hover:bg-red-500 hover:text-white transition-all duration-300 opacity-50 cursor-not-allowed" disabled>Delete Account</button>
             </form>
         </div>
     </div>

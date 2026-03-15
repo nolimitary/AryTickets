@@ -1,5 +1,5 @@
-﻿@{
-    ViewData["Title"] = "Register Confirmation";
+@{
+    ViewData["Title"] = "Check Your Email";
     Layout = "_Layout";
 }
 
@@ -8,10 +8,9 @@
         @@keyframes fadeUpBlur {
             from {
                 opacity: 0;
-                transform: translateY(30px);
-                filter: blur(5px);
+                transform: translateY(24px);
+                filter: blur(6px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -19,20 +18,62 @@
             }
         }
 
-        .content-animate {
-            animation: fadeUpBlur 1s forwards;
+        .noir-card {
+            animation: fadeUpBlur 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
+
+        .noir-delay-1 { animation-delay: 0.1s; opacity: 0; }
+        .noir-delay-2 { animation-delay: 0.25s; opacity: 0; }
+        .noir-delay-3 { animation-delay: 0.4s; opacity: 0; }
+        .noir-delay-4 { animation-delay: 0.55s; opacity: 0; }
+        .noir-delay-5 { animation-delay: 0.7s; opacity: 0; }
     </style>
 }
 
+<div class="min-h-screen flex items-center justify-center px-4 py-12" style="background-color: #0a0a0a;">
+    <div class="max-w-md w-full rounded-2xl border p-10 text-center space-y-8"
+         style="background-color: #1a1a1a; border-color: rgba(201,169,110,0.2);">
 
-<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8" style="background-image: url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=2525&auto=format&fit=crop'); background-size: cover; background-position: center;">
-    <div class="absolute inset-0 bg-gray-900/80"></div>
-    <div class="max-w-md w-full space-y-8 p-10 text-center">
-        <h1 class="text-4xl font-extrabold text-white content-animate" style="animation-delay: 0.2s;">Check Your Email</h1>
-        <p class="text-gray-300 mt-4 content-animate" style="animation-delay: 0.4s;">Thank you for registering! We've sent a verification code to your email address. Please enter it on the confirmation page to activate your account.</p>
-        <div class="mt-6 content-animate" style="animation-delay: 0.6s;">
-            <a asp-action="ConfirmEmail" class="bg-indigo-600 text-white font-bold py-3 px-8 rounded-full text-lg transition-transform transform hover:scale-105 inline-block">Enter Code</a>
+        <!-- Logo -->
+        <div class="noir-card noir-delay-1">
+            <span class="text-3xl" style="font-family: 'Playfair Display', serif;">
+                <span class="text-white">Ary</span><span style="color: #C9A96E;">Tix</span>
+            </span>
+        </div>
+
+        <!-- Envelope icon -->
+        <div class="noir-card noir-delay-2">
+            <div class="mx-auto flex items-center justify-center w-20 h-20 rounded-full" style="border: 1px solid rgba(201,169,110,0.25);">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="#C9A96E">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                </svg>
+            </div>
+        </div>
+
+        <!-- Title -->
+        <div class="noir-card noir-delay-3">
+            <h1 class="text-3xl font-bold text-white" style="font-family: 'Playfair Display', serif;">
+                Check Your Email
+            </h1>
+            <!-- Gold decorative line -->
+            <div class="mx-auto mt-4 w-16 h-px" style="background-color: #C9A96E;"></div>
+        </div>
+
+        <!-- Description -->
+        <p class="text-sm leading-relaxed noir-card noir-delay-4" style="color: #9ca3af; font-family: 'DM Sans', sans-serif;">
+            Thank you for registering! We've sent a verification code to your email address.
+            Please enter it on the confirmation page to activate your account.
+        </p>
+
+        <!-- CTA Button -->
+        <div class="noir-card noir-delay-5">
+            <a asp-action="ConfirmEmail"
+               class="inline-block py-3 px-10 rounded-lg text-sm font-semibold tracking-wide uppercase transition-all duration-300"
+               style="font-family: 'DM Sans', sans-serif; color: #C9A96E; border: 1px solid #C9A96E; background: transparent;"
+               onmouseenter="this.style.backgroundColor='#C9A96E'; this.style.color='#0a0a0a';"
+               onmouseleave="this.style.backgroundColor='transparent'; this.style.color='#C9A96E';">
+                Enter Code
+            </a>
         </div>
     </div>
 </div>
