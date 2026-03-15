@@ -19,65 +19,56 @@
             }
         }
 
-        .noir-card {
+        .fade-in {
             animation: fadeUpBlur 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
 
-        .noir-card-delay-1 { animation-delay: 0.1s; opacity: 0; }
-        .noir-card-delay-2 { animation-delay: 0.25s; opacity: 0; }
-        .noir-card-delay-3 { animation-delay: 0.4s; opacity: 0; }
-        .noir-card-delay-4 { animation-delay: 0.55s; opacity: 0; }
+        .fade-delay-1 { animation-delay: 0.1s; opacity: 0; }
+        .fade-delay-2 { animation-delay: 0.25s; opacity: 0; }
+        .fade-delay-3 { animation-delay: 0.4s; opacity: 0; }
+        .fade-delay-4 { animation-delay: 0.55s; opacity: 0; }
     </style>
 }
 
-<div class="min-h-screen flex items-center justify-center px-4 py-12" style="background-color: #0a0a0a;">
-    <div class="max-w-md w-full rounded-2xl border p-10 space-y-8"
-         style="background-color: #1a1a1a; border-color: rgba(201,169,110,0.2);">
+<div class="min-h-screen flex items-center justify-center px-4 py-12 bg-surface-400">
+    <div class="max-w-md w-full bg-surface-200 border border-white/[0.06] rounded-2xl p-10 space-y-8">
 
         <!-- Logo -->
-        <div class="text-center noir-card noir-card-delay-1">
-            <span class="text-3xl" style="font-family: 'Playfair Display', serif;">
-                <span class="text-white">Ary</span><span style="color: #C9A96E;">Tix</span>
+        <div class="text-center fade-in fade-delay-1">
+            <span class="text-3xl font-bold">
+                <span class="text-white">Ary</span><span class="text-accent-500">Tix</span>
             </span>
         </div>
 
         <!-- Title -->
-        <div class="text-center noir-card noir-card-delay-2">
-            <h2 class="text-3xl font-bold text-white" style="font-family: 'Playfair Display', serif;">
+        <div class="text-center fade-in fade-delay-2">
+            <h2 class="text-2xl font-bold text-white">
                 Verify Your Account
             </h2>
-            <!-- Gold decorative line -->
-            <div class="mx-auto mt-4 w-16 h-px" style="background-color: #C9A96E;"></div>
-            <p class="mt-4 text-sm" style="color: #9ca3af; font-family: 'DM Sans', sans-serif;">
+            <p class="mt-4 text-sm text-zinc-400">
                 A 4-digit code was sent to
-                <span class="text-white">@Model.Email</span>
+                <span class="text-white font-medium">@Model.Email</span>
             </p>
         </div>
 
         <!-- Form -->
-        <form class="space-y-6 noir-card noir-card-delay-3" asp-action="ConfirmEmail" method="post">
-            <div asp-validation-summary="All" class="text-red-400 list-disc pl-5 text-sm" style="font-family: 'DM Sans', sans-serif;"></div>
+        <form class="space-y-6 fade-in fade-delay-3" asp-action="ConfirmEmail" method="post">
+            <div asp-validation-summary="All" class="text-red-400 list-disc pl-5 text-sm"></div>
             <input type="hidden" asp-for="Email" />
 
             <div>
                 <label asp-for="Code" class="sr-only">Verification Code</label>
                 <input asp-for="Code"
-                       class="w-full px-4 py-4 rounded-lg text-center text-2xl text-white placeholder-gray-600 outline-none transition-colors duration-300"
-                       style="background-color: #0f0f0f; border: 1px solid #374151; font-family: 'DM Sans', sans-serif; letter-spacing: 1rem;"
-                       onfocus="this.style.borderColor='rgba(201,169,110,0.4)'"
-                       onblur="this.style.borderColor='#374151'"
+                       class="w-full px-4 py-4 rounded-lg bg-surface-300 border border-white/[0.08] text-center text-2xl text-white tracking-[1rem] placeholder-zinc-600 outline-none focus:border-accent-500/40 transition-colors duration-300"
                        placeholder="----"
                        maxlength="4"
                        autofocus />
-                <span asp-validation-for="Code" class="text-red-400 text-xs pt-1 block" style="font-family: 'DM Sans', sans-serif;"></span>
+                <span asp-validation-for="Code" class="text-red-400 text-xs pt-1 block"></span>
             </div>
 
-            <div class="noir-card noir-card-delay-4">
+            <div class="fade-in fade-delay-4">
                 <button type="submit"
-                        class="w-full py-3 px-4 rounded-lg text-sm font-semibold tracking-wide uppercase transition-all duration-300"
-                        style="font-family: 'DM Sans', sans-serif; color: #C9A96E; border: 1px solid #C9A96E; background: transparent;"
-                        onmouseenter="this.style.backgroundColor='#C9A96E'; this.style.color='#0a0a0a';"
-                        onmouseleave="this.style.backgroundColor='transparent'; this.style.color='#C9A96E';">
+                        class="w-full py-3 px-4 rounded-lg text-sm font-semibold tracking-wide uppercase bg-accent-500 text-white hover:bg-accent-600 transition-all duration-300">
                     Verify Account
                 </button>
             </div>
