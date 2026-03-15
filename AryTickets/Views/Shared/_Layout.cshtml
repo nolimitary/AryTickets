@@ -1,9 +1,7 @@
-﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Identity
 @using AryTickets.Models
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
-@RenderBody()
-@RenderSection("Scripts", required: false)
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,94 +11,163 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            50: '#FBF7F0',
+                            100: '#F5ECDB',
+                            200: '#EBDABC',
+                            300: '#DFC497',
+                            400: '#D4AE72',
+                            500: '#C9A96E',
+                            600: '#B8923E',
+                            700: '#96762F',
+                            800: '#6B5422',
+                            900: '#3D3013',
+                        },
+                        noir: {
+                            50: '#2a2a2a',
+                            100: '#1a1a1a',
+                            200: '#141414',
+                            300: '#0f0f0f',
+                            400: '#0a0a0a',
+                            500: '#050505',
+                        }
+                    },
+                    fontFamily: {
+                        display: ['"Playfair Display"', 'Georgia', 'serif'],
+                        body: ['"DM Sans"', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
     @await RenderSectionAsync("Styles", required: false)
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #111827;
-            color: #F3F4F6;
+            font-family: 'DM Sans', system-ui, sans-serif;
+            background-color: #0a0a0a;
+            color: #e8e8e8;
+            overflow-x: hidden;
         }
 
-        ::-webkit-scrollbar {
-            width: 8px;
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #C9A96E; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #D4AE72; }
+
+        /* Grain overlay */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            pointer-events: none;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
         }
 
-        ::-webkit-scrollbar-track {
-            background: #1F2937;
+        /* Nav */
+        .nav-glass {
+            background: rgba(10, 10, 10, 0.4);
+            backdrop-filter: blur(0px);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            border-bottom: 1px solid transparent;
+        }
+        .nav-glass.scrolled {
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(201, 169, 110, 0.1);
         }
 
-        ::-webkit-scrollbar-thumb {
-            background: #4F46E5;
-            border-radius: 10px;
+        /* Dropdown */
+        .dropdown-panel {
+            opacity: 0;
+            transform: translateY(-8px);
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .dropdown-panel.open {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
         }
 
-            ::-webkit-scrollbar-thumb:hover {
-                background: #6366F1;
-            }
-
-        .nav-scrolled {
-            background-color: rgba(17, 24, 39, 0.8);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        /* Selection color */
+        ::selection {
+            background: rgba(201, 169, 110, 0.3);
+            color: #fff;
         }
 
-        .dropdown-menu {
-            transition: opacity 0.2s, transform 0.2s;
-        }
+        /* Smooth scroll */
+        html { scroll-behavior: smooth; }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-100">
-    <header id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
-        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-6">
-                <a asp-area="" asp-controller="Home" asp-action="Index" class="text-3xl font-bold text-white">
-                    <span class="text-indigo-500">Ary</span>Tix
-                </a>
+<body class="bg-noir-400 text-gray-200 font-body">
+    <!-- NAVBAR -->
+    <header id="navbar" class="nav-glass fixed top-0 left-0 right-0 z-50">
+        <nav class="max-w-[1400px] mx-auto px-8 py-5 flex justify-between items-center">
+            <!-- Logo -->
+            <a asp-area="" asp-controller="Home" asp-action="Index" class="flex items-center gap-1 group">
+                <span class="font-display text-2xl font-bold tracking-tight text-white">Ary</span>
+                <span class="font-display text-2xl font-light tracking-tight text-gold-500">Tix</span>
+            </a>
+
+            <!-- Center nav -->
+            <div class="hidden md:flex items-center gap-12">
+                <a asp-area="" asp-controller="Home" asp-action="Index"
+                   class="text-[13px] uppercase tracking-[0.2em] text-gray-300 hover:text-gold-500 transition-colors duration-300">Home</a>
+                <a href="#now-showing"
+                   class="text-[13px] uppercase tracking-[0.2em] text-gray-300 hover:text-gold-500 transition-colors duration-300">Now Showing</a>
+                <a href="#coming-soon"
+                   class="text-[13px] uppercase tracking-[0.2em] text-gray-300 hover:text-gold-500 transition-colors duration-300">Coming Soon</a>
+            </div>
+
+            <!-- Right side -->
+            <div class="flex items-center gap-5">
+                <!-- Region selector -->
                 <div class="relative" id="regionDropdownContainer">
-                    <button id="regionDropdownButton" class="flex items-center space-x-2 px-4 py-2 bg-gray-800 rounded-lg hover:bg-gray-700 transition">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <button id="regionDropdownButton" class="flex items-center gap-2 text-[13px] uppercase tracking-[0.15em] text-gray-400 hover:text-gold-500 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" /></svg>
                         <span id="currentRegionText">@ViewData["CurrentRegion"]</span>
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                     </button>
-                    <div id="regionDropdownMenu" class="dropdown-menu absolute mt-2 w-48 bg-gray-800 rounded-lg shadow-xl opacity-0 transform scale-95 pointer-events-none">
-                        <a href="/Home/Index?region=US" class="block px-4 py-2 text-sm text-gray-300 hover:bg-indigo-600 rounded-t-lg">United States</a>
-                        <a href="/Home/Index?region=GB" class="block px-4 py-2 text-sm text-gray-300 hover:bg-indigo-600">United Kingdom</a>
-                        <a href="/Home/Index?region=CA" class="block px-4 py-2 text-sm text-gray-300 hover:bg-indigo-600">Canada</a>
-                        <a href="/Home/Index?region=AU" class="block px-4 py-2 text-sm text-gray-300 hover:bg-indigo-600 rounded-b-lg">Australia</a>
+                    <div id="regionDropdownMenu" class="dropdown-panel absolute right-0 mt-3 w-44 bg-noir-100 border border-gray-800/50 rounded-lg shadow-2xl overflow-hidden">
+                        <a href="/Home/Index?region=US" class="block px-5 py-3 text-sm text-gray-400 hover:text-white hover:bg-gold-500/10 transition-all">United States</a>
+                        <a href="/Home/Index?region=GB" class="block px-5 py-3 text-sm text-gray-400 hover:text-white hover:bg-gold-500/10 transition-all">United Kingdom</a>
+                        <a href="/Home/Index?region=CA" class="block px-5 py-3 text-sm text-gray-400 hover:text-white hover:bg-gold-500/10 transition-all">Canada</a>
+                        <a href="/Home/Index?region=AU" class="block px-5 py-3 text-sm text-gray-400 hover:text-white hover:bg-gold-500/10 transition-all">Australia</a>
                     </div>
                 </div>
-            </div>
-            <div class="hidden md:flex items-center space-x-8">
-                <a asp-area="" asp-controller="Home" asp-action="Index" class="hover:text-indigo-400 transition-colors">Home</a>
-                <a href="#" class="hover:text-indigo-400 transition-colors">Movies</a>
-                <a href="#" class="hover:text-indigo-400 transition-colors">Theatres</a>
-            </div>
-            <div class="flex items-center space-x-4">
+
                 @if (SignInManager.IsSignedIn(User))
                 {
                     <div class="relative" id="userDropdownContainer">
-                        <button id="userDropdownButton" class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-gray-600 transition">
-                            <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd"></path></svg>
+                        <button id="userDropdownButton" class="w-9 h-9 rounded-full border border-gold-500/30 flex items-center justify-center hover:border-gold-500 transition-all duration-300">
+                            <svg class="w-4 h-4 text-gold-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd"></path></svg>
                         </button>
-                        <div id="userDropdownMenu" class="dropdown-menu absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-xl opacity-0 transform scale-95 pointer-events-none">
-                            <div class="px-4 py-3 border-b border-gray-700">
-                                <p class="text-sm text-white">Signed in as</p>
-                                <p class="text-sm font-medium text-gray-300 truncate">@User.Identity?.Name</p>
+                        <div id="userDropdownMenu" class="dropdown-panel absolute right-0 mt-3 w-52 bg-noir-100 border border-gray-800/50 rounded-lg shadow-2xl overflow-hidden">
+                            <div class="px-5 py-4 border-b border-gray-800/50">
+                                <p class="text-[11px] uppercase tracking-[0.15em] text-gray-500">Signed in as</p>
+                                <p class="text-sm text-white mt-1 truncate">@User.Identity?.Name</p>
                             </div>
-                            <div class="py-1">
-                                <a asp-controller="Profile" asp-action="Index" class="block px-4 py-2 text-sm text-gray-300 hover:bg-indigo-600">My Profile</a>
-                                <form class="w-full" asp-area="" asp-controller="Account" asp-action="Logout" method="post">
-                                    <button type="submit" class="w-full text-left block px-4 py-2 text-sm text-gray-300 hover:bg-indigo-600">Sign out</button>
-                                </form>
-                            </div>
+                            <a asp-controller="Profile" asp-action="Index" class="block px-5 py-3 text-sm text-gray-400 hover:text-white hover:bg-gold-500/10 transition-all">My Profile</a>
+                            <form class="w-full" asp-area="" asp-controller="Account" asp-action="Logout" method="post">
+                                <button type="submit" class="w-full text-left px-5 py-3 text-sm text-gray-400 hover:text-white hover:bg-gold-500/10 transition-all">Sign out</button>
+                            </form>
                         </div>
                     </div>
                 }
                 else
                 {
-                    <a asp-controller="Account" asp-action="Login" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105">
-                        Login
+                    <a asp-controller="Account" asp-action="Login"
+                       class="text-[13px] uppercase tracking-[0.15em] text-gold-500 border border-gold-500/40 px-5 py-2 rounded hover:bg-gold-500 hover:text-noir-400 transition-all duration-300">
+                        Sign In
                     </a>
                 }
             </div>
@@ -111,55 +178,64 @@
         @RenderBody()
     </main>
 
-    <footer class="bg-gray-900 border-t border-gray-700">
-        <div class="container mx-auto px-6 py-8">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <div class="text-center md:text-left mb-4 md:mb-0">
-                    <a href="/" class="text-2xl font-bold text-white"><span class="text-indigo-500">Ary</span>Tix</a>
-                    <p class="text-sm text-gray-400 mt-1">Your ultimate entertainment hub.</p>
+    <!-- FOOTER -->
+    <footer class="border-t border-gray-800/40 mt-20">
+        <div class="max-w-[1400px] mx-auto px-8 py-16">
+            <div class="grid md:grid-cols-3 gap-12 items-start">
+                <div>
+                    <div class="flex items-center gap-1 mb-4">
+                        <span class="font-display text-xl font-bold text-white">Ary</span>
+                        <span class="font-display text-xl font-light text-gold-500">Tix</span>
+                    </div>
+                    <p class="text-sm text-gray-500 leading-relaxed max-w-xs">
+                        The cinema experience, reimagined. Discover, book, and experience the magic of film.
+                    </p>
                 </div>
-                <div class="flex space-x-6">
-                    <a href="#" class="text-gray-400 hover:text-white transition-colors">About</a>
-                    <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-gray-400 hover:text-white transition-colors">Privacy</a>
-                    <a href="#" class="text-gray-400 hover:text-white transition-colors">FAQ</a>
+                <div class="flex flex-col gap-3">
+                    <span class="text-[11px] uppercase tracking-[0.2em] text-gold-500/60 mb-1">Navigate</span>
+                    <a asp-area="" asp-controller="Home" asp-action="Index" class="text-sm text-gray-500 hover:text-white transition-colors">Home</a>
+                    <a href="#now-showing" class="text-sm text-gray-500 hover:text-white transition-colors">Now Showing</a>
+                    <a href="#coming-soon" class="text-sm text-gray-500 hover:text-white transition-colors">Coming Soon</a>
+                </div>
+                <div class="flex flex-col gap-3">
+                    <span class="text-[11px] uppercase tracking-[0.2em] text-gold-500/60 mb-1">Legal</span>
+                    <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-sm text-gray-500 hover:text-white transition-colors">Privacy Policy</a>
+                    <a href="#" class="text-sm text-gray-500 hover:text-white transition-colors">Terms of Service</a>
                 </div>
             </div>
-            <div class="text-center text-gray-500 mt-8 pt-6 border-t border-gray-800">
-                &copy; @DateTime.Now.Year AryTix. All Rights Reserved.
+            <div class="mt-16 pt-8 border-t border-gray-800/30 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-[12px] text-gray-600">&copy; @DateTime.Now.Year AryTix. All rights reserved.</p>
+                <p class="text-[12px] text-gray-700">Crafted for cinema lovers.</p>
             </div>
         </div>
     </footer>
 
     <script>
+        // Navbar scroll
         window.addEventListener('scroll', function () {
             const navbar = document.getElementById('navbar');
-            if (window.scrollY > 50) navbar.classList.add('nav-scrolled');
-            else navbar.classList.remove('nav-scrolled');
+            if (window.scrollY > 50) navbar.classList.add('scrolled');
+            else navbar.classList.remove('scrolled');
         });
 
+        // Dropdown system
         function setupDropdown(containerId, buttonId, menuId) {
             const container = document.getElementById(containerId);
             const button = document.getElementById(buttonId);
             const menu = document.getElementById(menuId);
+            if (!container || !button || !menu) return;
 
-            if (container && button && menu) {
-                button.addEventListener('click', (event) => {
-                    event.stopPropagation();
-                    menu.classList.toggle('opacity-0');
-                    menu.classList.toggle('scale-95');
-                    menu.classList.toggle('pointer-events-none');
-                });
-
-                window.addEventListener('click', function (e) {
-                    if (!container.contains(e.target)) {
-                        menu.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
-                    }
-                });
-            }
+            button.addEventListener('click', (e) => {
+                e.stopPropagation();
+                menu.classList.toggle('open');
+            });
+            window.addEventListener('click', (e) => {
+                if (!container.contains(e.target)) menu.classList.remove('open');
+            });
         }
-
         setupDropdown('regionDropdownContainer', 'regionDropdownButton', 'regionDropdownMenu');
         setupDropdown('userDropdownContainer', 'userDropdownButton', 'userDropdownMenu');
     </script>
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
