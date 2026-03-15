@@ -122,6 +122,54 @@ namespace AryTickets.Controllers
             }
             return RedirectToAction(nameof(Bookings));
         }
+
+        // Critic applications
+        public async Task<IActionResult> Applications(string filter = "pending")
+        {
+            var query = _db.CriticApplications.Include(a => a.User).AsQueryable();
+
+            if (filter == "pending")
+                query = query.Where(a => a.Status == ApplicationStatus.Pending);
+            else if (filter == "approved")
+                query = query.Where(a => a.Status == ApplicationStatus.Approved);
+            else if (filter == "denied")
+                query = query.Where(a => a.Status == ApplicationStatus.Denied);
+
+            var applications = await query.OrderByDescending(a => a.AppliedAt).ToListAsync();
+            ViewData["CurrentFilter"] = filter;
+            ViewData["PendingCount"] = await _db.CriticApplications.CountAsync(a => a.Status == ApplicationStatus.Pending);
+            return View(applications);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ApproveApplication(int id)
+        {
+            var application = await _db.CriticApplications.FindAsync(id);
+            if (application == null) return NotFound();
+
+            application.Status = ApplicationStatus.Approved;
+            application.ReviewedAt = System.DateTime.UtcNow;
+
+            var user = await _userManager.FindByIdAsync(application.UserId);
+            if (user != null)
+                user.IsCritic = true;
+
+            await _db.SaveChangesAsync();
+            return RedirectToAction(nameof(Applications));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DenyApplication(int id)
+        {
+            var application = await _db.CriticApplications.FindAsync(id);
+            if (application == null) return NotFound();
+
+            application.Status = ApplicationStatus.Denied;
+            application.ReviewedAt = System.DateTime.UtcNow;
+
+            await _db.SaveChangesAsync();
+            return RedirectToAction(nameof(Applications));
+        }
     }
 
     public class AdminUserViewModel
