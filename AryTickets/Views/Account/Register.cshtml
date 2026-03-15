@@ -5,34 +5,21 @@
 }
 
 @section Styles {
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --noir-400: #0a0a0a;
-            --noir-300: #0f0f0f;
-            --noir-100: #1a1a1a;
-            --gold-500: #C9A96E;
+            --accent-500: #e11d48;
+            --accent-600: #be123c;
         }
 
-        .font-display { font-family: 'Playfair Display', serif; }
-        .font-body { font-family: 'DM Sans', sans-serif; }
-
-        .bg-noir-400 { background-color: var(--noir-400); }
-        .bg-noir-300 { background-color: var(--noir-300); }
-        .bg-noir-100 { background-color: var(--noir-100); }
-        .text-gold-500 { color: var(--gold-500); }
-        .bg-gold-500 { background-color: var(--gold-500); }
-        .border-gold-500 { border-color: var(--gold-500); }
-
-        .noir-card {
-            animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        .electric-card {
+            animation: fadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
             opacity: 0;
         }
 
-        @@keyframes fadeUp {
+        @@keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(16px);
             }
             to {
                 opacity: 1;
@@ -40,96 +27,96 @@
             }
         }
 
-        .noir-input {
-            background-color: var(--noir-300);
-            border: 1px solid #2a2a2a;
+        .electric-input {
+            background-color: #0c0c0e;
+            border: 1px solid rgba(255, 255, 255, 0.08);
             color: #fff;
-            transition: border-color 0.3s ease;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
-        .noir-input:focus {
+        .electric-input:focus {
             outline: none;
-            border-color: rgba(201, 169, 110, 0.5);
+            border-color: rgba(225, 29, 72, 0.4);
+            box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.2);
         }
-        .noir-input::placeholder {
-            color: #555;
-        }
-
-        .noir-btn {
-            border: 1px solid var(--gold-500);
-            color: var(--gold-500);
-            background: transparent;
-            transition: all 0.3s ease;
-        }
-        .noir-btn:hover {
-            background-color: var(--gold-500);
-            color: var(--noir-400);
+        .electric-input::placeholder {
+            color: #52525b;
         }
 
-        .noir-link {
-            color: #6b7280;
-            transition: color 0.3s ease;
+        .electric-btn {
+            background-color: var(--accent-500);
+            color: #fff;
+            font-weight: 600;
+            transition: background-color 0.2s ease;
         }
-        .noir-link:hover {
-            color: var(--gold-500);
+        .electric-btn:hover {
+            background-color: var(--accent-600);
+        }
+
+        .electric-link {
+            color: #71717a;
+            transition: color 0.2s ease;
+        }
+        .electric-link:hover {
+            color: #fb7185;
         }
     </style>
 }
 
-<div class="min-h-screen flex items-center justify-center px-4 bg-noir-400 font-body">
-    <div class="noir-card w-full max-w-md p-10 bg-noir-100 rounded-sm" style="border: 1px solid rgba(201, 169, 110, 0.2);">
+<div class="min-h-screen flex items-center justify-center px-4" style="background-color: #09090b;">
+    <div class="electric-card w-full max-w-md p-10 rounded-2xl" style="background-color: #141416; border: 1px solid rgba(255, 255, 255, 0.06);">
 
         <!-- Logo -->
         <div class="text-center mb-8">
-            <span class="font-display text-3xl tracking-wide">
-                <span class="text-white">Ary</span><span class="text-gold-500">Tix</span>
+            <span class="font-bold text-2xl tracking-tight">
+                <span class="text-white">Ary</span><span style="color: var(--accent-500);">Tix</span>
             </span>
         </div>
 
         <!-- Title -->
-        <h2 class="font-display text-center text-2xl text-white mb-3">Join AryTix</h2>
-        <div class="w-16 h-px bg-gold-500 mx-auto mb-8"></div>
+        <h2 class="text-center text-2xl font-bold text-white mb-1.5">Create Account</h2>
+        <p class="text-center text-sm text-zinc-500 mb-8">Get started with your free account</p>
 
-        <form class="space-y-6" asp-action="Register" method="post">
+        <form class="space-y-5" asp-action="Register" method="post">
             <div asp-validation-summary="All" class="text-red-400 text-sm list-disc pl-5 mb-4"></div>
 
             <!-- Username -->
             <div>
-                <label asp-for="Username" class="block text-[12px] uppercase tracking-widest text-gray-500 mb-2">Username</label>
-                <input asp-for="Username" class="noir-input w-full px-4 py-3 rounded-sm text-sm" placeholder="Choose a username">
+                <label asp-for="Username" class="block text-sm text-zinc-400 mb-1.5">Username</label>
+                <input asp-for="Username" class="electric-input w-full px-4 py-3 rounded-lg text-sm" placeholder="Choose a username">
                 <span asp-validation-for="Username" class="text-red-400 text-xs mt-1 block"></span>
             </div>
 
             <!-- Email -->
             <div>
-                <label asp-for="Email" class="block text-[12px] uppercase tracking-widest text-gray-500 mb-2">Email address</label>
-                <input asp-for="Email" class="noir-input w-full px-4 py-3 rounded-sm text-sm" placeholder="you@example.com">
+                <label asp-for="Email" class="block text-sm text-zinc-400 mb-1.5">Email address</label>
+                <input asp-for="Email" class="electric-input w-full px-4 py-3 rounded-lg text-sm" placeholder="you@example.com">
                 <span asp-validation-for="Email" class="text-red-400 text-xs mt-1 block"></span>
             </div>
 
             <!-- Password -->
             <div>
-                <label asp-for="Password" class="block text-[12px] uppercase tracking-widest text-gray-500 mb-2">Password</label>
-                <input asp-for="Password" class="noir-input w-full px-4 py-3 rounded-sm text-sm" placeholder="Create a password">
+                <label asp-for="Password" class="block text-sm text-zinc-400 mb-1.5">Password</label>
+                <input asp-for="Password" class="electric-input w-full px-4 py-3 rounded-lg text-sm" placeholder="Create a password">
                 <span asp-validation-for="Password" class="text-red-400 text-xs mt-1 block"></span>
             </div>
 
             <!-- Confirm Password -->
             <div>
-                <label asp-for="ConfirmPassword" class="block text-[12px] uppercase tracking-widest text-gray-500 mb-2">Confirm password</label>
-                <input asp-for="ConfirmPassword" class="noir-input w-full px-4 py-3 rounded-sm text-sm" placeholder="Confirm your password">
+                <label asp-for="ConfirmPassword" class="block text-sm text-zinc-400 mb-1.5">Confirm password</label>
+                <input asp-for="ConfirmPassword" class="electric-input w-full px-4 py-3 rounded-lg text-sm" placeholder="Confirm your password">
                 <span asp-validation-for="ConfirmPassword" class="text-red-400 text-xs mt-1 block"></span>
             </div>
 
             <!-- Submit -->
             <div>
-                <button type="submit" class="noir-btn w-full py-3 text-sm font-medium uppercase tracking-widest rounded-sm">
-                    Register
+                <button type="submit" class="electric-btn w-full py-3 text-sm rounded-lg">
+                    Create account
                 </button>
             </div>
 
             <!-- Login Link -->
             <div class="text-center pt-2">
-                <a asp-action="Login" class="noir-link text-sm">
+                <a asp-action="Login" class="electric-link text-sm">
                     Already have an account? Sign in
                 </a>
             </div>
