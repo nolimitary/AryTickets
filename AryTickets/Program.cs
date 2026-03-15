@@ -44,6 +44,13 @@ builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
+// Ensure SQLite database is created
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.EnsureCreated();
+}
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
