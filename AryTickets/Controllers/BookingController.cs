@@ -76,20 +76,25 @@ namespace AryTickets.Controllers
         private string BuildTicketEmail(CheckoutViewModel model, string username)
         {
             var sb = new StringBuilder();
-            sb.Append("<div style='font-family: Poppins, sans-serif; background-color: #111827; color: #F3F4F6; padding: 40px; text-align: center;'>");
-            sb.Append("<h1 style='color: #6366F1; font-size: 28px;'>AryTix</h1>");
-            sb.Append("<div style='background-color: #1F2937; border-radius: 12px; padding: 30px; margin: 20px auto; max-width: 500px; text-align: left;'>");
-            sb.Append("<h2 style='color: white; font-size: 24px; border-bottom: 1px solid #374151; padding-bottom: 15px;'>Your Booking is Confirmed!</h2>");
-            sb.AppendFormat("<p style='color: #D1D5DB; margin-top: 20px;'>Hi {0}, here are your ticket details:</p>", username);
-            sb.Append("<div style='margin-top: 25px;'>");
-            sb.AppendFormat("<p style='margin: 10px 0;'><strong style='color: #9CA3AF;'>Movie:</strong> {0}</p>", model.MovieTitle);
-            sb.AppendFormat("<p style='margin: 10px 0;'><strong style='color: #9CA3AF;'>Showtime:</strong> {0}</p>", model.Showtime);
-            sb.AppendFormat("<p style='margin: 10px 0;'><strong style='color: #9CA3AF;'>Seats:</strong> {0}</p>", model.SelectedSeats);
-            sb.AppendFormat("<p style='margin: 10px 0;'><strong style='color: #9CA3AF;'>Total:</strong> <span style='color: #818CF8; font-weight: bold;'>${0:F2}</span></p>", model.TotalPrice);
+            sb.Append("<div style='font-family: Arial, Helvetica, sans-serif; background-color: #09090b; color: #e4e4e7; padding: 40px 20px; text-align: center;'>");
+            sb.Append("<div style='max-width: 500px; margin: 0 auto;'>");
+            sb.Append("<h1 style='font-size: 26px; margin-bottom: 8px;'><span style='color: #fff; font-weight: 700;'>Ary</span><span style='color: #e11d48; font-weight: 300;'>Tix</span></h1>");
+            sb.Append("<p style='color: #71717a; font-size: 13px; margin-bottom: 30px;'>Your ticket confirmation</p>");
+            sb.Append("<div style='background-color: #141416; border-radius: 16px; padding: 32px; text-align: left; border: 1px solid rgba(255,255,255,0.06);'>");
+            sb.Append("<h2 style='color: #fff; font-size: 20px; margin: 0 0 6px 0;'>Booking Confirmed!</h2>");
+            sb.AppendFormat("<p style='color: #a1a1aa; font-size: 14px; margin: 0 0 24px 0;'>Hi {0}, here are your ticket details:</p>", username);
+            sb.Append("<div style='background-color: #09090b; border-radius: 12px; padding: 20px; margin-bottom: 24px;'>");
+            sb.Append("<table style='width: 100%; border-collapse: collapse;'>");
+            sb.AppendFormat("<tr><td style='padding: 8px 0; color: #71717a; font-size: 13px;'>Movie</td><td style='padding: 8px 0; color: #fff; font-size: 14px; font-weight: 600; text-align: right;'>{0}</td></tr>", model.MovieTitle);
+            sb.AppendFormat("<tr><td style='padding: 8px 0; color: #71717a; font-size: 13px;'>Showtime</td><td style='padding: 8px 0; color: #fff; font-size: 14px; text-align: right;'>{0}</td></tr>", model.Showtime);
+            sb.AppendFormat("<tr><td style='padding: 8px 0; color: #71717a; font-size: 13px;'>Seats</td><td style='padding: 8px 0; color: #fff; font-size: 14px; text-align: right;'>{0}</td></tr>", model.SelectedSeats);
+            sb.Append("<tr><td colspan='2' style='padding: 12px 0 0 0;'><div style='border-top: 1px solid rgba(255,255,255,0.06);'></div></td></tr>");
+            sb.AppendFormat("<tr><td style='padding: 12px 0 0 0; color: #71717a; font-size: 13px;'>Total</td><td style='padding: 12px 0 0 0; color: #e11d48; font-size: 18px; font-weight: 700; text-align: right;'>${0:F2}</td></tr>", model.TotalPrice);
+            sb.Append("</table></div>");
+            sb.Append("<p style='color: #52525b; font-size: 12px; text-align: center; margin: 0;'>Show this confirmation at the theater entrance.</p>");
             sb.Append("</div>");
-            sb.Append("<div style='margin-top: 30px; padding-top: 20px; border-top: 1px dashed #4B5563; text-align: center;'>");
-            sb.Append("<p style='color: #9CA3AF; font-size: 12px;'>Please show this confirmation at the theater.</p>");
-            sb.Append("</div></div></div>");
+            sb.Append("<p style='color: #3f3f46; font-size: 11px; margin-top: 24px;'>&copy; 2026 AryTix. All rights reserved.</p>");
+            sb.Append("</div></div>");
             return sb.ToString();
         }
 
