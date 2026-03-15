@@ -85,7 +85,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: conic-gradient(#C9A96E calc(@Model.RatingPercentage * 1%), #2a2a2a 0);
+            background: conic-gradient(#C9A96E @Model.RatingPercentage, #2a2a2a 0);
             position: relative;
             flex-shrink: 0;
         }
@@ -330,7 +330,7 @@
                             {
                                 <div class="rating-ring" title="@Model.RatingPercentage% rating">
                                     <div class="rating-ring-inner">
-                                        <span class="text-white font-bold text-sm">@Model.RatingPercentage<span class="text-[10px] text-gray-500">%</span></span>
+                                        <span class="text-white font-bold text-sm">@Model.RatingPercentage</span>
                                     </div>
                                 </div>
                             }
