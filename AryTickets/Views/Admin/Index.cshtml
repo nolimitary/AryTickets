@@ -1,0 +1,369 @@
+@using AryTickets.Models
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "_Layout";
+
+    var totalUsers = (int)(ViewData["TotalUsers"] ?? 0);
+    var totalBookings = (int)(ViewData["TotalBookings"] ?? 0);
+    var totalRevenue = (decimal)(ViewData["TotalRevenue"] ?? 0m);
+    var totalFavorites = (int)(ViewData["TotalFavorites"] ?? 0);
+    var recentBookings = ViewData["RecentBookings"] as List<Booking> ?? new List<Booking>();
+    var recentUsers = ViewData["RecentUsers"] as List<ApplicationUser> ?? new List<ApplicationUser>();
+}
+
+@section Styles {
+    <style>
+        .admin-sidebar {
+            position: fixed;
+            top: 72px;
+            left: 0;
+            bottom: 0;
+            width: 240px;
+            background: #141416;
+            border-right: 1px solid rgba(255,255,255,0.06);
+            z-index: 40;
+            padding: 28px 0;
+            overflow-y: auto;
+        }
+
+        .admin-main {
+            margin-left: 240px;
+            padding: 104px 40px 60px 40px;
+            min-height: 100vh;
+        }
+
+        .admin-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 24px;
+            font-size: 14px;
+            color: #a1a1aa;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+        .admin-nav-link:hover {
+            color: #fff;
+            background: rgba(255,255,255,0.03);
+        }
+        .admin-nav-link.active {
+            color: #fff;
+            background: rgba(225,29,72,0.06);
+            border-left-color: #e11d48;
+        }
+        .admin-nav-link.active svg {
+            color: #e11d48;
+        }
+
+        .stat-card {
+            background: #141416;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.25s ease;
+        }
+        .stat-card:hover {
+            border-color: rgba(225,29,72,0.15);
+            transform: translateY(-2px);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        .data-table thead th {
+            padding: 12px 16px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #71717a;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .data-table tbody td {
+            padding: 14px 16px;
+            font-size: 13px;
+            color: #d4d4d8;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+        .data-table tbody tr {
+            transition: background 0.15s ease;
+        }
+        .data-table tbody tr:hover {
+            background: rgba(255,255,255,0.02);
+        }
+
+        .user-card {
+            background: #141416;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 16px 20px;
+            transition: all 0.2s ease;
+        }
+        .user-card:hover {
+            border-color: rgba(225,29,72,0.12);
+        }
+
+        .badge-confirmed {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            font-size: 11px;
+            font-weight: 500;
+            border-radius: 100px;
+            background: rgba(34,197,94,0.1);
+            color: #4ade80;
+            border: 1px solid rgba(34,197,94,0.15);
+        }
+        .badge-unconfirmed {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            font-size: 11px;
+            font-weight: 500;
+            border-radius: 100px;
+            background: rgba(234,179,8,0.1);
+            color: #facc15;
+            border: 1px solid rgba(234,179,8,0.15);
+        }
+
+        @@media (max-width: 768px) {
+            .admin-sidebar { display: none; }
+            .admin-main { margin-left: 0; padding: 100px 16px 40px 16px; }
+        }
+    </style>
+}
+
+<!-- Admin Sidebar -->
+<aside class="admin-sidebar">
+    <div class="px-6 mb-8">
+        <div class="flex items-center gap-2.5">
+            <div class="w-2 h-2 rounded-full bg-accent-500 animate-pulse"></div>
+            <span class="text-[15px] font-semibold text-white tracking-tight">Admin Panel</span>
+        </div>
+        <p class="text-[11px] text-zinc-600 mt-1 pl-[18px]">Management Console</p>
+    </div>
+
+    <nav class="flex flex-col gap-1">
+        <a href="/Admin" class="admin-nav-link active">
+            <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+            </svg>
+            Dashboard
+        </a>
+        <a href="/Admin/Users" class="admin-nav-link">
+            <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+            </svg>
+            Users
+        </a>
+        <a href="/Admin/Bookings" class="admin-nav-link">
+            <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 010 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 010-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375z" />
+            </svg>
+            Bookings
+        </a>
+    </nav>
+
+    <div class="mt-auto px-6 pt-8">
+        <div class="border-t border-white/[0.06] pt-5">
+            <a href="/" class="flex items-center gap-2 text-xs text-zinc-600 hover:text-zinc-400 transition-colors">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+                </svg>
+                Back to Site
+            </a>
+        </div>
+    </div>
+</aside>
+
+<!-- Main Content -->
+<div class="admin-main">
+    <!-- Page Header -->
+    <div class="mb-10">
+        <h1 class="text-[28px] font-bold text-white tracking-tight">Dashboard</h1>
+        <p class="text-sm text-zinc-500 mt-1">Overview of your platform</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
+        <!-- Total Users -->
+        <div class="stat-card">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">Total Users</p>
+                    <p class="text-[32px] font-bold text-white mt-1 leading-none">@totalUsers.ToString("N0")</p>
+                </div>
+                <div class="w-10 h-10 rounded-lg bg-accent-500/10 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-accent-500" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                    </svg>
+                </div>
+            </div>
+            <p class="text-[11px] text-zinc-600 mt-3">Registered accounts</p>
+        </div>
+
+        <!-- Total Bookings -->
+        <div class="stat-card">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">Total Bookings</p>
+                    <p class="text-[32px] font-bold text-white mt-1 leading-none">@totalBookings.ToString("N0")</p>
+                </div>
+                <div class="w-10 h-10 rounded-lg bg-accent-500/10 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-accent-500" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 010 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 010-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375z" />
+                    </svg>
+                </div>
+            </div>
+            <p class="text-[11px] text-zinc-600 mt-3">Tickets sold</p>
+        </div>
+
+        <!-- Total Revenue -->
+        <div class="stat-card">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">Total Revenue</p>
+                    <p class="text-[32px] font-bold text-white mt-1 leading-none">$@totalRevenue.ToString("N2")</p>
+                </div>
+                <div class="w-10 h-10 rounded-lg bg-accent-500/10 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-accent-500" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+            <p class="text-[11px] text-zinc-600 mt-3">Lifetime earnings</p>
+        </div>
+
+        <!-- Total Favorites -->
+        <div class="stat-card">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">Total Favorites</p>
+                    <p class="text-[32px] font-bold text-white mt-1 leading-none">@totalFavorites.ToString("N0")</p>
+                </div>
+                <div class="w-10 h-10 rounded-lg bg-accent-500/10 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-accent-500" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                    </svg>
+                </div>
+            </div>
+            <p class="text-[11px] text-zinc-600 mt-3">Wishlisted movies</p>
+        </div>
+    </div>
+
+    <!-- Recent Bookings -->
+    <div class="bg-surface-200 border border-white/[0.06] rounded-xl mb-10 overflow-hidden">
+        <div class="px-6 py-5 border-b border-white/[0.06] flex items-center justify-between">
+            <div>
+                <h2 class="text-[15px] font-semibold text-white">Recent Bookings</h2>
+                <p class="text-[11px] text-zinc-600 mt-0.5">Latest ticket purchases</p>
+            </div>
+            <a href="/Admin/Bookings" class="text-xs text-accent-500 hover:text-accent-400 transition-colors font-medium">View All</a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Movie</th>
+                        <th>Showtime</th>
+                        <th>Seats</th>
+                        <th>Total</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (recentBookings.Any())
+                    {
+                        @foreach (var booking in recentBookings.Take(10))
+                        {
+                            <tr>
+                                <td>
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-7 h-7 rounded-full bg-accent-500/10 flex items-center justify-center flex-shrink-0">
+                                            <span class="text-[10px] font-semibold text-accent-400">@(booking.UserName?.Length > 0 ? booking.UserName[0].ToString().ToUpper() : "?")</span>
+                                        </div>
+                                        <div>
+                                            <p class="text-[13px] text-white font-medium leading-tight">@booking.UserName</p>
+                                            <p class="text-[11px] text-zinc-600">@booking.UserEmail</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-white font-medium">@booking.MovieTitle</td>
+                                <td>@booking.Showtime</td>
+                                <td>
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-white/[0.04] text-[12px] font-mono">@booking.Seats</span>
+                                </td>
+                                <td class="text-white font-semibold">$@booking.TotalPrice.ToString("N2")</td>
+                                <td class="text-zinc-500 text-[12px]">@booking.BookedAt.ToString("MMM dd, yyyy")</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-10">
+                                <p class="text-zinc-600 text-sm">No bookings yet</p>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recent Users -->
+    <div class="mb-10">
+        <div class="flex items-center justify-between mb-5">
+            <div>
+                <h2 class="text-[15px] font-semibold text-white">Recent Users</h2>
+                <p class="text-[11px] text-zinc-600 mt-0.5">Newest registered accounts</p>
+            </div>
+            <a href="/Admin/Users" class="text-xs text-accent-500 hover:text-accent-400 transition-colors font-medium">View All</a>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            @if (recentUsers.Any())
+            {
+                @foreach (var user in recentUsers)
+                {
+                    <div class="user-card">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full bg-accent-500/10 border border-accent-500/20 flex items-center justify-center flex-shrink-0">
+                                <span class="text-[13px] font-semibold text-accent-400">@(user.UserName?.Length > 0 ? user.UserName[0].ToString().ToUpper() : "?")</span>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <p class="text-[13px] text-white font-medium truncate">@user.UserName</p>
+                                <p class="text-[11px] text-zinc-500 truncate">@user.Email</p>
+                            </div>
+                            @if (user.EmailConfirmed)
+                            {
+                                <span class="badge-confirmed flex-shrink-0">
+                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                    Verified
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge-unconfirmed flex-shrink-0">
+                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                                    Pending
+                                </span>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-span-full text-center py-10">
+                    <p class="text-zinc-600 text-sm">No users found</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
