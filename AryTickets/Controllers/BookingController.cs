@@ -1,9 +1,11 @@
-﻿using AryTickets.Models;
+using AryTickets.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using AryTickets.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,22 +17,50 @@ namespace AryTickets.Controllers
         private readonly IEmailSender _emailSender;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly Data.ApplicationDbContext _db;
+        private readonly TicketPdfGenerator _pdfGenerator;
 
-        public BookingController(IEmailSender emailSender, UserManager<ApplicationUser> userManager, Data.ApplicationDbContext db)
+        public BookingController(IEmailSender emailSender, UserManager<ApplicationUser> userManager, Data.ApplicationDbContext db, TicketPdfGenerator pdfGenerator)
         {
             _emailSender = emailSender;
             _userManager = userManager;
             _db = db;
+            _pdfGenerator = pdfGenerator;
         }
 
-        public IActionResult SelectSeats(int movieId, string movieTitle, string showtime)
+        public async Task<IActionResult> SelectSeats(int? showtimeId, int movieId = 0, string movieTitle = null, string showtime = null)
         {
-            if (string.IsNullOrEmpty(movieTitle) || string.IsNullOrEmpty(showtime))
+            // If we have a showtimeId, use the real showtime from DB
+            if (showtimeId.HasValue)
             {
-                return BadRequest("Movie and showtime information is required.");
+                var st = await _db.Showtimes.FindAsync(showtimeId.Value);
+                if (st == null) return NotFound();
+
+                // Get already reserved seats for this showtime
+                var reservedSeatsList = await _db.SeatReservations
+                    .Where(r => r.ShowtimeId == showtimeId.Value)
+                    .Select(r => r.SeatNumber)
+                    .ToListAsync();
+                var reservedSeats = new HashSet<string>(reservedSeatsList);
+
+                var viewModel = new SeatSelectionViewModel
+                {
+                    MovieId = st.TmdbMovieId,
+                    MovieTitle = st.MovieTitle,
+                    Showtime = st.FormattedDateTime,
+                    ShowtimeId = st.Id,
+                    Hall = st.Hall,
+                    TicketPrice = st.Price,
+                    SeatingChart = GenerateSeatingChart(reservedSeats, st.Price)
+                };
+
+                return View(viewModel);
             }
 
-            var viewModel = new SeatSelectionViewModel
+            // Fallback: old-style mock showtimes (for movies without configured showtimes)
+            if (string.IsNullOrEmpty(movieTitle) || string.IsNullOrEmpty(showtime))
+                return BadRequest("Movie and showtime information is required.");
+
+            var fallbackModel = new SeatSelectionViewModel
             {
                 MovieId = movieId,
                 MovieTitle = movieTitle,
@@ -38,18 +68,19 @@ namespace AryTickets.Controllers
                 SeatingChart = GenerateMockSeatingChart()
             };
 
-            return View(viewModel);
+            return View(fallbackModel);
         }
 
         [HttpPost]
-        public IActionResult Checkout(string movieTitle, string showtime, string selectedSeats, decimal totalPrice)
+        public IActionResult Checkout(string movieTitle, string showtime, string selectedSeats, decimal totalPrice, int? showtimeId)
         {
             var viewModel = new CheckoutViewModel
             {
                 MovieTitle = movieTitle,
                 Showtime = showtime,
                 SelectedSeats = selectedSeats,
-                TotalPrice = totalPrice
+                TotalPrice = totalPrice,
+                ShowtimeId = showtimeId
             };
             return View(viewModel);
         }
@@ -74,7 +105,7 @@ namespace AryTickets.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user != null)
             {
-                var confirmCode = Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper();
+                var confirmCode = System.Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper();
                 var booking = new Booking
                 {
                     UserId = user.Id,
@@ -85,15 +116,55 @@ namespace AryTickets.Controllers
                     Seats = model.SelectedSeats,
                     TotalPrice = model.TotalPrice,
                     BookedAt = System.DateTime.UtcNow,
-                    ConfirmationCode = confirmCode
+                    ConfirmationCode = confirmCode,
+                    ShowtimeId = model.ShowtimeId
                 };
                 _db.Bookings.Add(booking);
                 await _db.SaveChangesAsync();
 
+                // Create seat reservations if this is a real showtime
+                if (model.ShowtimeId.HasValue && !string.IsNullOrEmpty(model.SelectedSeats))
+                {
+                    var seatNumbers = model.SelectedSeats.Split(',', System.StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var seat in seatNumbers)
+                    {
+                        _db.SeatReservations.Add(new SeatReservation
+                        {
+                            ShowtimeId = model.ShowtimeId.Value,
+                            BookingId = booking.Id,
+                            SeatNumber = seat.Trim()
+                        });
+                    }
+                    await _db.SaveChangesAsync();
+                }
+
                 try
                 {
+                    var qrUrl = $"https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=ARYTIX-{confirmCode}|{model.MovieTitle}|{model.Showtime}|{model.SelectedSeats}";
                     var emailBody = BuildTicketEmail(model, user.UserName, confirmCode);
-                    await _emailSender.SendEmailAsync(user.Email, "Your Tickets for " + model.MovieTitle, emailBody);
+
+                    // Generate PDF ticket
+                    byte[] pdfBytes = null;
+                    try
+                    {
+                        pdfBytes = _pdfGenerator.Generate(model.MovieTitle, model.Showtime, model.SelectedSeats, model.TotalPrice, confirmCode, qrUrl);
+                    }
+                    catch { }
+
+                    if (pdfBytes != null)
+                    {
+                        await _emailSender.SendEmailWithAttachmentAsync(
+                            user.Email,
+                            "Your Tickets for " + model.MovieTitle,
+                            emailBody,
+                            pdfBytes,
+                            $"AryTix-Ticket-{confirmCode}.pdf"
+                        );
+                    }
+                    else
+                    {
+                        await _emailSender.SendEmailAsync(user.Email, "Your Tickets for " + model.MovieTitle, emailBody);
+                    }
                 }
                 catch
                 {
@@ -129,10 +200,35 @@ namespace AryTickets.Controllers
             sb.AppendFormat("<p style='color: #71717a; font-size: 11px; margin-top: 8px; letter-spacing: 0.1em;'>CODE: {0}</p>", confirmCode);
             sb.Append("</div>");
             sb.Append("<p style='color: #52525b; font-size: 12px; text-align: center; margin: 0;'>Scan the QR code or show this confirmation at the theater entrance.</p>");
+            sb.Append("<p style='color: #52525b; font-size: 12px; text-align: center; margin-top: 8px;'>A PDF ticket is attached to this email.</p>");
             sb.Append("</div>");
             sb.Append("<p style='color: #3f3f46; font-size: 11px; margin-top: 24px;'>&copy; 2026 AryTix. All rights reserved.</p>");
             sb.Append("</div></div>");
             return sb.ToString();
+        }
+
+        private List<List<Seat>> GenerateSeatingChart(HashSet<string> reservedSeats, decimal price)
+        {
+            var chart = new List<List<Seat>>();
+            var rows = "ABCDEFGH".ToCharArray();
+            for (int i = 0; i < rows.Length; i++)
+            {
+                var row = new List<Seat>();
+                int seatCounter = 1;
+                for (int j = 1; j <= 14; j++)
+                {
+                    if (j == 7 || j == 8) { row.Add(null); }
+                    else if (rows[i] == 'H' && (j <= 2 || j >= 13)) { row.Add(null); }
+                    else
+                    {
+                        var seatNum = $"{rows[i]}{seatCounter++}";
+                        var status = reservedSeats.Contains(seatNum) ? SeatStatus.Taken : SeatStatus.Available;
+                        row.Add(new Seat { SeatNumber = seatNum, Status = status, Price = price });
+                    }
+                }
+                chart.Add(row);
+            }
+            return chart;
         }
 
         private List<List<Seat>> GenerateMockSeatingChart()

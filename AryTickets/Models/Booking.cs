@@ -22,6 +22,8 @@ namespace AryTickets.Models
         public DateTime BookedAt { get; set; } = DateTime.UtcNow;
         public string ConfirmationCode { get; set; }
 
+        public int? ShowtimeId { get; set; }
+
         public string QrCodeUrl => $"https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ARYTIX-{ConfirmationCode}|{MovieTitle}|{Showtime}|{Seats}";
     }
 }

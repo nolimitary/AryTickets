@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using AryTickets.Models;
 
 namespace AryTickets.Controllers
 {
@@ -25,7 +24,7 @@ namespace AryTickets.Controllers
             _apiKey = configuration["TMDb:ApiKey"];
         }
 
-        public async Task<IActionResult> Index(string region = "US")
+        public async Task<IActionResult> Index(string region = "US", int? genreId = null)
         {
             ViewData["CurrentRegion"] = region;
 
@@ -36,6 +35,17 @@ namespace AryTickets.Controllers
             }
 
             var httpClient = _httpClientFactory.CreateClient();
+
+            // Fetch genre list
+            var genreUrl = $"https://api.themoviedb.org/3/genre/movie/list?api_key={_apiKey}&language=en-US";
+            var genreResponse = await httpClient.GetAsync(genreUrl);
+            var allGenres = new List<Genre>();
+            if (genreResponse.IsSuccessStatusCode)
+            {
+                var genreJson = await genreResponse.Content.ReadAsStringAsync();
+                var genreResult = JsonSerializer.Deserialize<GenreListResult>(genreJson);
+                allGenres = genreResult?.Genres ?? new List<Genre>();
+            }
 
             var nowShowingUrl = $"https://api.themoviedb.org/3/movie/now_playing?api_key={_apiKey}&language=en-US&page=1&region={region}";
             var nowShowingResponse = await httpClient.GetAsync(nowShowingUrl);
@@ -60,10 +70,19 @@ namespace AryTickets.Controllers
             var nowShowingIds = new HashSet<int>(nowShowingMovies.Select(m => m.Id));
             var filteredComingSoonMovies = comingSoonMovies.Where(m => !nowShowingIds.Contains(m.Id)).ToList();
 
+            // Apply genre filter
+            if (genreId.HasValue)
+            {
+                nowShowingMovies = nowShowingMovies.Where(m => m.GenreIds != null && m.GenreIds.Contains(genreId.Value)).ToList();
+                filteredComingSoonMovies = filteredComingSoonMovies.Where(m => m.GenreIds != null && m.GenreIds.Contains(genreId.Value)).ToList();
+            }
+
             var viewModel = new HomeViewModel
             {
                 NowShowingMovies = nowShowingMovies,
-                ComingSoonMovies = filteredComingSoonMovies
+                ComingSoonMovies = filteredComingSoonMovies,
+                AllGenres = allGenres,
+                SelectedGenreId = genreId
             };
 
             return View(viewModel);
@@ -79,5 +98,11 @@ namespace AryTickets.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+    }
+
+    public class GenreListResult
+    {
+        [System.Text.Json.Serialization.JsonPropertyName("genres")]
+        public List<Genre> Genres { get; set; }
     }
 }

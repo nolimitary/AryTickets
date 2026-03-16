@@ -20,6 +20,11 @@ namespace AryTickets.Services
 
         public async Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
+            await SendEmailWithAttachmentAsync(email, subject, htmlMessage, null, null);
+        }
+
+        public async Task SendEmailWithAttachmentAsync(string email, string subject, string htmlMessage, byte[] attachment, string attachmentName)
+        {
             if (string.IsNullOrEmpty(_apiKey))
             {
                 throw new System.Exception("SendGrid API Key is not configured.");
@@ -29,6 +34,11 @@ namespace AryTickets.Services
             var from = new EmailAddress(_fromEmail, _fromName);
             var to = new EmailAddress(email);
             var msg = MailHelper.CreateSingleEmail(from, to, subject, "", htmlMessage);
+
+            if (attachment != null && !string.IsNullOrEmpty(attachmentName))
+            {
+                msg.AddAttachment(attachmentName, System.Convert.ToBase64String(attachment), "application/pdf");
+            }
 
             await client.SendEmailAsync(msg);
         }

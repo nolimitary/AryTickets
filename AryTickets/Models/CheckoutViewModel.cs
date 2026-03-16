@@ -9,6 +9,7 @@ namespace AryTickets.Models
         public string Showtime { get; set; }
         public string SelectedSeats { get; set; }
         public decimal TotalPrice { get; set; }
+        public int? ShowtimeId { get; set; }
 
         [Required]
         [Display(Name = "Name on Card")]

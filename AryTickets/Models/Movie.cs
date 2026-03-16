@@ -31,6 +31,9 @@ namespace AryTickets.Models
         [JsonPropertyName("vote_average")]
         public double VoteAverage { get; set; }
 
+        [JsonPropertyName("genre_ids")]
+        public List<int> GenreIds { get; set; }
+
         [JsonPropertyName("genres")]
         public List<Genre> Genres { get; set; }
 
@@ -50,7 +53,7 @@ namespace AryTickets.Models
         public Video FirstTrailer => Videos?.Results.FirstOrDefault(v => v.Type == "Trailer" && v.Site == "YouTube");
     }
 
-    public class Genre { [JsonPropertyName("name")] public string Name { get; set; } }
+    public class Genre { [JsonPropertyName("id")] public int Id { get; set; } [JsonPropertyName("name")] public string Name { get; set; } }
     public class Credits { [JsonPropertyName("cast")] public List<CastMember> Cast { get; set; } }
     public class CastMember { [JsonPropertyName("name")] public string Name { get; set; } [JsonPropertyName("profile_path")] public string ProfilePath { get; set; } public string FullProfilePath => ProfilePath != null ? $"https://image.tmdb.org/t/p/w185{ProfilePath}" : "https://placehold.co/185x278/1F2937/FFFFFF?text=No+Photo"; }
     public class VideoCollection { [JsonPropertyName("results")] public List<Video> Results { get; set; } }

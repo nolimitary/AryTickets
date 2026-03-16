@@ -408,20 +408,86 @@
                         <!-- Showtimes -->
                         <div>
                             <p class="text-xs font-medium text-[#e11d48] uppercase tracking-wider mb-4">Select Showtime</p>
-                            <div class="flex flex-wrap gap-3">
-                                @if (SignInManager.IsSignedIn(User))
-                                {
-                                    <a asp-controller="Booking" asp-action="SelectSeats" asp-route-movieId="@Model.Id" asp-route-movieTitle="@Model.Title" asp-route-showtime="Today - 7:00 PM" class="showtime-pill">7:00 PM</a>
-                                    <a asp-controller="Booking" asp-action="SelectSeats" asp-route-movieId="@Model.Id" asp-route-movieTitle="@Model.Title" asp-route-showtime="Today - 8:30 PM" class="showtime-pill">8:30 PM</a>
-                                    <a asp-controller="Booking" asp-action="SelectSeats" asp-route-movieId="@Model.Id" asp-route-movieTitle="@Model.Title" asp-route-showtime="Today - 9:45 PM" class="showtime-pill">9:45 PM</a>
-                                }
-                                else
-                                {
-                                    <a asp-controller="Account" asp-action="Register" class="showtime-pill">7:00 PM</a>
-                                    <a asp-controller="Account" asp-action="Register" class="showtime-pill">8:30 PM</a>
-                                    <a asp-controller="Account" asp-action="Register" class="showtime-pill">9:45 PM</a>
-                                }
-                            </div>
+                            @{
+                                var showtimes = ViewData["Showtimes"] as List<AryTickets.Models.Showtime>;
+                            }
+                            @if (showtimes != null && showtimes.Any())
+                            {
+                                var groupedByDate = showtimes.GroupBy(s => s.ShowDateTime.Date).OrderBy(g => g.Key);
+                                <div class="space-y-4">
+                                    @foreach (var dateGroup in groupedByDate)
+                                    {
+                                        <div>
+                                            <p class="text-xs text-zinc-500 mb-2">@dateGroup.Key.ToString("dddd, MMM dd")</p>
+                                            <div class="flex flex-wrap gap-2">
+                                                @foreach (var st in dateGroup.OrderBy(s => s.ShowDateTime))
+                                                {
+                                                    if (SignInManager.IsSignedIn(User))
+                                                    {
+                                                        <a asp-controller="Booking" asp-action="SelectSeats" asp-route-showtimeId="@st.Id" class="showtime-pill">
+                                                            <span>@st.FormattedTime</span>
+                                                            <span class="text-xs text-zinc-500 ml-1">@st.Hall</span>
+                                                            <span class="text-xs text-accent-400 ml-1">$@st.Price.ToString("F2")</span>
+                                                        </a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <a asp-controller="Account" asp-action="Register" class="showtime-pill">
+                                                            <span>@st.FormattedTime</span>
+                                                            <span class="text-xs text-zinc-500 ml-1">@st.Hall</span>
+                                                        </a>
+                                                    }
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <!-- Fallback: hardcoded showtimes for movies without configured showtimes -->
+                                <div>
+                                    <p class="text-xs text-zinc-500 mb-2">Today</p>
+                                    <div class="flex flex-wrap gap-2">
+                                        @if (SignInManager.IsSignedIn(User))
+                                        {
+                                            <a asp-controller="Booking" asp-action="SelectSeats" asp-route-movieId="@Model.Id" asp-route-movieTitle="@Model.Title" asp-route-showtime="Today - 7:00 PM" class="showtime-pill">
+                                                <span>7:00 PM</span>
+                                                <span class="text-xs text-zinc-500 ml-1">Hall 1</span>
+                                                <span class="text-xs text-accent-400 ml-1">$12.50</span>
+                                            </a>
+                                            <a asp-controller="Booking" asp-action="SelectSeats" asp-route-movieId="@Model.Id" asp-route-movieTitle="@Model.Title" asp-route-showtime="Today - 8:30 PM" class="showtime-pill">
+                                                <span>8:30 PM</span>
+                                                <span class="text-xs text-zinc-500 ml-1">Hall 1</span>
+                                                <span class="text-xs text-accent-400 ml-1">$12.50</span>
+                                            </a>
+                                            <a asp-controller="Booking" asp-action="SelectSeats" asp-route-movieId="@Model.Id" asp-route-movieTitle="@Model.Title" asp-route-showtime="Today - 9:45 PM" class="showtime-pill">
+                                                <span>9:45 PM</span>
+                                                <span class="text-xs text-zinc-500 ml-1">Hall 1</span>
+                                                <span class="text-xs text-accent-400 ml-1">$12.50</span>
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <a asp-controller="Account" asp-action="Register" class="showtime-pill">
+                                                <span>7:00 PM</span>
+                                                <span class="text-xs text-zinc-500 ml-1">Hall 1</span>
+                                                <span class="text-xs text-accent-400 ml-1">$12.50</span>
+                                            </a>
+                                            <a asp-controller="Account" asp-action="Register" class="showtime-pill">
+                                                <span>8:30 PM</span>
+                                                <span class="text-xs text-zinc-500 ml-1">Hall 1</span>
+                                                <span class="text-xs text-accent-400 ml-1">$12.50</span>
+                                            </a>
+                                            <a asp-controller="Account" asp-action="Register" class="showtime-pill">
+                                                <span>9:45 PM</span>
+                                                <span class="text-xs text-zinc-500 ml-1">Hall 1</span>
+                                                <span class="text-xs text-accent-400 ml-1">$12.50</span>
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                            }
                         </div>
 
                     </div>

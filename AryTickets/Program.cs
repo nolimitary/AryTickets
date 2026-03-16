@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using AryTickets.Data;
 using AryTickets.Models;
 using AryTickets.Services;
+using QuestPDF.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +41,8 @@ builder.Services.AddSession(options =>
 });
 
 builder.Services.AddTransient<IEmailSender, ResendEmailSender>();
+builder.Services.AddTransient<TicketPdfGenerator>();
+QuestPDF.Settings.License = LicenseType.Community;
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient();
 

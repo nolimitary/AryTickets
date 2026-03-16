@@ -301,8 +301,30 @@
     </section>
 }
 
+<!-- ═══ GENRE FILTER ═══ -->
+@if (Model.AllGenres.Any())
+{
+    <section class="max-w-[1360px] mx-auto px-6 pt-20 pb-4">
+        <div class="flex items-center gap-2 flex-wrap reveal">
+            <a href="@Url.Action("Index", "Home", new { region = ViewData["CurrentRegion"] })"
+               class="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-200
+                      @(Model.SelectedGenreId == null ? "bg-accent-500 text-white" : "bg-white/[0.04] text-zinc-400 border border-white/[0.08] hover:text-white hover:border-white/[0.15]")">
+                All
+            </a>
+            @foreach (var genre in Model.AllGenres)
+            {
+                <a href="@Url.Action("Index", "Home", new { region = ViewData["CurrentRegion"], genreId = genre.Id })"
+                   class="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-200
+                          @(Model.SelectedGenreId == genre.Id ? "bg-accent-500 text-white" : "bg-white/[0.04] text-zinc-400 border border-white/[0.08] hover:text-white hover:border-white/[0.15]")">
+                    @genre.Name
+                </a>
+            }
+        </div>
+    </section>
+}
+
 <!-- ═══ NOW SHOWING ═══ -->
-<section id="now-showing" class="max-w-[1360px] mx-auto px-6 pt-20 pb-16">
+<section id="now-showing" class="max-w-[1360px] mx-auto px-6 pt-10 pb-16">
     <div class="flex items-end justify-between mb-8 reveal">
         <div>
             <p class="text-xs font-medium text-accent-500 uppercase tracking-wider mb-1">In Theatres</p>

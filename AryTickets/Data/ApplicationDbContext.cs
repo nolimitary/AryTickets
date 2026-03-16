@@ -15,5 +15,7 @@ namespace AryTickets.Data
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<CriticApplication> CriticApplications { get; set; }
         public DbSet<UserReview> UserReviews { get; set; }
+        public DbSet<Showtime> Showtimes { get; set; }
+        public DbSet<SeatReservation> SeatReservations { get; set; }
     }
 }

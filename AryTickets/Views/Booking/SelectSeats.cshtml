@@ -106,6 +106,10 @@
     <div class="pt-24 text-center">
         <h1 class="text-4xl font-extrabold text-white" style="font-family: 'Outfit', sans-serif;">@Model.MovieTitle</h1>
         <p class="mt-2" style="color: #e11d48; font-family: 'Outfit', sans-serif;">@Model.Showtime</p>
+        @if (!string.IsNullOrEmpty(Model.Hall))
+        {
+            <p class="mt-1 text-sm" style="color: #71717a; font-family: 'Outfit', sans-serif;">@Model.Hall &middot; $@Model.TicketPrice.ToString("F2") per seat</p>
+        }
     </div>
 
     <div class="py-12">
@@ -149,6 +153,10 @@
             <input type="hidden" name="showtime" value="@Model.Showtime" />
             <input type="hidden" id="hidden-seats" name="selectedSeats" />
             <input type="hidden" id="hidden-price" name="totalPrice" />
+            @if (Model.ShowtimeId.HasValue)
+            {
+                <input type="hidden" name="showtimeId" value="@Model.ShowtimeId" />
+            }
 
             <div>
                 <h4 class="font-bold text-white" style="font-family: 'Outfit', sans-serif;">Selected Seats</h4>

@@ -60,6 +60,13 @@ namespace AryTickets.Controllers
             else
                 ViewData["HasReviewed"] = false;
 
+            // Load showtimes from DB
+            var showtimes = await _context.Showtimes
+                .Where(s => s.TmdbMovieId == id && s.IsActive && s.ShowDateTime > System.DateTime.UtcNow)
+                .OrderBy(s => s.ShowDateTime)
+                .ToListAsync();
+            ViewData["Showtimes"] = showtimes;
+
             return View(movie);
         }
 
@@ -71,7 +78,6 @@ namespace AryTickets.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return RedirectToAction("Login", "Account");
 
-            // Check if already reviewed
             var existing = await _context.UserReviews.AnyAsync(r => r.UserId == user.Id && r.MovieId == movieId);
             if (existing) return RedirectToAction("Details", new { id = movieId });
 

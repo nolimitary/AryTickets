@@ -21,6 +21,11 @@ namespace AryTickets.Services
 
         public async Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
+            await SendEmailWithAttachmentAsync(email, subject, htmlMessage, null, null);
+        }
+
+        public async Task SendEmailWithAttachmentAsync(string email, string subject, string htmlMessage, byte[] attachment, string attachmentName)
+        {
             if (string.IsNullOrEmpty(_apiKey))
             {
                 throw new System.Exception("Resend API Key is not configured.");
@@ -29,13 +34,35 @@ namespace AryTickets.Services
             var client = _httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiKey}");
 
-            var payload = new
+            object payload;
+            if (attachment != null && !string.IsNullOrEmpty(attachmentName))
             {
-                from = _fromEmail,
-                to = new[] { email },
-                subject = subject,
-                html = htmlMessage
-            };
+                payload = new
+                {
+                    from = _fromEmail,
+                    to = new[] { email },
+                    subject = subject,
+                    html = htmlMessage,
+                    attachments = new[]
+                    {
+                        new
+                        {
+                            filename = attachmentName,
+                            content = System.Convert.ToBase64String(attachment)
+                        }
+                    }
+                };
+            }
+            else
+            {
+                payload = new
+                {
+                    from = _fromEmail,
+                    to = new[] { email },
+                    subject = subject,
+                    html = htmlMessage
+                };
+            }
 
             var json = JsonSerializer.Serialize(payload);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
