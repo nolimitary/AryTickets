@@ -69,6 +69,14 @@ namespace AryTickets.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Check if email is already taken
+                var existingUser = await _userManager.FindByEmailAsync(model.Email);
+                if (existingUser != null)
+                {
+                    ModelState.AddModelError(string.Empty, "An account with this email already exists.");
+                    return View(model);
+                }
+
                 var code = new Random().Next(1000, 9999).ToString();
                 var user = new ApplicationUser
                 {
@@ -83,20 +91,17 @@ namespace AryTickets.Controllers
 
                 if (result.Succeeded)
                 {
+                    HttpContext.Session.SetString("EmailForConfirmation", model.Email);
+
                     try
                     {
-                        var emailBody = $"<div style='font-family:Arial,sans-serif;background:#09090b;color:#e4e4e7;padding:40px;text-align:center;'>" +
-                            $"<div style='max-width:400px;margin:0 auto;background:#141416;border-radius:16px;padding:32px;border:1px solid rgba(255,255,255,0.06);'>" +
-                            $"<h1 style='font-size:24px;margin-bottom:4px;'><span style='color:#fff;'>Ary</span><span style='color:#e11d48;'>Tix</span></h1>" +
-                            $"<p style='color:#71717a;font-size:13px;margin-bottom:24px;'>Verify your email</p>" +
-                            $"<div style='background:#09090b;border-radius:12px;padding:20px;margin-bottom:20px;'>" +
-                            $"<p style='font-size:32px;font-weight:700;color:#fff;letter-spacing:0.3em;margin:0;'>{code}</p></div>" +
-                            $"<p style='color:#52525b;font-size:12px;'>This code expires in 15 minutes.</p></div></div>";
-                        await _emailSender.SendEmailAsync(model.Email, "Verify your AryTix account", emailBody);
+                        await SendVerificationCodeEmail(model.Email, code);
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        TempData["EmailError"] = $"Verification email could not be sent: {ex.Message}";
+                    }
 
-                    HttpContext.Session.SetString("EmailForConfirmation", model.Email);
                     return RedirectToAction("ConfirmEmail");
                 }
 
@@ -131,7 +136,7 @@ namespace AryTickets.Controllers
                 if (user != null && user.EmailVerificationCode == model.Code && user.VerificationCodeExpiry > DateTime.UtcNow)
                 {
                     user.EmailConfirmed = true;
-                    user.EmailVerificationCode = null; 
+                    user.EmailVerificationCode = null;
                     user.VerificationCodeExpiry = null;
                     await _userManager.UpdateAsync(user);
 
@@ -141,6 +146,69 @@ namespace AryTickets.Controllers
                 ModelState.AddModelError(string.Empty, "Invalid or expired verification code.");
             }
             return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResendCode()
+        {
+            var email = HttpContext.Session.GetString("EmailForConfirmation");
+            if (string.IsNullOrEmpty(email))
+                return RedirectToAction("Login");
+
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null || user.EmailConfirmed)
+                return RedirectToAction("Login");
+
+            var code = new Random().Next(1000, 9999).ToString();
+            user.EmailVerificationCode = code;
+            user.VerificationCodeExpiry = DateTime.UtcNow.AddMinutes(15);
+            await _userManager.UpdateAsync(user);
+
+            try
+            {
+                await SendVerificationCodeEmail(email, code);
+                TempData["ResendSuccess"] = "A new verification code has been sent to your email.";
+            }
+            catch (Exception ex)
+            {
+                TempData["EmailError"] = $"Failed to send email: {ex.Message}";
+            }
+
+            return RedirectToAction("ConfirmEmail");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SkipVerification()
+        {
+            var email = HttpContext.Session.GetString("EmailForConfirmation");
+            if (string.IsNullOrEmpty(email))
+                return RedirectToAction("Login");
+
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+                return RedirectToAction("Login");
+
+            user.EmailConfirmed = true;
+            user.EmailVerificationCode = null;
+            user.VerificationCodeExpiry = null;
+            await _userManager.UpdateAsync(user);
+
+            await _signInManager.SignInAsync(user, isPersistent: false);
+            return RedirectToAction("Index", "Home");
+        }
+
+        private async Task SendVerificationCodeEmail(string email, string code)
+        {
+            var emailBody = $"<div style='font-family:Arial,sans-serif;background:#09090b;color:#e4e4e7;padding:40px;text-align:center;'>" +
+                $"<div style='max-width:400px;margin:0 auto;background:#141416;border-radius:16px;padding:32px;border:1px solid rgba(255,255,255,0.06);'>" +
+                $"<h1 style='font-size:24px;margin-bottom:4px;'><span style='color:#fff;'>Ary</span><span style='color:#e11d48;'>Tix</span></h1>" +
+                $"<p style='color:#71717a;font-size:13px;margin-bottom:24px;'>Verify your email</p>" +
+                $"<div style='background:#09090b;border-radius:12px;padding:20px;margin-bottom:20px;'>" +
+                $"<p style='font-size:32px;font-weight:700;color:#fff;letter-spacing:0.3em;margin:0;'>{code}</p></div>" +
+                $"<p style='color:#52525b;font-size:12px;'>This code expires in 15 minutes.</p></div></div>";
+            await _emailSender.SendEmailAsync(email, "Verify your AryTix account", emailBody);
         }
     }
 }

@@ -6,7 +6,7 @@ namespace AryTickets.Services
 {
     public class TicketPdfGenerator
     {
-        public byte[] Generate(string movieTitle, string showtime, string seats, decimal totalPrice, string confirmationCode, string qrCodeUrl)
+        public virtual byte[] Generate(string movieTitle, string showtime, string seats, decimal totalPrice, string confirmationCode, string qrCodeUrl)
         {
             byte[] qrImageBytes = null;
             try

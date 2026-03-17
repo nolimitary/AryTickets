@@ -51,6 +51,19 @@
             </p>
         </div>
 
+        @if (TempData["EmailError"] != null)
+        {
+            <div class="fade-in fade-delay-2 bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3 text-red-400 text-sm text-center">
+                @TempData["EmailError"]
+            </div>
+        }
+        @if (TempData["ResendSuccess"] != null)
+        {
+            <div class="fade-in fade-delay-2 bg-green-500/10 border border-green-500/20 rounded-lg px-4 py-3 text-green-400 text-sm text-center">
+                @TempData["ResendSuccess"]
+            </div>
+        }
+
         <!-- Form -->
         <form class="space-y-6 fade-in fade-delay-3" asp-action="ConfirmEmail" method="post">
             <div asp-validation-summary="All" class="text-red-400 list-disc pl-5 text-sm"></div>
@@ -72,6 +85,22 @@
                     Verify Account
                 </button>
             </div>
+        </form>
+
+        <!-- Resend Code -->
+        <form class="fade-in fade-delay-4 text-center" asp-action="ResendCode" method="post">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="text-sm text-zinc-500 hover:text-accent-500 transition-colors duration-300">
+                Didn't receive the code? <span class="text-zinc-300 hover:text-accent-400 underline underline-offset-2">Resend</span>
+            </button>
+        </form>
+
+        <!-- Skip Verification -->
+        <form class="fade-in fade-delay-4 text-center" asp-action="SkipVerification" method="post">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="text-sm text-zinc-600 hover:text-zinc-400 transition-colors duration-300">
+                Skip for now
+            </button>
         </form>
     </div>
 </div>

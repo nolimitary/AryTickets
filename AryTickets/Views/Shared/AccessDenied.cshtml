@@ -1,6 +1,5 @@
-@model ErrorViewModel
 @{
-    ViewData["Title"] = "Error";
+    ViewData["Title"] = "Access Denied";
     Layout = null;
 }
 
@@ -9,7 +8,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>500 - Server Error | AryTix</title>
+    <title>403 - Access Denied | AryTix</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
@@ -58,32 +57,23 @@
         <div class="bg-surface-200 border border-white/[0.06] rounded-2xl p-10">
             <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-accent-500/10 border border-accent-500/20 flex items-center justify-center">
                 <svg class="w-10 h-10 text-accent-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0 3.75h.008v.008H12v-.008zm9.303-3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374L10.051 3.378c.866-1.5 3.032-1.5 3.898 0l8.354 14.497z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
                 </svg>
             </div>
 
-            <p class="text-7xl font-bold text-accent-500 mb-2">500</p>
-            <h1 class="text-xl font-semibold text-white mb-2">Something Went Wrong</h1>
+            <p class="text-7xl font-bold text-accent-500 mb-2">403</p>
+            <h1 class="text-xl font-semibold text-white mb-2">Access Denied</h1>
             <p class="text-sm text-zinc-500 mb-8 leading-relaxed">
-                An unexpected error occurred on the server. Please try again later or return to the homepage.
+                You do not have permission to access this page. Please sign in with an authorized account or return to the homepage.
             </p>
 
-            @if (Model?.ShowRequestId ?? false)
-            {
-                <p class="text-xs text-zinc-600 mb-6 font-mono bg-surface-300 rounded-lg px-3 py-2 inline-block">
-                    Request ID: @Model.RequestId
-                </p>
-            }
-
-            <div>
-                <a href="/"
-                   class="inline-flex items-center gap-2 bg-accent-500 text-white text-sm font-semibold px-6 py-3 rounded-xl hover:bg-accent-600 transition-all duration-200">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-                    </svg>
-                    Go Home
-                </a>
-            </div>
+            <a href="/"
+               class="inline-flex items-center gap-2 bg-accent-500 text-white text-sm font-semibold px-6 py-3 rounded-xl hover:bg-accent-600 transition-all duration-200">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                </svg>
+                Go Home
+            </a>
         </div>
 
         <p class="text-xs text-zinc-600 mt-6">&copy; @DateTime.Now.Year AryTix. All rights reserved.</p>

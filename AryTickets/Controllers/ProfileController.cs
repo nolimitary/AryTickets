@@ -64,6 +64,8 @@ namespace AryTickets.Controllers
                 .Take(5)
                 .ToListAsync();
 
+            var reviewsCount = await _context.UserReviews.CountAsync(r => r.UserId == userId);
+
             var existingApp = await _context.CriticApplications
                 .FirstOrDefaultAsync(a => a.UserId == userId);
 
@@ -74,7 +76,7 @@ namespace AryTickets.Controllers
                 JoinDate = user.CreatedAt,
                 TicketCount = ticketCount,
                 FavoritesCount = favoritesCount,
-                ReviewsCount = 0,
+                ReviewsCount = reviewsCount,
                 TotalSpent = totalSpent,
                 RecentBookings = recentBookings,
                 IsCritic = user.IsCritic,

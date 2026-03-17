@@ -93,6 +93,17 @@ namespace AryTickets.Controllers
             return View();
         }
 
+        [Route("Home/StatusCode/{code:int}")]
+        public IActionResult StatusCode(int code)
+        {
+            return code switch
+            {
+                403 => View("AccessDenied"),
+                404 => View("NotFound"),
+                _ => View("Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier })
+            };
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
