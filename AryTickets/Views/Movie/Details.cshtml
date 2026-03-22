@@ -366,17 +366,14 @@
                         </div>
 
                         <!-- Action buttons -->
-                        <div class="flex items-center gap-4 mb-10">
-                            <button class="action-circle" title="Like">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                                </svg>
-                            </button>
-
+                        <div class="flex items-center gap-3 mb-10">
                             @if (SignInManager.IsSignedIn(User))
                             {
                                 <form asp-controller="UserFavorites" asp-action="ToggleFavorite" method="post">
-                                    <input type="hidden" name="movieId" value="@Model.Id" /> <input type="hidden" name="movieTitle" value="@Model.Title" /> <input type="hidden" name="posterPath" value="@Model.PosterPath" />
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="movieId" value="@Model.Id" />
+                                    <input type="hidden" name="movieTitle" value="@Model.Title" />
+                                    <input type="hidden" name="posterPath" value="@Model.PosterPath" />
                                     @if ((bool)ViewData["IsFavorite"])
                                     {
                                         <button type="submit" class="action-circle action-circle-active" title="Remove from Favorites">
@@ -403,6 +400,19 @@
                                     </svg>
                                 </a>
                             }
+
+                            <button id="share-btn" class="action-circle" title="Share">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
+                                </svg>
+                            </button>
+                            <span id="share-toast" class="text-xs text-accent-400 opacity-0 transition-opacity duration-300 ml-1">Link copied!</span>
+
+                            <a href="#write-review" class="action-circle" title="Write a Review">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+                                </svg>
+                            </a>
                         </div>
 
                         <!-- Showtimes -->
@@ -705,6 +715,18 @@
             closeModalBtn.addEventListener('click', stopVideo);
             trailerModal.addEventListener('click', (e) => {
                 if (e.target === trailerModal) stopVideo();
+            });
+        }
+
+        // ── Share button ──
+        const shareBtn = document.getElementById('share-btn');
+        const shareToast = document.getElementById('share-toast');
+        if (shareBtn) {
+            shareBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(window.location.href).then(() => {
+                    shareToast.style.opacity = '1';
+                    setTimeout(() => shareToast.style.opacity = '0', 2000);
+                });
             });
         }
 
