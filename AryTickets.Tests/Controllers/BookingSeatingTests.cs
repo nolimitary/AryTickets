@@ -98,19 +98,14 @@ namespace AryTickets.Tests.Controllers
         }
 
         [Fact]
-        public async Task SelectSeats_FallbackMode_WithMovieInfo()
+        public async Task SelectSeats_NullShowtimeId_ReturnsBadRequest()
         {
             var context = TestDbContextFactory.Create();
             var controller = new BookingController(_emailSender.Object, _userManager.Object, context, _pdfGenerator.Object, _seatHub.Object);
             MockHelpers.SetupControllerContext(controller, "test-user-id");
 
-            var result = await controller.SelectSeats(null, 100, "Fallback Movie", "7:00 PM") as ViewResult;
-
-            Assert.NotNull(result);
-            var model = result!.Model as SeatSelectionViewModel;
-            Assert.Equal("Fallback Movie", model!.MovieTitle);
-            Assert.Equal("7:00 PM", model.Showtime);
-            Assert.NotNull(model.SeatingChart);
+            var result = await controller.SelectSeats(null);
+            Assert.IsType<BadRequestObjectResult>(result);
         }
 
         [Fact]

@@ -31,48 +31,38 @@ namespace AryTickets.Controllers
             _seatHub = seatHub;
         }
 
-        public async Task<IActionResult> SelectSeats(int? showtimeId, int movieId = 0, string movieTitle = null, string showtime = null)
+        public async Task<IActionResult> SelectSeats(int? showtimeId)
         {
-            // If we have a showtimeId, use the real showtime from DB
-            if (showtimeId.HasValue)
+            if (!showtimeId.HasValue)
+                return BadRequest("A valid showtime is required.");
+
+            var st = await _db.Showtimes.FindAsync(showtimeId.Value);
+            if (st == null || !st.IsActive)
+                return NotFound();
+
+            // Don't allow booking past showtimes
+            if (st.ShowDateTime <= System.DateTime.UtcNow)
+                return BadRequest("This showtime has already passed.");
+
+            // Get already reserved seats for this showtime
+            var reservedSeatsList = await _db.SeatReservations
+                .Where(r => r.ShowtimeId == showtimeId.Value)
+                .Select(r => r.SeatNumber)
+                .ToListAsync();
+            var reservedSeats = new HashSet<string>(reservedSeatsList);
+
+            var viewModel = new SeatSelectionViewModel
             {
-                var st = await _db.Showtimes.FindAsync(showtimeId.Value);
-                if (st == null) return NotFound();
-
-                // Get already reserved seats for this showtime
-                var reservedSeatsList = await _db.SeatReservations
-                    .Where(r => r.ShowtimeId == showtimeId.Value)
-                    .Select(r => r.SeatNumber)
-                    .ToListAsync();
-                var reservedSeats = new HashSet<string>(reservedSeatsList);
-
-                var viewModel = new SeatSelectionViewModel
-                {
-                    MovieId = st.TmdbMovieId,
-                    MovieTitle = st.MovieTitle,
-                    Showtime = st.FormattedDateTime,
-                    ShowtimeId = st.Id,
-                    Hall = st.Hall,
-                    TicketPrice = st.Price,
-                    SeatingChart = GenerateSeatingChart(reservedSeats, st.Price)
-                };
-
-                return View(viewModel);
-            }
-
-            // Fallback: old-style mock showtimes (for movies without configured showtimes)
-            if (string.IsNullOrEmpty(movieTitle) || string.IsNullOrEmpty(showtime))
-                return BadRequest("Movie and showtime information is required.");
-
-            var fallbackModel = new SeatSelectionViewModel
-            {
-                MovieId = movieId,
-                MovieTitle = movieTitle,
-                Showtime = showtime,
-                SeatingChart = GenerateMockSeatingChart()
+                MovieId = st.TmdbMovieId,
+                MovieTitle = st.MovieTitle,
+                Showtime = st.FormattedDateTime,
+                ShowtimeId = st.Id,
+                Hall = st.Hall,
+                TicketPrice = st.Price,
+                SeatingChart = GenerateSeatingChart(reservedSeats, st.Price)
             };
 
-            return View(fallbackModel);
+            return View(viewModel);
         }
 
         [HttpPost]
@@ -278,28 +268,5 @@ namespace AryTickets.Controllers
             return chart;
         }
 
-        private List<List<Seat>> GenerateMockSeatingChart()
-        {
-            var chart = new List<List<Seat>>();
-            var rows = "ABCDEFGH".ToCharArray();
-            var random = new System.Random();
-            for (int i = 0; i < rows.Length; i++)
-            {
-                var row = new List<Seat>();
-                int seatCounter = 1;
-                for (int j = 1; j <= 14; j++)
-                {
-                    if (j == 7 || j == 8) { row.Add(null); }
-                    else if (rows[i] == 'H' && (j <= 2 || j >= 13)) { row.Add(null); }
-                    else
-                    {
-                        var status = random.Next(1, 10) > 8 ? SeatStatus.Taken : SeatStatus.Available;
-                        row.Add(new Seat { SeatNumber = $"{rows[i]}{seatCounter++}", Status = status });
-                    }
-                }
-                chart.Add(row);
-            }
-            return chart;
-        }
     }
 }

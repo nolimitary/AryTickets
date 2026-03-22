@@ -58,13 +58,13 @@ namespace AryTickets.Tests.Controllers
         }
 
         [Fact]
-        public async Task SelectSeats_NoShowtimeId_NoMovieTitle_ReturnsBadRequest()
+        public async Task SelectSeats_NoShowtimeId_ReturnsBadRequest()
         {
             var context = TestDbContextFactory.Create();
             var controller = new BookingController(_emailSender.Object, _userManager.Object, context, _pdfGenerator.Object, _seatHub.Object);
             MockHelpers.SetupControllerContext(controller, "test-user-id");
 
-            var result = await controller.SelectSeats(null, 0, null, null);
+            var result = await controller.SelectSeats(null);
             Assert.IsType<BadRequestObjectResult>(result);
         }
 

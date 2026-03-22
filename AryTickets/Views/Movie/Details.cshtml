@@ -445,47 +445,12 @@
                             }
                             else
                             {
-                                <!-- Fallback: hardcoded showtimes for movies without configured showtimes -->
-                                <div>
-                                    <p class="text-xs text-zinc-500 mb-2">Today</p>
-                                    <div class="flex flex-wrap gap-2">
-                                        @if (SignInManager.IsSignedIn(User))
-                                        {
-                                            <a asp-controller="Booking" asp-action="SelectSeats" asp-route-movieId="@Model.Id" asp-route-movieTitle="@Model.Title" asp-route-showtime="Today - 7:00 PM" class="showtime-pill">
-                                                <span>7:00 PM</span>
-                                                <span class="text-xs text-zinc-500 ml-1">Hall 1</span>
-                                                <span class="text-xs text-accent-400 ml-1">$12.50</span>
-                                            </a>
-                                            <a asp-controller="Booking" asp-action="SelectSeats" asp-route-movieId="@Model.Id" asp-route-movieTitle="@Model.Title" asp-route-showtime="Today - 8:30 PM" class="showtime-pill">
-                                                <span>8:30 PM</span>
-                                                <span class="text-xs text-zinc-500 ml-1">Hall 1</span>
-                                                <span class="text-xs text-accent-400 ml-1">$12.50</span>
-                                            </a>
-                                            <a asp-controller="Booking" asp-action="SelectSeats" asp-route-movieId="@Model.Id" asp-route-movieTitle="@Model.Title" asp-route-showtime="Today - 9:45 PM" class="showtime-pill">
-                                                <span>9:45 PM</span>
-                                                <span class="text-xs text-zinc-500 ml-1">Hall 1</span>
-                                                <span class="text-xs text-accent-400 ml-1">$12.50</span>
-                                            </a>
-                                        }
-                                        else
-                                        {
-                                            <a asp-controller="Account" asp-action="Register" class="showtime-pill">
-                                                <span>7:00 PM</span>
-                                                <span class="text-xs text-zinc-500 ml-1">Hall 1</span>
-                                                <span class="text-xs text-accent-400 ml-1">$12.50</span>
-                                            </a>
-                                            <a asp-controller="Account" asp-action="Register" class="showtime-pill">
-                                                <span>8:30 PM</span>
-                                                <span class="text-xs text-zinc-500 ml-1">Hall 1</span>
-                                                <span class="text-xs text-accent-400 ml-1">$12.50</span>
-                                            </a>
-                                            <a asp-controller="Account" asp-action="Register" class="showtime-pill">
-                                                <span>9:45 PM</span>
-                                                <span class="text-xs text-zinc-500 ml-1">Hall 1</span>
-                                                <span class="text-xs text-accent-400 ml-1">$12.50</span>
-                                            </a>
-                                        }
-                                    </div>
+                                <div class="text-center py-6">
+                                    <svg class="w-10 h-10 mx-auto text-zinc-600 mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                                    </svg>
+                                    <p class="text-sm text-zinc-500">No showtimes available for this movie.</p>
+                                    <p class="text-xs text-zinc-600 mt-1">Check back later for upcoming screenings.</p>
                                 </div>
                             }
                         </div>
