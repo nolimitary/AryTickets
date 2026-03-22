@@ -1,3 +1,4 @@
+using AryTickets.Hubs;
 using AryTickets.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -5,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.SignalR;
 using Moq;
 using System.Collections.Generic;
 using System.Security.Claims;
@@ -30,6 +32,17 @@ namespace AryTickets.Tests.Helpers
             var claimsFactory = new Mock<IUserClaimsPrincipalFactory<ApplicationUser>>();
             return new Mock<SignInManager<ApplicationUser>>(
                 userManager.Object, contextAccessor.Object, claimsFactory.Object, null, null, null, null);
+        }
+
+        public static Mock<IHubContext<SeatHub>> MockSeatHub()
+        {
+            var mockHub = new Mock<IHubContext<SeatHub>>();
+            var mockClients = new Mock<IHubClients>();
+            var mockClientProxy = new Mock<IClientProxy>();
+            mockClients.Setup(c => c.Group(It.IsAny<string>())).Returns(mockClientProxy.Object);
+            mockClients.Setup(c => c.All).Returns(mockClientProxy.Object);
+            mockHub.Setup(h => h.Clients).Returns(mockClients.Object);
+            return mockHub;
         }
 
         public static Mock<RoleManager<IdentityRole>> MockRoleManager()

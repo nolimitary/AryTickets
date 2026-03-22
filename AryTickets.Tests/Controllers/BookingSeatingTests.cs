@@ -1,8 +1,10 @@
 using AryTickets.Controllers;
+using AryTickets.Hubs;
 using AryTickets.Models;
 using AryTickets.Services;
 using AryTickets.Tests.Helpers;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Moq;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,12 +18,13 @@ namespace AryTickets.Tests.Controllers
         private readonly Mock<IEmailSender> _emailSender = new();
         private readonly Mock<Microsoft.AspNetCore.Identity.UserManager<ApplicationUser>> _userManager = MockHelpers.MockUserManager();
         private readonly Mock<TicketPdfGenerator> _pdfGenerator = new();
+        private readonly Mock<IHubContext<SeatHub>> _seatHub = MockHelpers.MockSeatHub();
 
         [Fact]
         public async Task SelectSeats_WithReservedSeats_ShowsCorrectAvailability()
         {
             var context = TestDbContextFactory.CreateWithData();
-            var controller = new BookingController(_emailSender.Object, _userManager.Object, context, _pdfGenerator.Object);
+            var controller = new BookingController(_emailSender.Object, _userManager.Object, context, _pdfGenerator.Object, _seatHub.Object);
             MockHelpers.SetupControllerContext(controller, "test-user-id");
 
             var result = await controller.SelectSeats(showtimeId: 1) as ViewResult;
@@ -50,7 +53,7 @@ namespace AryTickets.Tests.Controllers
         public async Task SelectSeats_SeatingChartHasCorrectStructure()
         {
             var context = TestDbContextFactory.CreateWithData();
-            var controller = new BookingController(_emailSender.Object, _userManager.Object, context, _pdfGenerator.Object);
+            var controller = new BookingController(_emailSender.Object, _userManager.Object, context, _pdfGenerator.Object, _seatHub.Object);
             MockHelpers.SetupControllerContext(controller, "test-user-id");
 
             var result = await controller.SelectSeats(showtimeId: 1) as ViewResult;
@@ -81,7 +84,7 @@ namespace AryTickets.Tests.Controllers
         public async Task SelectSeats_SetsTicketPrice()
         {
             var context = TestDbContextFactory.CreateWithData();
-            var controller = new BookingController(_emailSender.Object, _userManager.Object, context, _pdfGenerator.Object);
+            var controller = new BookingController(_emailSender.Object, _userManager.Object, context, _pdfGenerator.Object, _seatHub.Object);
             MockHelpers.SetupControllerContext(controller, "test-user-id");
 
             var result = await controller.SelectSeats(showtimeId: 1) as ViewResult;
@@ -98,7 +101,7 @@ namespace AryTickets.Tests.Controllers
         public async Task SelectSeats_FallbackMode_WithMovieInfo()
         {
             var context = TestDbContextFactory.Create();
-            var controller = new BookingController(_emailSender.Object, _userManager.Object, context, _pdfGenerator.Object);
+            var controller = new BookingController(_emailSender.Object, _userManager.Object, context, _pdfGenerator.Object, _seatHub.Object);
             MockHelpers.SetupControllerContext(controller, "test-user-id");
 
             var result = await controller.SelectSeats(null, 100, "Fallback Movie", "7:00 PM") as ViewResult;
@@ -120,7 +123,7 @@ namespace AryTickets.Tests.Controllers
             _emailSender.Setup(m => m.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(Task.CompletedTask);
 
-            var controller = new BookingController(_emailSender.Object, _userManager.Object, context, _pdfGenerator.Object);
+            var controller = new BookingController(_emailSender.Object, _userManager.Object, context, _pdfGenerator.Object, _seatHub.Object);
             MockHelpers.SetupControllerContext(controller, "u1");
 
             var model = new CheckoutViewModel
@@ -159,7 +162,7 @@ namespace AryTickets.Tests.Controllers
             _emailSender.Setup(m => m.SendEmailWithAttachmentAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<string>()))
                 .Returns(Task.CompletedTask);
 
-            var controller = new BookingController(_emailSender.Object, _userManager.Object, context, pdfGen.Object);
+            var controller = new BookingController(_emailSender.Object, _userManager.Object, context, pdfGen.Object, _seatHub.Object);
             MockHelpers.SetupControllerContext(controller, "u1");
 
             var model = new CheckoutViewModel
@@ -203,7 +206,7 @@ namespace AryTickets.Tests.Controllers
             _emailSender.Setup(m => m.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(Task.CompletedTask);
 
-            var controller = new BookingController(_emailSender.Object, _userManager.Object, context, pdfGen.Object);
+            var controller = new BookingController(_emailSender.Object, _userManager.Object, context, pdfGen.Object, _seatHub.Object);
             MockHelpers.SetupControllerContext(controller, "u1");
 
             var model = new CheckoutViewModel
@@ -239,7 +242,7 @@ namespace AryTickets.Tests.Controllers
             _emailSender.Setup(m => m.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(Task.CompletedTask);
 
-            var controller = new BookingController(_emailSender.Object, _userManager.Object, context, _pdfGenerator.Object);
+            var controller = new BookingController(_emailSender.Object, _userManager.Object, context, _pdfGenerator.Object, _seatHub.Object);
             MockHelpers.SetupControllerContext(controller, "u1");
 
             var model = new CheckoutViewModel
@@ -272,7 +275,7 @@ namespace AryTickets.Tests.Controllers
             _emailSender.Setup(m => m.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(Task.CompletedTask);
 
-            var controller = new BookingController(_emailSender.Object, _userManager.Object, context, _pdfGenerator.Object);
+            var controller = new BookingController(_emailSender.Object, _userManager.Object, context, _pdfGenerator.Object, _seatHub.Object);
             MockHelpers.SetupControllerContext(controller, "u1");
 
             var model = new CheckoutViewModel
@@ -297,7 +300,7 @@ namespace AryTickets.Tests.Controllers
         public void Checkout_SetsShowtimeId()
         {
             var context = TestDbContextFactory.Create();
-            var controller = new BookingController(_emailSender.Object, _userManager.Object, context, _pdfGenerator.Object);
+            var controller = new BookingController(_emailSender.Object, _userManager.Object, context, _pdfGenerator.Object, _seatHub.Object);
             MockHelpers.SetupControllerContext(controller, "test-user-id");
 
             var result = controller.Checkout("Movie", "7PM", "A1", 12.50m, 42) as ViewResult;

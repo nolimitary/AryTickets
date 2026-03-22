@@ -113,8 +113,9 @@ namespace AryTickets.Controllers
 
             var confirmCode = System.Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper();
 
-            // Use a transaction to ensure booking + seat reservations are atomic
-            using var transaction = await _db.Database.BeginTransactionAsync();
+            // Use a transaction when the provider supports it (not InMemory)
+            var supportsTransactions = !_db.Database.ProviderName?.Contains("InMemory", System.StringComparison.OrdinalIgnoreCase) == true;
+            var transaction = supportsTransactions ? await _db.Database.BeginTransactionAsync() : null;
             try
             {
                 // Check seat availability before booking
@@ -131,7 +132,7 @@ namespace AryTickets.Controllers
 
                     if (alreadyTaken.Any())
                     {
-                        await transaction.RollbackAsync();
+                        if (transaction != null) await transaction.RollbackAsync();
                         return Json(new { success = false, message = $"Seats already taken: {string.Join(", ", alreadyTaken)}", takenSeats = alreadyTaken });
                     }
                 }
@@ -167,7 +168,7 @@ namespace AryTickets.Controllers
                     await _db.SaveChangesAsync();
                 }
 
-                await transaction.CommitAsync();
+                if (transaction != null) await transaction.CommitAsync();
 
                 // Notify all browsers viewing this showtime that seats are now taken
                 if (model.ShowtimeId.HasValue && seatNumbers.Length > 0)
@@ -213,8 +214,12 @@ namespace AryTickets.Controllers
             }
             catch (DbUpdateException)
             {
-                await transaction.RollbackAsync();
+                if (transaction != null) await transaction.RollbackAsync();
                 return Json(new { success = false, message = "Those seats were just booked by someone else. Please select different seats." });
+            }
+            finally
+            {
+                if (transaction != null) await transaction.DisposeAsync();
             }
         }
 
