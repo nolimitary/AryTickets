@@ -1,6 +1,8 @@
 using AryTickets.Models;
+using AryTickets.Hubs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using AryTickets.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,13 +20,15 @@ namespace AryTickets.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly Data.ApplicationDbContext _db;
         private readonly TicketPdfGenerator _pdfGenerator;
+        private readonly IHubContext<SeatHub> _seatHub;
 
-        public BookingController(IEmailSender emailSender, UserManager<ApplicationUser> userManager, Data.ApplicationDbContext db, TicketPdfGenerator pdfGenerator)
+        public BookingController(IEmailSender emailSender, UserManager<ApplicationUser> userManager, Data.ApplicationDbContext db, TicketPdfGenerator pdfGenerator, IHubContext<SeatHub> seatHub)
         {
             _emailSender = emailSender;
             _userManager = userManager;
             _db = db;
             _pdfGenerator = pdfGenerator;
+            _seatHub = seatHub;
         }
 
         public async Task<IActionResult> SelectSeats(int? showtimeId, int movieId = 0, string movieTitle = null, string showtime = null)
@@ -72,6 +76,7 @@ namespace AryTickets.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Checkout(string movieTitle, string showtime, string selectedSeats, decimal totalPrice, int? showtimeId)
         {
             var viewModel = new CheckoutViewModel
@@ -103,9 +108,34 @@ namespace AryTickets.Controllers
             await Task.Delay(2500);
 
             var user = await _userManager.GetUserAsync(User);
-            if (user != null)
+            if (user == null)
+                return Json(new { success = false, message = "User not found." });
+
+            var confirmCode = System.Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper();
+
+            // Use a transaction to ensure booking + seat reservations are atomic
+            using var transaction = await _db.Database.BeginTransactionAsync();
+            try
             {
-                var confirmCode = System.Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper();
+                // Check seat availability before booking
+                var seatNumbers = System.Array.Empty<string>();
+                if (model.ShowtimeId.HasValue && !string.IsNullOrEmpty(model.SelectedSeats))
+                {
+                    seatNumbers = model.SelectedSeats.Split(',', System.StringSplitOptions.RemoveEmptyEntries)
+                        .Select(s => s.Trim()).ToArray();
+
+                    var alreadyTaken = await _db.SeatReservations
+                        .Where(r => r.ShowtimeId == model.ShowtimeId.Value && seatNumbers.Contains(r.SeatNumber))
+                        .Select(r => r.SeatNumber)
+                        .ToListAsync();
+
+                    if (alreadyTaken.Any())
+                    {
+                        await transaction.RollbackAsync();
+                        return Json(new { success = false, message = $"Seats already taken: {string.Join(", ", alreadyTaken)}", takenSeats = alreadyTaken });
+                    }
+                }
+
                 var booking = new Booking
                 {
                     UserId = user.Id,
@@ -122,28 +152,36 @@ namespace AryTickets.Controllers
                 _db.Bookings.Add(booking);
                 await _db.SaveChangesAsync();
 
-                // Create seat reservations if this is a real showtime
-                if (model.ShowtimeId.HasValue && !string.IsNullOrEmpty(model.SelectedSeats))
+                // Create seat reservations
+                if (model.ShowtimeId.HasValue && seatNumbers.Length > 0)
                 {
-                    var seatNumbers = model.SelectedSeats.Split(',', System.StringSplitOptions.RemoveEmptyEntries);
                     foreach (var seat in seatNumbers)
                     {
                         _db.SeatReservations.Add(new SeatReservation
                         {
                             ShowtimeId = model.ShowtimeId.Value,
                             BookingId = booking.Id,
-                            SeatNumber = seat.Trim()
+                            SeatNumber = seat
                         });
                     }
                     await _db.SaveChangesAsync();
                 }
 
+                await transaction.CommitAsync();
+
+                // Notify all browsers viewing this showtime that seats are now taken
+                if (model.ShowtimeId.HasValue && seatNumbers.Length > 0)
+                {
+                    await _seatHub.Clients.Group($"showtime-{model.ShowtimeId.Value}")
+                        .SendAsync("SeatsBooked", seatNumbers);
+                }
+
+                // Send confirmation email (non-blocking — don't fail the booking if email fails)
                 try
                 {
                     var qrUrl = $"https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=ARYTIX-{confirmCode}|{model.MovieTitle}|{model.Showtime}|{model.SelectedSeats}";
                     var emailBody = BuildTicketEmail(model, user.UserName, confirmCode);
 
-                    // Generate PDF ticket
                     byte[] pdfBytes = null;
                     try
                     {
@@ -170,10 +208,14 @@ namespace AryTickets.Controllers
                 {
                     // Email sending failed but payment still succeeds
                 }
+
                 return Json(new { success = true, confirmationCode = booking.ConfirmationCode, qrCodeUrl = booking.QrCodeUrl });
             }
-
-            return Json(new { success = true });
+            catch (DbUpdateException)
+            {
+                await transaction.RollbackAsync();
+                return Json(new { success = false, message = "Those seats were just booked by someone else. Please select different seats." });
+            }
         }
 
         private string BuildTicketEmail(CheckoutViewModel model, string username, string confirmCode)

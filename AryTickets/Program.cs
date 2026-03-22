@@ -1,17 +1,35 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.ResponseCompression;
 using AryTickets.Data;
 using AryTickets.Models;
 using AryTickets.Services;
+using AryTickets.Hubs;
 using QuestPDF.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Railway sets PORT env var
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
+// Database configuration — Railway provides DATABASE_URL for PostgreSQL
+var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-if (connectionString != null && connectionString.Contains("localdb", StringComparison.OrdinalIgnoreCase))
+
+if (!string.IsNullOrEmpty(databaseUrl))
 {
-    // Use SQLite on non-Windows platforms
+    // Parse Railway's DATABASE_URL (postgres://user:pass@host:port/db)
+    var uri = new Uri(databaseUrl);
+    var userInfo = uri.UserInfo.Split(':');
+    var npgsqlConn = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
+
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseNpgsql(npgsqlConn));
+}
+else if (string.IsNullOrEmpty(connectionString) || connectionString.Contains("localdb", StringComparison.OrdinalIgnoreCase))
+{
+    // SQLite for local development
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlite("Data Source=AryTixDb.db"));
 }
@@ -46,13 +64,30 @@ QuestPDF.Settings.License = LicenseType.Community;
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient();
 
+// SignalR for real-time seat updates
+builder.Services.AddSignalR();
+
+// Response compression for production
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<BrotliCompressionProvider>();
+    options.Providers.Add<GzipCompressionProvider>();
+    options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[]
+    {
+        "application/javascript",
+        "text/css",
+        "application/json"
+    });
+});
+
 var app = builder.Build();
 
-// Ensure database and seed admin
+// Apply migrations and seed admin
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    db.Database.EnsureCreated();
+    db.Database.Migrate();
 
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
@@ -86,8 +121,39 @@ if (!app.Environment.IsDevelopment())
 
 app.UseStatusCodePagesWithReExecute("/Home/StatusCode/{0}");
 
-app.UseHttpsRedirection();
-app.UseStaticFiles();
+app.UseResponseCompression();
+
+// Only redirect to HTTPS in local dev — Railway handles TLS at the proxy
+if (app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
+// Trust Railway's reverse proxy headers
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor
+        | Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto
+});
+
+// Security headers
+app.Use(async (context, next) =>
+{
+    context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    context.Response.Headers["X-Frame-Options"] = "DENY";
+    context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+    context.Response.Headers["X-XSS-Protection"] = "1; mode=block";
+    context.Response.Headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()";
+    await next();
+});
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+    {
+        ctx.Context.Response.Headers.Append("Cache-Control", "public,max-age=604800");
+    }
+});
 
 app.UseRouting();
 
@@ -99,5 +165,8 @@ app.UseSession();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// Map SignalR hub
+app.MapHub<SeatHub>("/hubs/seats");
 
 app.Run();

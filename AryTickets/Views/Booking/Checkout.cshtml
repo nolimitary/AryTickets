@@ -283,7 +283,9 @@
                         document.getElementById('confirm-code').textContent = 'CODE: ' + result.confirmationCode;
                     }
                 } else {
-                    throw new Error("Payment was not successful.");
+                    spinner.classList.add('hidden');
+                    overlay.classList.add('opacity-0', 'pointer-events-none');
+                    alert(result.message || "Payment was not successful. Please try again.");
                 }
             } catch (error) {
                 console.error('Payment Error:', error);

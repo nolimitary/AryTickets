@@ -17,5 +17,15 @@ namespace AryTickets.Data
         public DbSet<UserReview> UserReviews { get; set; }
         public DbSet<Showtime> Showtimes { get; set; }
         public DbSet<SeatReservation> SeatReservations { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // Prevent double-booking: one seat per showtime
+            modelBuilder.Entity<SeatReservation>()
+                .HasIndex(sr => new { sr.ShowtimeId, sr.SeatNumber })
+                .IsUnique();
+        }
     }
 }

@@ -73,6 +73,7 @@ namespace AryTickets.Controllers
 
         // Toggle admin role
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleAdmin(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);
@@ -88,6 +89,7 @@ namespace AryTickets.Controllers
 
         // Delete user
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteUser(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);
@@ -115,6 +117,7 @@ namespace AryTickets.Controllers
 
         // Delete booking
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteBooking(int id)
         {
             var booking = await _db.Bookings.FindAsync(id);
@@ -147,6 +150,7 @@ namespace AryTickets.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ApproveApplication(int id)
         {
             var application = await _db.CriticApplications.FindAsync(id);
@@ -164,6 +168,7 @@ namespace AryTickets.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DenyApplication(int id)
         {
             var application = await _db.CriticApplications.FindAsync(id);

@@ -94,11 +94,40 @@
                     filter: drop-shadow(0 0 6px rgba(225, 29, 72, 0.5));
                 }
 
+            /* Flash animation when a seat gets taken by another user */
+            .seat.just-taken svg {
+                fill: #ef4444;
+                filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.6));
+                animation: seatTaken 0.6s ease-out forwards;
+            }
+
+        @@keyframes seatTaken {
+            0% { fill: #ef4444; filter: drop-shadow(0 0 12px rgba(239,68,68,0.8)); }
+            100% { fill: #27272a; filter: none; opacity: 0.4; }
+        }
+
         .legend-dot {
             width: 1rem;
             height: 1rem;
             border-radius: 0.25rem;
         }
+
+        .toast {
+            position: fixed;
+            top: 5rem;
+            right: 1.5rem;
+            z-index: 100;
+            background: #1c1c1f;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            color: #fca5a5;
+            font-size: 0.875rem;
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+            max-width: 320px;
+        }
+        .toast.show { transform: translateX(0); }
     </style>
 }
 
@@ -145,7 +174,10 @@
     </div>
 </div>
 
+<div id="seat-toast" class="toast"></div>
+
 <form asp-action="Checkout" asp-controller="Booking" method="post">
+    @Html.AntiForgeryToken()
     <div class="fixed bottom-0 left-0 right-0 backdrop-filter backdrop-blur-sm p-6" style="background-color: #141416; border-top: 1px solid rgba(255, 255, 255, 0.06);">
         <div class="container mx-auto flex justify-between items-center">
 
@@ -175,6 +207,7 @@
 
 
 @section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const seatGrid = document.querySelector('.seat-grid');
@@ -183,7 +216,47 @@
             const checkoutButton = document.getElementById('checkout-button');
             const hiddenSeatsInput = document.getElementById('hidden-seats');
             const hiddenPriceInput = document.getElementById('hidden-price');
+            const toast = document.getElementById('seat-toast');
+            const showtimeId = @(Model.ShowtimeId.HasValue ? Model.ShowtimeId.Value.ToString() : "null");
 
+            // --- SignalR real-time connection ---
+            if (showtimeId) {
+                const connection = new signalR.HubConnectionBuilder()
+                    .withUrl("/hubs/seats")
+                    .withAutomaticReconnect()
+                    .build();
+
+                connection.on("SeatsBooked", (seats) => {
+                    let deselectedAny = false;
+                    seats.forEach(seatNumber => {
+                        const seatDiv = seatGrid.querySelector(`.seat[data-seat-number="${seatNumber}"]`);
+                        if (seatDiv) {
+                            const wasSelected = seatDiv.classList.contains('selected');
+                            seatDiv.classList.remove('available', 'selected');
+                            seatDiv.classList.add('taken', 'just-taken');
+                            if (wasSelected) deselectedAny = true;
+                            setTimeout(() => seatDiv.classList.remove('just-taken'), 600);
+                        }
+                    });
+
+                    if (deselectedAny) {
+                        updateSummary();
+                        showToast(`Seats ${seats.join(', ')} were just booked by someone else.`);
+                    }
+                });
+
+                connection.start()
+                    .then(() => connection.invoke("JoinShowtime", showtimeId))
+                    .catch(err => console.warn("SignalR connection failed:", err));
+            }
+
+            function showToast(message) {
+                toast.textContent = message;
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 4000);
+            }
+
+            // --- Seat selection ---
             seatGrid.addEventListener('click', (e) => {
                 const seatDiv = e.target.closest('.seat');
                 if (!seatDiv) return;
