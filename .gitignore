@@ -371,3 +371,10 @@ FodyWeavers.xsd
 .claude/
 CLAUDE.md
 .claude*
+
+# Mac metadata
+.DS_Store
+**/.DS_Store
+
+# Local secrets
+docs/diploma/admin-credentials.txt
