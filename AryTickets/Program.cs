@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.AspNetCore.ResponseCompression;
 using AryTickets.Data;
 using AryTickets.Models;
@@ -14,25 +15,19 @@ var builder = WebApplication.CreateBuilder(args);
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
-// Database configuration — Railway provides DATABASE_URL for PostgreSQL
+// Database configuration — Railway provides DATABASE_URL for PostgreSQL,
+// otherwise we expect a SQL Server connection string (LocalDB on Windows).
 var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 if (!string.IsNullOrEmpty(databaseUrl))
 {
-    // Parse Railway's DATABASE_URL (postgres://user:pass@host:port/db)
     var uri = new Uri(databaseUrl);
     var userInfo = uri.UserInfo.Split(':');
     var npgsqlConn = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
 
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseNpgsql(npgsqlConn));
-}
-else if (string.IsNullOrEmpty(connectionString) || connectionString.Contains("localdb", StringComparison.OrdinalIgnoreCase))
-{
-    // SQLite for local development
-    builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlite("Data Source=AryTixDb.db"));
 }
 else
 {
@@ -88,15 +83,25 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    // EnsureCreated may skip if __EFMigrationsHistory exists from a failed deploy
-    if (!db.Database.EnsureCreated())
+    var providerName = db.Database.ProviderName ?? "";
+    if (providerName.Contains("SqlServer", StringComparison.OrdinalIgnoreCase))
     {
-        try
+        // Local / Windows: migrations are SQL Server-flavored, apply them.
+        db.Database.Migrate();
+    }
+    else
+    {
+        // Railway PostgreSQL: skip migration history (it's SqlServer-only)
+        // and build schema from the current model.
+        if (!db.Database.EnsureCreated())
         {
-            var creator = db.GetService<Microsoft.EntityFrameworkCore.Storage.IRelationalDatabaseCreator>();
-            creator.CreateTables();
+            try
+            {
+                var creator = db.GetService<IRelationalDatabaseCreator>();
+                creator.CreateTables();
+            }
+            catch { /* Tables already exist — that's fine */ }
         }
-        catch { /* Tables already exist — that's fine */ }
     }
 
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
