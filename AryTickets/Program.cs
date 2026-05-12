@@ -90,14 +90,27 @@ using (var scope = app.Services.CreateScope())
     }
     else
     {
-        if (!db.Database.EnsureCreated())
+        // Migrations are SQL Server-flavored; build the schema from the model for Postgres/others.
+        var created = db.Database.EnsureCreated();
+        if (!created)
         {
+            // Database exists — verify the current entities have backing tables. If the schema
+            // is stale (e.g. left over from an earlier deploy with a different model), wipe
+            // and recreate. This is destructive but safe for the diploma project.
+            bool schemaCurrent = false;
             try
             {
-                var creator = db.GetService<IRelationalDatabaseCreator>();
-                creator.CreateTables();
+                _ = db.Productions.AsNoTracking().Select(p => p.Id).Take(1).ToList();
+                _ = db.Performances.AsNoTracking().Select(p => p.Id).Take(1).ToList();
+                schemaCurrent = true;
             }
-            catch { /* tables already exist */ }
+            catch { /* stale schema */ }
+
+            if (!schemaCurrent)
+            {
+                db.Database.EnsureDeleted();
+                db.Database.EnsureCreated();
+            }
         }
     }
 
