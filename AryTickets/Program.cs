@@ -152,6 +152,20 @@ using (var scope = app.Services.CreateScope())
             await db.SaveChangesAsync();
         }
 
+        // Sync poster / backdrop URLs from seed onto existing rows so URL
+        // changes (e.g. swapping a broken image provider) propagate without
+        // requiring a database wipe.
+        var seedByTitle = seedProductions.ToDictionary(p => p.Title, p => p);
+        var existingForSync = await db.Productions.ToListAsync();
+        bool urlsChanged = false;
+        foreach (var prod in existingForSync)
+        {
+            if (!seedByTitle.TryGetValue(prod.Title, out var s)) continue;
+            if (prod.PosterUrl != s.PosterUrl) { prod.PosterUrl = s.PosterUrl; urlsChanged = true; }
+            if (prod.BackdropUrl != s.BackdropUrl) { prod.BackdropUrl = s.BackdropUrl; urlsChanged = true; }
+        }
+        if (urlsChanged) await db.SaveChangesAsync();
+
         var stages = new[] { "Голяма сцена", "Камерна сцена", "Сцена на сатиричния салон" };
         var prices = new[] { 28.00m, 32.00m, 38.00m, 45.00m };
         var timeSlots = new[]
