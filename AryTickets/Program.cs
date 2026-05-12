@@ -136,12 +136,21 @@ using (var scope = app.Services.CreateScope())
         await userManager.AddToRoleAsync(adminUser, "Admin");
     }
 
-    // Seed theater repertoire if empty
-    if (!db.Productions.Any())
+    // Seed theater repertoire — idempotent: adds any productions whose titles
+    // aren't already in the database, and generates upcoming performances for
+    // anything that doesn't have at least one future scheduled date.
     {
-        var productions = TheaterSeedData.GetProductions();
-        db.Productions.AddRange(productions);
-        await db.SaveChangesAsync();
+        var seedProductions = TheaterSeedData.GetProductions();
+        var existingTitles = await db.Productions.Select(p => p.Title).ToListAsync();
+        var newProductions = seedProductions
+            .Where(p => !existingTitles.Contains(p.Title))
+            .ToList();
+
+        if (newProductions.Any())
+        {
+            db.Productions.AddRange(newProductions);
+            await db.SaveChangesAsync();
+        }
 
         var stages = new[] { "Голяма сцена", "Камерна сцена", "Сцена на сатиричния салон" };
         var prices = new[] { 28.00m, 32.00m, 38.00m, 45.00m };
@@ -153,7 +162,12 @@ using (var scope = app.Services.CreateScope())
         };
         var rng = new Random(7);
 
-        foreach (var production in db.Productions.ToList())
+        var nowDate = DateTime.UtcNow.Date;
+        var productionsMissingPerformances = await db.Productions
+            .Where(p => p.IsActive && !db.Performances.Any(perf => perf.ProductionId == p.Id && perf.ShowDateTime > nowDate))
+            .ToListAsync();
+
+        foreach (var production in productionsMissingPerformances)
         {
             var stage = stages[rng.Next(stages.Length)];
             var price = prices[rng.Next(prices.Length)];
