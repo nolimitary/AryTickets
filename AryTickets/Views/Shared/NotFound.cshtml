@@ -1,82 +1,68 @@
 @{
-    ViewData["Title"] = "Page Not Found";
+    ViewData["Title"] = "Страницата не е намерена";
     Layout = null;
 }
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bg">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>404 - Page Not Found | AryTix</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        accent: {
-                            50: '#fff1f2', 100: '#ffe4e6', 200: '#fecdd3',
-                            300: '#fda4af', 400: '#fb7185', 500: '#e11d48',
-                            600: '#be123c', 700: '#9f1239',
-                        },
-                        surface: {
-                            50: '#27272a', 100: '#1c1c1f', 200: '#141416',
-                            300: '#0c0c0e', 400: '#09090b',
-                        }
-                    },
-                    fontFamily: { sans: ['Outfit', 'system-ui', 'sans-serif'] }
-                }
-            }
-        }
-    </script>
+    <title>404 · Не е намерено | AryTix</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Outfit', system-ui, sans-serif;
-            background-color: #09090b;
-            color: #e4e4e7;
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            background-color: #1a0606;
+            background-image:
+                radial-gradient(ellipse at 50% 20%, rgba(139, 26, 26, 0.3) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 100%, rgba(212, 175, 55, 0.08) 0%, transparent 50%);
+            color: #f5e6d3;
+            min-height: 100vh;
+            display: flex; align-items: center; justify-content: center; padding: 24px;
         }
-        .error-card {
-            animation: fadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-            opacity: 0;
+        .err-card {
+            max-width: 480px; width: 100%; text-align: center;
+            background: rgba(43, 10, 10, 0.78);
+            border: 1px solid rgba(212, 175, 55, 0.22);
+            border-radius: 4px;
+            padding: 56px 40px;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 24px 48px rgba(0,0,0,0.5);
         }
-        @@keyframes fadeIn {
-            from { opacity: 0; transform: translateY(16px); }
-            to { opacity: 1; transform: translateY(0); }
+        .logo { font-family: 'Playfair Display', serif; font-size: 28px; letter-spacing: 0.08em; margin-bottom: 8px; }
+        .logo .a { color: #f5e6d3; font-weight: 600; }
+        .logo .b { color: #d4af37; font-style: italic; font-weight: 400; }
+        .sub { font-family: 'Inter', sans-serif; font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(212,175,55,0.7); margin-bottom: 36px; }
+        .code { font-family: 'Playfair Display', serif; font-size: 96px; line-height: 1; font-weight: 600; color: #d4af37; margin-bottom: 8px; }
+        .title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600; color: #f5e6d3; margin-bottom: 12px; }
+        .desc { font-style: italic; color: rgba(245, 230, 211, 0.7); line-height: 1.6; margin-bottom: 32px; }
+        .btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%);
+            color: #1a0606;
+            font-family: 'Inter', sans-serif;
+            font-size: 11px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase;
+            border: 1px solid rgba(212, 175, 55, 0.45);
+            border-radius: 2px;
+            text-decoration: none;
+            transition: all 0.3s;
         }
+        .btn:hover { background: linear-gradient(135deg, #e6c45a 0%, #d4af37 100%); }
+        .copy { font-family: 'Inter', sans-serif; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(212,175,55,0.5); margin-top: 32px; }
     </style>
 </head>
-<body class="bg-surface-400 min-h-screen flex items-center justify-center px-4">
-    <div class="error-card text-center max-w-md w-full">
-        <a href="/" class="inline-flex items-center gap-0.5 mb-10">
-            <span class="text-[26px] font-bold text-white">Ary</span>
-            <span class="text-[26px] font-light text-accent-500">Tix</span>
-        </a>
-
-        <div class="bg-surface-200 border border-white/[0.06] rounded-2xl p-10">
-            <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-accent-500/10 border border-accent-500/20 flex items-center justify-center">
-                <svg class="w-10 h-10 text-accent-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                </svg>
-            </div>
-
-            <p class="text-7xl font-bold text-accent-500 mb-2">404</p>
-            <h1 class="text-xl font-semibold text-white mb-2">Page Not Found</h1>
-            <p class="text-sm text-zinc-500 mb-8 leading-relaxed">
-                The page you are looking for does not exist or has been moved to a different location.
-            </p>
-
-            <a href="/"
-               class="inline-flex items-center gap-2 bg-accent-500 text-white text-sm font-semibold px-6 py-3 rounded-xl hover:bg-accent-600 transition-all duration-200">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-                </svg>
-                Go Home
-            </a>
-        </div>
-
-        <p class="text-xs text-zinc-600 mt-6">&copy; @DateTime.Now.Year AryTix. All rights reserved.</p>
+<body>
+    <div class="err-card">
+        <div class="logo"><span class="a">Ary</span><span class="b">Tix</span></div>
+        <div class="sub">Т Е А Т Р А Л Н А &nbsp; С Ц Е Н А</div>
+        <p class="code">404</p>
+        <h1 class="title">Страницата не е намерена</h1>
+        <p class="desc">Завесата вече се е спуснала. Страницата, която търсите, не съществува или е била преместена.</p>
+        <a href="/" class="btn">Към началната страница</a>
+        <p class="copy">&copy; @DateTime.Now.Year · AryTix</p>
     </div>
 </body>
 </html>

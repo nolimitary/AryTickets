@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AryTickets.Models
 {
@@ -10,12 +11,18 @@ namespace AryTickets.Models
         public string UserId { get; set; }
 
         [Required]
-        public int MovieId { get; set; }
+        public int ProductionId { get; set; }
 
-        public string MovieTitle { get; set; }
+        [ForeignKey("ProductionId")]
+        public Production Production { get; set; }
 
-        public string PosterPath { get; set; }
+        public string ProductionTitle { get; set; }
 
-        public string FullPosterPath => PosterPath != null ? $"https://image.tmdb.org/t/p/w500{PosterPath}" : "https://placehold.co/500x750/111827/FFFFFF?text=No+Image";
+        public string PosterUrl { get; set; }
+
+        public string FullPosterUrl =>
+            !string.IsNullOrEmpty(PosterUrl)
+                ? PosterUrl
+                : "https://placehold.co/500x750/2b0a0a/d4af37?text=No+Poster";
     }
 }

@@ -161,10 +161,10 @@ namespace AryTickets.Controllers
         {
             await SetUserViewData();
             var userId = _userManager.GetUserId(User);
-            var favoriteMovies = await _context.UserFavorites
+            var favorites = await _context.UserFavorites
                                             .Where(f => f.UserId == userId)
                                             .ToListAsync();
-            return View(favoriteMovies);
+            return View(favorites);
         }
 
         [HttpGet]

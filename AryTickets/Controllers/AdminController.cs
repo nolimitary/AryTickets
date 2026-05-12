@@ -4,8 +4,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace AryTickets.Controllers
@@ -16,16 +17,12 @@ namespace AryTickets.Controllers
         private readonly ApplicationDbContext _db;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly string _apiKey;
 
-        public AdminController(ApplicationDbContext db, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        public AdminController(ApplicationDbContext db, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _db = db;
             _userManager = userManager;
             _roleManager = roleManager;
-            _httpClientFactory = httpClientFactory;
-            _apiKey = configuration["TMDb:ApiKey"];
         }
 
         // Dashboard
@@ -71,7 +68,6 @@ namespace AryTickets.Controllers
             return View(userList);
         }
 
-        // Toggle admin role
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleAdmin(string userId)
@@ -87,7 +83,6 @@ namespace AryTickets.Controllers
             return RedirectToAction(nameof(Users));
         }
 
-        // Delete user
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteUser(string userId)
@@ -115,7 +110,6 @@ namespace AryTickets.Controllers
             return View(bookings);
         }
 
-        // Delete booking
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteBooking(int id)
@@ -157,7 +151,7 @@ namespace AryTickets.Controllers
             if (application == null) return NotFound();
 
             application.Status = ApplicationStatus.Approved;
-            application.ReviewedAt = System.DateTime.UtcNow;
+            application.ReviewedAt = DateTime.UtcNow;
 
             var user = await _userManager.FindByIdAsync(application.UserId);
             if (user != null)
@@ -175,96 +169,150 @@ namespace AryTickets.Controllers
             if (application == null) return NotFound();
 
             application.Status = ApplicationStatus.Denied;
-            application.ReviewedAt = System.DateTime.UtcNow;
+            application.ReviewedAt = DateTime.UtcNow;
 
             await _db.SaveChangesAsync();
             return RedirectToAction(nameof(Applications));
         }
 
-        // ═══ SHOWTIME MANAGEMENT ═══
+        // ═══ PRODUCTION MANAGEMENT ═══
 
-        public async Task<IActionResult> Showtimes()
+        public async Task<IActionResult> Productions()
         {
-            var showtimes = await _db.Showtimes
-                .Where(s => s.IsActive)
-                .OrderBy(s => s.MovieTitle)
-                .ThenBy(s => s.ShowDateTime)
+            var productions = await _db.Productions
+                .Where(p => p.IsActive)
+                .OrderBy(p => p.Title)
                 .ToListAsync();
-
-            return View(showtimes);
+            return View(productions);
         }
 
         [HttpGet]
-        public async Task<IActionResult> SearchMoviesApi(string query)
+        public IActionResult CreateProduction()
         {
-            if (string.IsNullOrWhiteSpace(query))
-                return Json(new List<object>());
-
-            var httpClient = _httpClientFactory.CreateClient();
-            var searchUrl = $"https://api.themoviedb.org/3/search/movie?api_key={_apiKey}&language=en-US&query={Uri.EscapeDataString(query)}&page=1";
-            var response = await httpClient.GetAsync(searchUrl);
-
-            if (!response.IsSuccessStatusCode)
-                return Json(new List<object>());
-
-            var json = await response.Content.ReadAsStringAsync();
-            var result = JsonSerializer.Deserialize<ApiResult>(json);
-
-            var movies = (result?.Results ?? new List<Movie>())
-                .Where(m => !string.IsNullOrEmpty(m.PosterPath))
-                .Take(8)
-                .Select(m => new
-                {
-                    id = m.Id,
-                    title = m.Title,
-                    posterPath = m.PosterPath,
-                    fullPosterPath = m.FullPosterPath,
-                    releaseDate = m.ReleaseDate,
-                    voteAverage = m.VoteAverage
-                });
-
-            return Json(movies);
+            return View(new Production());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateShowtime(int tmdbMovieId, string movieTitle, string posterPath, string showtimes, string hall, decimal price)
+        public async Task<IActionResult> CreateProduction(Production model)
         {
-            if (string.IsNullOrWhiteSpace(showtimes) || string.IsNullOrWhiteSpace(movieTitle))
+            if (!ModelState.IsValid)
+                return View(model);
+
+            model.IsActive = true;
+            model.CreatedAt = DateTime.UtcNow;
+            _db.Productions.Add(model);
+            await _db.SaveChangesAsync();
+            return RedirectToAction(nameof(Productions));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditProduction(int id)
+        {
+            var production = await _db.Productions.FindAsync(id);
+            if (production == null) return NotFound();
+            return View(production);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditProduction(Production model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var existing = await _db.Productions.FindAsync(model.Id);
+            if (existing == null) return NotFound();
+
+            existing.Title = model.Title;
+            existing.TitleOriginal = model.TitleOriginal;
+            existing.Synopsis = model.Synopsis;
+            existing.Playwright = model.Playwright;
+            existing.Director = model.Director;
+            existing.Cast = model.Cast;
+            existing.Genre = model.Genre;
+            existing.DurationMinutes = model.DurationMinutes;
+            existing.PosterUrl = model.PosterUrl;
+            existing.BackdropUrl = model.BackdropUrl;
+            existing.TrailerUrl = model.TrailerUrl;
+            existing.PremiereDate = model.PremiereDate;
+            existing.Rating = model.Rating;
+
+            await _db.SaveChangesAsync();
+            return RedirectToAction(nameof(Productions));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteProduction(int id)
+        {
+            var production = await _db.Productions.FindAsync(id);
+            if (production != null)
+            {
+                production.IsActive = false;
+                await _db.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(Productions));
+        }
+
+        // ═══ PERFORMANCE MANAGEMENT ═══
+
+        public async Task<IActionResult> Performances()
+        {
+            var performances = await _db.Performances
+                .Include(p => p.Production)
+                .Where(p => p.IsActive)
+                .OrderBy(p => p.ShowDateTime)
+                .ToListAsync();
+
+            ViewData["Productions"] = await _db.Productions
+                .Where(p => p.IsActive)
+                .OrderBy(p => p.Title)
+                .ToListAsync();
+
+            return View(performances);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreatePerformance(int productionId, string performances, string stage, decimal price)
+        {
+            if (string.IsNullOrWhiteSpace(performances) || productionId <= 0)
                 return BadRequest();
 
-            var dateTimeStrings = showtimes.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            var production = await _db.Productions.FindAsync(productionId);
+            if (production == null) return NotFound();
+
+            var dateTimeStrings = performances.Split(',', StringSplitOptions.RemoveEmptyEntries);
             foreach (var dtStr in dateTimeStrings)
             {
                 if (DateTime.TryParse(dtStr.Trim(), out var showDateTime))
                 {
-                    _db.Showtimes.Add(new Showtime
+                    _db.Performances.Add(new Performance
                     {
-                        TmdbMovieId = tmdbMovieId,
-                        MovieTitle = movieTitle,
-                        PosterPath = posterPath,
+                        ProductionId = productionId,
                         ShowDateTime = showDateTime,
-                        Hall = hall ?? "Hall 1",
-                        Price = price > 0 ? price : 12.50m
+                        Stage = string.IsNullOrWhiteSpace(stage) ? "Голяма сцена" : stage,
+                        Price = price > 0 ? price : 35.00m
                     });
                 }
             }
 
             await _db.SaveChangesAsync();
-            return RedirectToAction(nameof(Showtimes));
+            return RedirectToAction(nameof(Performances));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteShowtime(int id)
+        public async Task<IActionResult> DeletePerformance(int id)
         {
-            var showtime = await _db.Showtimes.FindAsync(id);
-            if (showtime != null)
+            var performance = await _db.Performances.FindAsync(id);
+            if (performance != null)
             {
-                showtime.IsActive = false;
+                performance.IsActive = false;
                 await _db.SaveChangesAsync();
             }
-            return RedirectToAction(nameof(Showtimes));
+            return RedirectToAction(nameof(Performances));
         }
 
         // ═══ ANALYTICS ═══
@@ -274,25 +322,22 @@ namespace AryTickets.Controllers
             var bookings = await _db.Bookings.ToListAsync();
             var now = DateTime.UtcNow;
 
-            // Revenue over last 30 days
             var last30Days = Enumerable.Range(0, 30).Select(i => now.Date.AddDays(-29 + i)).ToList();
             var revenueByDate = bookings
                 .Where(b => b.BookedAt.Date >= now.Date.AddDays(-29))
                 .GroupBy(b => b.BookedAt.Date)
                 .ToDictionary(g => g.Key, g => g.Sum(b => b.TotalPrice));
 
-            var revenueDates = last30Days.Select(d => d.ToString("MMM dd")).ToList();
+            var revenueDates = last30Days.Select(d => d.ToString("dd MMM")).ToList();
             var revenueValues = last30Days.Select(d => revenueByDate.GetValueOrDefault(d, 0m)).ToList();
 
-            // Top movies by booking count
-            var topMovies = bookings
-                .GroupBy(b => b.MovieTitle)
+            var topProductions = bookings
+                .GroupBy(b => b.ProductionTitle)
                 .OrderByDescending(g => g.Count())
                 .Take(8)
                 .ToList();
 
-            // Bookings by day of week
-            var dayNames = new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
+            var dayNames = new[] { "Пон", "Вто", "Сря", "Чет", "Пет", "Съб", "Нед" };
             var bookingsByDay = bookings
                 .GroupBy(b => b.BookedAt.DayOfWeek)
                 .ToDictionary(g => g.Key, g => g.Count());
@@ -300,9 +345,8 @@ namespace AryTickets.Controllers
                 .Select(d => bookingsByDay.GetValueOrDefault(d, 0))
                 .ToList();
 
-            // Top movies by revenue
-            var revenueByMovie = bookings
-                .GroupBy(b => b.MovieTitle)
+            var revenueByProduction = bookings
+                .GroupBy(b => b.ProductionTitle)
                 .OrderByDescending(g => g.Sum(b => b.TotalPrice))
                 .Take(8)
                 .ToList();
@@ -311,12 +355,12 @@ namespace AryTickets.Controllers
             {
                 RevenueDates = revenueDates,
                 RevenueValues = revenueValues,
-                TopMovieNames = topMovies.Select(g => g.Key.Length > 20 ? g.Key.Substring(0, 20) + "..." : g.Key).ToList(),
-                TopMovieBookings = topMovies.Select(g => g.Count()).ToList(),
+                TopProductionNames = topProductions.Select(g => g.Key.Length > 22 ? g.Key.Substring(0, 22) + "..." : g.Key).ToList(),
+                TopProductionBookings = topProductions.Select(g => g.Count()).ToList(),
                 DayNames = dayNames.ToList(),
                 DayCounts = dayCounts,
-                RevenueMovieNames = revenueByMovie.Select(g => g.Key.Length > 20 ? g.Key.Substring(0, 20) + "..." : g.Key).ToList(),
-                RevenueMovieValues = revenueByMovie.Select(g => g.Sum(b => b.TotalPrice)).ToList(),
+                RevenueProductionNames = revenueByProduction.Select(g => g.Key.Length > 22 ? g.Key.Substring(0, 22) + "..." : g.Key).ToList(),
+                RevenueProductionValues = revenueByProduction.Select(g => g.Sum(b => b.TotalPrice)).ToList(),
                 TotalRevenue = bookings.Sum(b => b.TotalPrice),
                 TotalBookings = bookings.Count,
                 AverageOrderValue = bookings.Any() ? bookings.Average(b => b.TotalPrice) : 0,

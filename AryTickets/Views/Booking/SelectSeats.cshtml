@@ -1,115 +1,101 @@
 @model SeatSelectionViewModel
 @{
-    ViewData["Title"] = "Select Seats";
+    ViewData["Title"] = "Избор на места";
     Layout = "_Layout";
 }
 
 @section Styles {
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        *, *::before, *::after { font-family: 'Outfit', sans-serif; }
-
-        .screen {
+        .stage-platform {
             position: relative;
-            width: 70%;
-            height: 4px;
-            background: linear-gradient(90deg, transparent, #e11d48, transparent);
-            margin: 0 auto 1.5rem auto;
-            border-radius: 4px;
-        }
-
-            .screen::before {
-                content: '';
-                position: absolute;
-                top: -12px;
-                left: 10%;
-                width: 80%;
-                height: 24px;
-                border-radius: 50%;
-                box-shadow: 0 0 30px 8px rgba(225, 29, 72, 0.35);
-            }
-
-        .screen-label {
+            width: 75%;
+            margin: 0 auto 1.5rem;
             text-align: center;
-            font-family: 'Outfit', sans-serif;
-            font-size: 0.7rem;
-            letter-spacing: 0.25em;
+        }
+        .stage-bar {
+            height: 6px;
+            background: linear-gradient(90deg, transparent, #d4af37 30%, #d4af37 70%, transparent);
+            border-radius: 3px;
+            box-shadow: 0 0 30px 4px rgba(212,175,55,0.4);
+            position: relative;
+        }
+        .stage-bar::after {
+            content: '';
+            position: absolute;
+            top: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 30px;
+            border-radius: 50% 50% 0 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(212,175,55,0.4) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .stage-label {
+            margin-top: 1rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.4em;
             text-transform: uppercase;
-            color: #e11d48;
-            opacity: 0.6;
-            margin-bottom: 3rem;
+            color: #d4af37;
         }
 
         .seat-grid {
             display: grid;
             grid-template-columns: repeat(14, 1fr);
-            gap: 0.5rem;
-            perspective: 1000px;
+            gap: 0.45rem;
         }
 
         .seat {
             aspect-ratio: 1 / 1;
-            transition: all 0.2s ease-in-out;
+            transition: all 0.25s ease;
             position: relative;
         }
-
-            .seat svg {
-                width: 100%;
-                height: 100%;
-                transition: fill 0.2s, filter 0.2s;
-            }
-
-            .seat.available svg {
-                fill: #1c1c1f;
-                stroke: #333;
-                stroke-width: 0.5;
-            }
-
-            .seat.available:hover {
-                transform: scale(1.2);
-                cursor: pointer;
-            }
-
-                .seat.available:hover svg {
-                    fill: #e11d48;
-                    stroke: #e11d48;
-                    filter: drop-shadow(0 0 4px rgba(225, 29, 72, 0.3));
-                }
-
-            .seat.taken svg {
-                fill: #27272a;
-                opacity: 0.4;
-            }
-
-            .seat.taken {
-                cursor: not-allowed;
-            }
-
-            .seat.selected {
-                transform: scale(1.1);
-            }
-
-                .seat.selected svg {
-                    fill: #e11d48;
-                    filter: drop-shadow(0 0 6px rgba(225, 29, 72, 0.5));
-                }
-
-            /* Flash animation when a seat gets taken by another user */
-            .seat.just-taken svg {
-                fill: #ef4444;
-                filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.6));
-                animation: seatTaken 0.6s ease-out forwards;
-            }
-
+        .seat svg {
+            width: 100%;
+            height: 100%;
+            transition: fill 0.25s, filter 0.25s, stroke 0.25s;
+        }
+        .seat.available svg {
+            fill: #3d1414;
+            stroke: #722f37;
+            stroke-width: 0.6;
+        }
+        .seat.available:hover {
+            transform: scale(1.15);
+            cursor: pointer;
+        }
+        .seat.available:hover svg {
+            fill: #d4af37;
+            stroke: #d4af37;
+            filter: drop-shadow(0 0 6px rgba(212,175,55,0.45));
+        }
+        .seat.taken svg {
+            fill: #2b0a0a;
+            opacity: 0.35;
+            stroke: #1a0606;
+        }
+        .seat.taken { cursor: not-allowed; }
+        .seat.selected { transform: scale(1.1); }
+        .seat.selected svg {
+            fill: #d4af37;
+            stroke: #e6c45a;
+            filter: drop-shadow(0 0 8px rgba(212,175,55,0.6));
+        }
+        .seat.just-taken svg {
+            fill: #ef4444;
+            filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.7));
+            animation: seatTaken 0.6s ease-out forwards;
+        }
         @@keyframes seatTaken {
-            0% { fill: #ef4444; filter: drop-shadow(0 0 12px rgba(239,68,68,0.8)); }
-            100% { fill: #27272a; filter: none; opacity: 0.4; }
+            0% { fill: #ef4444; }
+            100% { fill: #2b0a0a; opacity: 0.35; }
         }
 
         .legend-dot {
-            width: 1rem;
-            height: 1rem;
-            border-radius: 0.25rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
         }
 
         .toast {
@@ -117,46 +103,68 @@
             top: 5rem;
             right: 1.5rem;
             z-index: 100;
-            background: #1c1c1f;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            border-radius: 12px;
-            padding: 1rem 1.5rem;
-            color: #fca5a5;
-            font-size: 0.875rem;
+            background: rgba(43,10,10,0.95);
+            border: 1px solid rgba(212,175,55,0.4);
+            border-radius: 4px;
+            padding: 1rem 1.4rem;
+            color: #f5e6d3;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1rem;
             transform: translateX(120%);
             transition: transform 0.3s ease;
-            max-width: 320px;
+            max-width: 340px;
         }
         .toast.show { transform: translateX(0); }
+
+        .booking-bar {
+            background: rgba(26, 6, 6, 0.95);
+            border-top: 1px solid rgba(212,175,55,0.2);
+            backdrop-filter: blur(20px);
+        }
+
+        .row-label {
+            font-family: 'Playfair Display', serif;
+            color: #d4af37;
+            font-style: italic;
+            opacity: 0.6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+        }
     </style>
 }
 
-<div class="container mx-auto px-6 py-16" style="background-color: #09090b; min-height: 100vh;">
-    <div class="pt-24 text-center">
-        <h1 class="text-4xl font-extrabold text-white" style="font-family: 'Outfit', sans-serif;">@Model.MovieTitle</h1>
-        <p class="mt-2" style="color: #e11d48; font-family: 'Outfit', sans-serif;">@Model.Showtime</p>
-        @if (!string.IsNullOrEmpty(Model.Hall))
+<div class="max-w-6xl mx-auto px-6 pt-32 pb-40">
+    <div class="text-center mb-12">
+        <p class="text-[11px] font-sans tracking-[0.35em] uppercase text-gold-400 mb-4">Резервация на места</p>
+        <h1 class="font-serif font-semibold text-ivory-100 text-4xl md:text-5xl mb-2">@Model.ProductionTitle</h1>
+        <p class="font-garamond italic text-gold-400 text-xl">@Model.PerformanceDateTime</p>
+        @if (!string.IsNullOrEmpty(Model.Stage))
         {
-            <p class="mt-1 text-sm" style="color: #71717a; font-family: 'Outfit', sans-serif;">@Model.Hall &middot; $@Model.TicketPrice.ToString("F2") per seat</p>
+            <p class="mt-2 font-garamond italic text-ivory-300/70">@Model.Stage · <span class="text-gold-500">@Model.TicketPrice.ToString("F2") лв. за място</span></p>
         }
     </div>
 
-    <div class="py-12">
-        <div class="screen"></div>
-        <div class="screen-label">Screen</div>
-        <div class="seat-grid max-w-4xl mx-auto">
+    <div class="py-10">
+        <div class="stage-platform">
+            <div class="stage-bar"></div>
+            <div class="stage-label">Сцена</div>
+        </div>
+
+        <div class="seat-grid max-w-4xl mx-auto mt-12">
             @foreach (var row in Model.SeatingChart)
             {
                 @foreach (var seat in row)
                 {
                     if (seat == null)
                     {
-                        <div class="aisle"></div>
+                        <div></div>
                     }
                     else
                     {
                         var statusClass = seat.Status.ToString().ToLower();
-                        <div class="seat @statusClass" data-seat-number="@seat.SeatNumber" data-price="@seat.Price">
+                        <div class="seat @statusClass" data-seat-number="@seat.SeatNumber" data-price="@seat.Price" title="@seat.SeatNumber">
                             <svg viewBox="0 0 24 24">
                                 <path d="M4 18v3h16v-3h-2v-5H6v5H4zM6 6c0-1.1.9-2 2-2h8a2 2 0 012 2v7H6V6z" />
                             </svg>
@@ -166,10 +174,19 @@
             }
         </div>
 
-        <div class="flex justify-center space-x-8 mt-8">
-            <div class="flex items-center space-x-2"><div class="legend-dot" style="background-color: #1c1c1f; border: 1px solid #333;"></div><span class="text-sm" style="color: #888; font-family: 'Outfit', sans-serif;">Available</span></div>
-            <div class="flex items-center space-x-2"><div class="legend-dot" style="background-color: #e11d48;"></div><span class="text-sm" style="color: #888; font-family: 'Outfit', sans-serif;">Selected</span></div>
-            <div class="flex items-center space-x-2"><div class="legend-dot" style="background-color: #27272a; opacity: 0.4;"></div><span class="text-sm" style="color: #888; font-family: 'Outfit', sans-serif;">Taken</span></div>
+        <div class="flex justify-center gap-8 mt-10 flex-wrap">
+            <div class="flex items-center gap-2">
+                <div class="legend-dot" style="background-color: #3d1414; border: 1px solid #722f37;"></div>
+                <span class="text-sm font-garamond text-ivory-300/70">Свободно</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="legend-dot" style="background-color: #d4af37;"></div>
+                <span class="text-sm font-garamond text-ivory-300/70">Избрано</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="legend-dot" style="background-color: #2b0a0a; opacity: 0.4;"></div>
+                <span class="text-sm font-garamond text-ivory-300/70">Заето</span>
+            </div>
         </div>
     </div>
 </div>
@@ -178,33 +195,33 @@
 
 <form asp-action="Checkout" asp-controller="Booking" method="post">
     @Html.AntiForgeryToken()
-    <div class="fixed bottom-0 left-0 right-0 backdrop-filter backdrop-blur-sm p-6" style="background-color: #141416; border-top: 1px solid rgba(255, 255, 255, 0.06);">
-        <div class="container mx-auto flex justify-between items-center">
-
-            <input type="hidden" name="movieTitle" value="@Model.MovieTitle" />
-            <input type="hidden" name="showtime" value="@Model.Showtime" />
+    <div class="booking-bar fixed bottom-0 left-0 right-0 p-6 z-40">
+        <div class="max-w-6xl mx-auto flex justify-between items-center gap-6 flex-wrap">
+            <input type="hidden" name="productionTitle" value="@Model.ProductionTitle" />
+            <input type="hidden" name="performanceDateTime" value="@Model.PerformanceDateTime" />
+            <input type="hidden" name="stage" value="@Model.Stage" />
             <input type="hidden" id="hidden-seats" name="selectedSeats" />
             <input type="hidden" id="hidden-price" name="totalPrice" />
-            @if (Model.ShowtimeId.HasValue)
+            @if (Model.PerformanceId.HasValue)
             {
-                <input type="hidden" name="showtimeId" value="@Model.ShowtimeId" />
+                <input type="hidden" name="performanceId" value="@Model.PerformanceId" />
             }
 
             <div>
-                <h4 class="font-bold text-white" style="font-family: 'Outfit', sans-serif;">Selected Seats</h4>
-                <p id="selected-seats" style="color: #888; font-family: 'Outfit', sans-serif;">None</p>
+                <p class="text-[10px] font-sans tracking-[0.3em] uppercase text-gold-400 mb-1">Избрани места</p>
+                <p id="selected-seats" class="font-serif text-ivory-100 text-lg">Няма</p>
             </div>
             <div class="text-right">
-                <h4 class="font-bold text-white" style="font-family: 'Outfit', sans-serif;">Total Price</h4>
-                <p id="total-price" class="text-2xl font-bold" style="color: #e11d48; font-family: 'Outfit', sans-serif;">$0.00</p>
+                <p class="text-[10px] font-sans tracking-[0.3em] uppercase text-gold-400 mb-1">Обща сума</p>
+                <p id="total-price" class="font-serif text-2xl font-semibold text-gold-400">0.00 лв.</p>
             </div>
-            <button id="checkout-button" type="submit" class="font-bold py-3 px-8 rounded-lg text-lg opacity-50 cursor-not-allowed transition-all text-white" style="background-color: #e11d48; font-family: 'Outfit', sans-serif;" disabled>
-                Proceed to Checkout
+            <button id="checkout-button" type="submit" class="btn-gold opacity-40 cursor-not-allowed" disabled>
+                <span>Към плащане</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
             </button>
         </div>
     </div>
 </form>
-
 
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
@@ -217,10 +234,9 @@
             const hiddenSeatsInput = document.getElementById('hidden-seats');
             const hiddenPriceInput = document.getElementById('hidden-price');
             const toast = document.getElementById('seat-toast');
-            const showtimeId = @(Model.ShowtimeId.HasValue ? Model.ShowtimeId.Value.ToString() : "null");
+            const performanceId = @(Model.PerformanceId.HasValue ? Model.PerformanceId.Value.ToString() : "null");
 
-            // --- SignalR real-time connection ---
-            if (showtimeId) {
+            if (performanceId) {
                 const connection = new signalR.HubConnectionBuilder()
                     .withUrl("/hubs/seats")
                     .withAutomaticReconnect()
@@ -241,12 +257,12 @@
 
                     if (deselectedAny) {
                         updateSummary();
-                        showToast(`Seats ${seats.join(', ')} were just booked by someone else.`);
+                        showToast(`Места ${seats.join(', ')} току-що бяха заети от друг зрител.`);
                     }
                 });
 
                 connection.start()
-                    .then(() => connection.invoke("JoinShowtime", showtimeId))
+                    .then(() => connection.invoke("JoinPerformance", performanceId))
                     .catch(err => console.warn("SignalR connection failed:", err));
             }
 
@@ -256,11 +272,9 @@
                 setTimeout(() => toast.classList.remove('show'), 4000);
             }
 
-            // --- Seat selection ---
-            seatGrid.addEventListener('click', (e) => {
+            seatGrid.addEventListener('click', e => {
                 const seatDiv = e.target.closest('.seat');
                 if (!seatDiv) return;
-
                 if (seatDiv.classList.contains('available')) {
                     seatDiv.classList.toggle('selected');
                     seatDiv.classList.toggle('available');
@@ -274,27 +288,25 @@
 
             function updateSummary() {
                 const selectedSeats = document.querySelectorAll('.seat.selected');
-                const seatNumbers = [...selectedSeats].map(seat => seat.dataset.seatNumber);
-                const totalPrice = [...selectedSeats].reduce((total, seat) => total + parseFloat(seat.dataset.price), 0);
+                const seatNumbers = [...selectedSeats].map(s => s.dataset.seatNumber);
+                const totalPrice = [...selectedSeats].reduce((t, s) => t + parseFloat(s.dataset.price), 0);
 
                 if (seatNumbers.length > 0) {
                     const seatsText = seatNumbers.join(', ');
                     selectedSeatsEl.innerText = seatsText;
                     checkoutButton.disabled = false;
-                    checkoutButton.classList.remove('opacity-50', 'cursor-not-allowed');
-
+                    checkoutButton.classList.remove('opacity-40', 'cursor-not-allowed');
                     hiddenSeatsInput.value = seatsText;
                     hiddenPriceInput.value = totalPrice;
                 } else {
-                    selectedSeatsEl.innerText = 'None';
+                    selectedSeatsEl.innerText = 'Няма';
                     checkoutButton.disabled = true;
-                    checkoutButton.classList.add('opacity-50', 'cursor-not-allowed');
-
+                    checkoutButton.classList.add('opacity-40', 'cursor-not-allowed');
                     hiddenSeatsInput.value = "";
                     hiddenPriceInput.value = 0;
                 }
 
-                totalPriceEl.innerText = `$${totalPrice.toFixed(2)}`;
+                totalPriceEl.innerText = `${totalPrice.toFixed(2)} лв.`;
             }
         });
     </script>

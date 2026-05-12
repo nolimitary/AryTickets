@@ -79,20 +79,17 @@ builder.Services.AddResponseCompression(options =>
 
 var app = builder.Build();
 
-// Apply migrations and seed admin
+// Apply migrations and seed admin + repertoire
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     var providerName = db.Database.ProviderName ?? "";
     if (providerName.Contains("SqlServer", StringComparison.OrdinalIgnoreCase))
     {
-        // Local / Windows: migrations are SQL Server-flavored, apply them.
         db.Database.Migrate();
     }
     else
     {
-        // Railway PostgreSQL: skip migration history (it's SqlServer-only)
-        // and build schema from the current model.
         if (!db.Database.EnsureCreated())
         {
             try
@@ -100,7 +97,7 @@ using (var scope = app.Services.CreateScope())
                 var creator = db.GetService<IRelationalDatabaseCreator>();
                 creator.CreateTables();
             }
-            catch { /* Tables already exist — that's fine */ }
+            catch { /* tables already exist */ }
         }
     }
 
@@ -126,84 +123,50 @@ using (var scope = app.Services.CreateScope())
         await userManager.AddToRoleAsync(adminUser, "Admin");
     }
 
-    // Seed showtimes from TMDb if none exist
-    if (!db.Showtimes.Any())
+    // Seed theater repertoire if empty
+    if (!db.Productions.Any())
     {
-        var tmdbKey = builder.Configuration["TMDb:ApiKey"];
-        if (!string.IsNullOrEmpty(tmdbKey) && tmdbKey != "YOUR_KEY_HERE")
+        var productions = TheaterSeedData.GetProductions();
+        db.Productions.AddRange(productions);
+        await db.SaveChangesAsync();
+
+        var stages = new[] { "Голяма сцена", "Камерна сцена", "Сцена на сатиричния салон" };
+        var prices = new[] { 28.00m, 32.00m, 38.00m, 45.00m };
+        var timeSlots = new[]
         {
-            try
-            {
-                var httpClient = scope.ServiceProvider.GetRequiredService<IHttpClientFactory>().CreateClient();
-                var url = $"https://api.themoviedb.org/3/movie/now_playing?api_key={tmdbKey}&language=en-US&page=1&region=US";
-                var response = await httpClient.GetAsync(url);
+            new TimeSpan(19, 0, 0),
+            new TimeSpan(19, 30, 0),
+            new TimeSpan(20, 0, 0),
+        };
+        var rng = new Random(7);
 
-                if (response.IsSuccessStatusCode)
+        foreach (var production in db.Productions.ToList())
+        {
+            var stage = stages[rng.Next(stages.Length)];
+            var price = prices[rng.Next(prices.Length)];
+            var daysToSchedule = rng.Next(4, 9);
+
+            for (int d = 0; d < daysToSchedule; d++)
+            {
+                if (rng.Next(10) < 3 && d > 0) continue;
+                var date = DateTime.UtcNow.Date.AddDays(d + 1);
+                var slot = timeSlots[rng.Next(timeSlots.Length)];
+
+                db.Performances.Add(new Performance
                 {
-                    var json = await response.Content.ReadAsStringAsync();
-                    var result = System.Text.Json.JsonSerializer.Deserialize<AryTickets.Models.ApiResult>(json);
-                    var movies = (result?.Results ?? new List<AryTickets.Models.Movie>())
-                        .Where(m => !string.IsNullOrEmpty(m.PosterPath) && m.VoteAverage >= 5.0)
-                        .Take(10)
-                        .ToList();
-
-                    var halls = new[] { "Hall 1", "Hall 2", "Hall 3" };
-                    var prices = new[] { 10.50m, 12.50m, 14.00m, 16.00m };
-                    var timeSlots = new[] {
-                        new TimeSpan(11, 0, 0),  // 11:00 AM
-                        new TimeSpan(14, 30, 0), // 2:30 PM
-                        new TimeSpan(17, 0, 0),  // 5:00 PM
-                        new TimeSpan(19, 30, 0), // 7:30 PM
-                        new TimeSpan(21, 45, 0), // 9:45 PM
-                    };
-
-                    var rng = new Random(42); // fixed seed for consistency
-
-                    foreach (var movie in movies)
-                    {
-                        // Each movie gets showtimes across the next 7 days
-                        var daysToSchedule = rng.Next(3, 8); // 3-7 days
-                        var movieHall = halls[rng.Next(halls.Length)];
-                        var moviePrice = prices[rng.Next(prices.Length)];
-
-                        // Pick 2-4 time slots for this movie
-                        var slotCount = rng.Next(2, 5);
-                        var movieSlots = timeSlots.OrderBy(_ => rng.Next()).Take(slotCount).OrderBy(t => t).ToArray();
-
-                        for (int day = 0; day < daysToSchedule; day++)
-                        {
-                            var date = DateTime.UtcNow.Date.AddDays(day);
-                            foreach (var slot in movieSlots)
-                            {
-                                // Skip some slots randomly for variety
-                                if (day > 0 && rng.Next(10) < 2) continue;
-
-                                db.Showtimes.Add(new AryTickets.Models.Showtime
-                                {
-                                    TmdbMovieId = movie.Id,
-                                    MovieTitle = movie.Title,
-                                    PosterPath = movie.PosterPath,
-                                    ShowDateTime = date.Add(slot),
-                                    Hall = movieHall,
-                                    Price = moviePrice,
-                                    IsActive = true
-                                });
-                            }
-                        }
-                    }
-
-                    await db.SaveChangesAsync();
-                }
-            }
-            catch
-            {
-                // Seeding failed — not critical, admin can add manually
+                    ProductionId = production.Id,
+                    ShowDateTime = date.Add(slot),
+                    Stage = stage,
+                    Price = price,
+                    IsActive = true
+                });
             }
         }
+
+        await db.SaveChangesAsync();
     }
 }
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -214,20 +177,17 @@ app.UseStatusCodePagesWithReExecute("/Home/StatusCode/{0}");
 
 app.UseResponseCompression();
 
-// Only redirect to HTTPS in local dev — Railway handles TLS at the proxy
 if (app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
 }
 
-// Trust Railway's reverse proxy headers
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
     ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor
         | Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto
 });
 
-// Security headers
 app.Use(async (context, next) =>
 {
     context.Response.Headers["X-Content-Type-Options"] = "nosniff";
@@ -257,7 +217,6 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// Map SignalR hub
 app.MapHub<SeatHub>("/hubs/seats");
 
 app.Run();

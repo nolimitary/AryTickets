@@ -1,0 +1,68 @@
+@model List<AryTickets.Models.Production>
+@{
+    ViewData["Title"] = "Постановки";
+    Layout = "_Layout";
+}
+
+@section Styles {
+    @await Html.PartialAsync("_AdminStyles")
+}
+
+@await Html.PartialAsync("_AdminSidebar")
+
+<div class="admin-main">
+    <div class="flex items-end justify-between mb-10 flex-wrap gap-4">
+        <div>
+            <span class="text-[11px] font-sans tracking-[0.3em] uppercase text-gold-400">Репертоар</span>
+            <h1 class="font-serif text-4xl font-semibold text-ivory-100 mt-1">Постановки</h1>
+            <p class="font-garamond italic text-ivory-300/70 mt-1">Управление на пиесите в афиша на театъра</p>
+        </div>
+        <a asp-action="CreateProduction" class="admin-btn-primary">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+            Нова постановка
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="panel p-12 text-center">
+            <p class="font-garamond italic text-xl text-ivory-300/70 mb-4">Все още няма добавени постановки</p>
+            <a asp-action="CreateProduction" class="admin-btn-primary">Добави първата</a>
+        </div>
+    }
+    else
+    {
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            @foreach (var production in Model)
+            {
+                <div class="panel overflow-hidden flex">
+                    <div class="w-28 flex-shrink-0 relative overflow-hidden bg-burgundy-900">
+                        <img src="@production.FullPosterUrl" alt="@production.Title" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex-1 p-4 flex flex-col">
+                        <h3 class="font-serif text-lg text-ivory-100 leading-tight">@production.Title</h3>
+                        @if (!string.IsNullOrEmpty(production.Playwright))
+                        {
+                            <p class="font-garamond italic text-sm text-gold-400 mt-0.5">от @production.Playwright</p>
+                        }
+                        <div class="flex items-center gap-3 mt-2 text-[11px] font-sans tracking-wider uppercase text-gold-500/70">
+                            @if (!string.IsNullOrEmpty(production.Genre))
+                            {
+                                <span>@production.Genre</span>
+                            }
+                            <span>@production.FormattedDuration</span>
+                            <span class="text-gold-400">★ @production.Rating.ToString("F1")</span>
+                        </div>
+                        <div class="mt-auto pt-3 flex gap-2">
+                            <a asp-action="EditProduction" asp-route-id="@production.Id" class="admin-btn-primary" style="padding:0.4rem 0.8rem; font-size:10px;">Редактирай</a>
+                            <form asp-action="DeleteProduction" asp-route-id="@production.Id" method="post" onsubmit="return confirm('Сигурни ли сте, че искате да премахнете тази постановка?')">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="admin-btn-danger">Премахни</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

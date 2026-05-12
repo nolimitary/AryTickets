@@ -1,84 +1,105 @@
 @model CheckoutViewModel
 @{
-    ViewData["Title"] = "Checkout";
+    ViewData["Title"] = "Плащане";
     Layout = "_Layout";
 }
 
 @section Styles {
     <style>
         .checkout-panel {
-            background: #141416;
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 16px;
-            padding: 2rem;
+            background: rgba(43, 10, 10, 0.6);
+            border: 1px solid rgba(212, 175, 55, 0.18);
+            border-radius: 4px;
+            padding: 2.25rem;
+            backdrop-filter: blur(8px);
         }
 
         .field-label {
             display: block;
-            font-size: 0.8rem;
-            color: #71717a;
-            margin-bottom: 0.4rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: #d4af37;
+            margin-bottom: 0.5rem;
             font-weight: 500;
         }
         .field-input {
             width: 100%;
-            background: #0c0c0e;
-            border: 1px solid rgba(255,255,255,0.08);
-            color: #fff;
-            padding: 0.75rem 1rem;
-            border-radius: 10px;
-            font-size: 0.95rem;
+            background: rgba(26, 6, 6, 0.7);
+            border: 1px solid rgba(212, 175, 55, 0.22);
+            color: #f5e6d3;
+            padding: 0.85rem 1rem;
+            border-radius: 2px;
+            font-size: 1rem;
+            font-family: 'Cormorant Garamond', serif;
             outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            font-family: 'Outfit', monospace;
+            transition: border-color 0.25s, box-shadow 0.25s;
+        }
+        .field-input.mono {
+            font-family: 'Inter', monospace;
+            letter-spacing: 0.12em;
         }
         .field-input:focus {
-            border-color: rgba(225,29,72,0.4);
-            box-shadow: 0 0 0 3px rgba(225,29,72,0.08);
+            border-color: rgba(212, 175, 55, 0.6);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
         }
-        .field-input::placeholder { color: #3f3f46; }
-        .field-input.mono { letter-spacing: 0.12em; font-variant-numeric: tabular-nums; }
+        .field-input::placeholder { color: rgba(245, 230, 211, 0.3); }
 
         .summary-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0.65rem 0;
+            padding: 0.7rem 0;
         }
-        .summary-row .label { font-size: 0.85rem; color: #71717a; }
-        .summary-row .value { font-size: 0.9rem; color: #fff; font-weight: 500; }
-
-        .divider { border-top: 1px solid rgba(255,255,255,0.06); margin: 0.5rem 0; }
+        .summary-row .label {
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: rgba(245, 230, 211, 0.5);
+        }
+        .summary-row .value {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            color: #f5e6d3;
+        }
+        .gold-line { height: 1px; background: linear-gradient(90deg, transparent, rgba(212,175,55,0.4), transparent); margin: 0.6rem 0; }
 
         .pay-btn {
             width: 100%;
-            padding: 0.85rem;
-            background: #e11d48;
-            color: #fff;
-            font-weight: 700;
-            font-size: 1rem;
-            border: none;
-            border-radius: 12px;
+            padding: 1rem;
+            background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%);
+            color: #1a0606;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            border: 1px solid rgba(212, 175, 55, 0.45);
+            border-radius: 2px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s;
         }
-        .pay-btn:hover { background: #be123c; transform: translateY(-1px); box-shadow: 0 8px 20px rgba(225,29,72,0.25); }
-        .pay-btn:active { transform: translateY(0); }
+        .pay-btn:hover {
+            background: linear-gradient(135deg, #e6c45a 0%, #d4af37 100%);
+            box-shadow: 0 8px 28px rgba(212, 175, 55, 0.3);
+            transform: translateY(-1px);
+        }
 
-        /* Overlay */
         .pay-overlay {
-            background: rgba(9,9,11,0.94);
-            backdrop-filter: blur(8px);
+            background: rgba(26, 6, 6, 0.96);
+            backdrop-filter: blur(12px);
             transition: opacity 0.4s;
         }
 
         .spinner {
-            width: 48px;
-            height: 48px;
-            border: 3px solid rgba(225,29,72,0.15);
-            border-top-color: #e11d48;
+            width: 56px;
+            height: 56px;
+            border: 3px solid rgba(212, 175, 55, 0.15);
+            border-top-color: #d4af37;
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            animation: spin 0.9s linear infinite;
             margin: 0 auto;
         }
         @@keyframes spin { to { transform: rotate(360deg); } }
@@ -96,76 +117,83 @@
         }
         @@keyframes cstroke { 100% { stroke-dashoffset: 0; } }
 
-        /* Card type icon area */
         .card-type {
             position: absolute;
-            right: 12px;
+            right: 14px;
             top: 50%;
             transform: translateY(-50%);
-            font-size: 0.7rem;
-            color: #52525b;
+            font-size: 11px;
+            color: #d4af37;
+            font-family: 'Inter', sans-serif;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.12em;
             pointer-events: none;
         }
     </style>
 }
 
-<div class="min-h-screen py-16 px-6" style="background:#09090b;">
-    <div class="pt-24 max-w-4xl mx-auto">
-        <h1 class="text-3xl md:text-4xl font-bold text-center text-white mb-1">Checkout</h1>
-        <p class="text-center text-sm text-zinc-500 mb-12">Complete your booking for <span class="text-accent-500 font-medium">@Model.MovieTitle</span></p>
+<div class="min-h-screen pt-32 pb-16 px-6">
+    <div class="max-w-4xl mx-auto">
+        <p class="text-center text-[11px] font-sans tracking-[0.35em] uppercase text-gold-400 mb-4">Финално потвърждение</p>
+        <h1 class="text-center font-serif font-semibold text-ivory-100 text-4xl md:text-5xl mb-2">Плащане</h1>
+        <p class="text-center font-garamond italic text-ivory-300/70 mb-12">за <span class="text-gold-400">@Model.ProductionTitle</span></p>
 
         <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
-            <!-- Order Summary -->
             <div class="md:col-span-2 checkout-panel h-fit">
-                <h3 class="text-lg font-semibold text-white mb-5">Order Summary</h3>
+                <h3 class="font-serif text-xl text-ivory-100 mb-5">Поръчка</h3>
                 <div class="summary-row">
-                    <span class="label">Movie</span>
-                    <span class="value">@Model.MovieTitle</span>
+                    <span class="label">Пиеса</span>
+                    <span class="value">@Model.ProductionTitle</span>
                 </div>
                 <div class="summary-row">
-                    <span class="label">Showtime</span>
-                    <span class="value text-accent-400">@Model.Showtime</span>
+                    <span class="label">Дата / Час</span>
+                    <span class="value text-gold-400">@Model.PerformanceDateTime</span>
                 </div>
+                @if (!string.IsNullOrEmpty(Model.Stage))
+                {
+                    <div class="summary-row">
+                        <span class="label">Сцена</span>
+                        <span class="value italic font-garamond">@Model.Stage</span>
+                    </div>
+                }
                 <div class="summary-row">
-                    <span class="label">Seats</span>
+                    <span class="label">Места</span>
                     <span class="value">@Model.SelectedSeats</span>
                 </div>
-                <div class="divider"></div>
+                <div class="gold-line"></div>
                 <div class="summary-row">
-                    <span class="label text-base">Total</span>
-                    <span class="text-xl font-bold text-accent-400">$@Model.TotalPrice.ToString("F2")</span>
+                    <span class="label" style="font-size: 12px;">Общо</span>
+                    <span class="text-2xl font-serif font-semibold text-gold-400">@Model.TotalPrice.ToString("F2") лв.</span>
                 </div>
             </div>
 
-            <!-- Payment Form -->
             <div class="md:col-span-3 checkout-panel">
-                <h3 class="text-lg font-semibold text-white mb-5">Payment Details</h3>
+                <h3 class="font-serif text-xl text-ivory-100 mb-5">Данни за плащане</h3>
                 <form id="payment-form" class="space-y-4">
                     @Html.AntiForgeryToken()
-                    <input type="hidden" asp-for="MovieTitle" />
-                    <input type="hidden" asp-for="Showtime" />
+                    <input type="hidden" asp-for="ProductionTitle" />
+                    <input type="hidden" asp-for="PerformanceDateTime" />
+                    <input type="hidden" asp-for="Stage" />
                     <input type="hidden" asp-for="SelectedSeats" />
                     <input type="hidden" asp-for="TotalPrice" />
-                    <input type="hidden" asp-for="ShowtimeId" />
+                    <input type="hidden" asp-for="PerformanceId" />
 
                     <div>
-                        <label class="field-label">Name on Card</label>
-                        <input asp-for="CardHolderName" class="field-input" placeholder="John Doe" autocomplete="cc-name">
+                        <label class="field-label">Име на картодържателя</label>
+                        <input asp-for="CardHolderName" class="field-input" placeholder="Иван Иванов" autocomplete="cc-name">
                     </div>
 
                     <div class="relative">
-                        <label class="field-label">Card Number</label>
+                        <label class="field-label">Номер на карта</label>
                         <input id="CardNumber" name="CardNumber" class="field-input mono" placeholder="1234 5678 9012 3456" maxlength="19" inputmode="numeric" autocomplete="cc-number">
                         <span id="cardType" class="card-type"></span>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="field-label">Expiry Date</label>
-                            <input id="ExpiryDate" name="ExpiryDate" class="field-input mono" placeholder="MM/YY" maxlength="5" inputmode="numeric" autocomplete="cc-exp">
+                            <label class="field-label">Срок (MM/ГГ)</label>
+                            <input id="ExpiryDate" name="ExpiryDate" class="field-input mono" placeholder="MM/ГГ" maxlength="5" inputmode="numeric" autocomplete="cc-exp">
                         </div>
                         <div>
                             <label class="field-label">CVC</label>
@@ -174,11 +202,11 @@
                     </div>
 
                     <div class="pt-3">
-                        <button type="submit" class="pay-btn">Pay $@Model.TotalPrice.ToString("F2")</button>
+                        <button type="submit" class="pay-btn">Плати @Model.TotalPrice.ToString("F2") лв.</button>
                     </div>
-                    <p class="text-center text-[11px] text-zinc-600 mt-2">
+                    <p class="text-center text-[11px] font-sans tracking-wider uppercase text-gold-500/60 mt-3">
                         <svg class="w-3 h-3 inline-block mr-0.5 -mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
-                        Payments are securely processed
+                        Сигурно плащане
                     </p>
                 </form>
             </div>
@@ -186,59 +214,49 @@
     </div>
 </div>
 
-<!-- Payment Overlay -->
-<div id="payment-overlay" class="pay-overlay fixed inset-0 z-50 flex flex-col items-center justify-center text-white opacity-0 pointer-events-none">
-    <div id="spinner-container">
+<div id="payment-overlay" class="pay-overlay fixed inset-0 z-50 flex flex-col items-center justify-center opacity-0 pointer-events-none">
+    <div id="spinner-container" class="text-center">
         <div class="spinner"></div>
-        <p class="mt-5 text-lg font-medium text-white">Processing payment...</p>
-        <p class="mt-1 text-sm text-zinc-500">Please don't close this page</p>
+        <p class="mt-6 font-serif text-xl text-ivory-100">Обработваме плащането</p>
+        <p class="mt-1 font-garamond italic text-sm text-gold-500/70">Моля, не затваряйте страницата</p>
     </div>
     <div id="success-container" class="text-center hidden">
-        <svg class="mx-auto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52" width="80" height="80">
-            <circle class="checkmark-circle" cx="26" cy="26" r="24" fill="none" stroke="#e11d48" stroke-width="3" />
-            <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" stroke="#fb7185" stroke-width="4" />
+        <svg class="mx-auto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52" width="84" height="84">
+            <circle class="checkmark-circle" cx="26" cy="26" r="24" fill="none" stroke="#d4af37" stroke-width="3" />
+            <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" stroke="#e6c45a" stroke-width="4" />
         </svg>
-        <h2 class="text-2xl font-bold mt-5 text-white">Payment Confirmed!</h2>
-        <p class="mt-2 text-sm text-zinc-400">Your tickets have been sent to your email.</p>
-        <div id="qr-section" class="mt-5 hidden">
-            <img id="qr-img" src="" alt="QR Code" class="mx-auto rounded-lg" width="160" height="160">
-            <p id="confirm-code" class="text-xs text-zinc-500 mt-2 tracking-widest"></p>
+        <h2 class="mt-6 font-serif text-2xl text-ivory-100">Резервацията е потвърдена</h2>
+        <p class="mt-2 font-garamond italic text-sm text-gold-500/80">Изпратихме билетите Ви на електронната поща.</p>
+        <div id="qr-section" class="mt-6 hidden">
+            <img id="qr-img" src="" alt="QR код" class="mx-auto rounded-sm" width="160" height="160">
+            <p id="confirm-code" class="text-[11px] font-sans tracking-[0.25em] text-gold-400 mt-3"></p>
         </div>
-        <a asp-controller="Home" asp-action="Index" class="mt-6 inline-block bg-accent-500 text-white font-semibold py-2.5 px-8 rounded-lg hover:bg-accent-600 transition-all text-sm">Back to Home</a>
+        <a asp-controller="Home" asp-action="Index" class="mt-7 inline-block btn-gold">Към начална страница</a>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        // Auto-format card number with spaces
         document.getElementById('CardNumber').addEventListener('input', function(e) {
             let v = e.target.value.replace(/\D/g, '').substring(0, 16);
             e.target.value = v.replace(/(.{4})/g, '$1 ').trim();
-
-            // Detect card type
             const type = document.getElementById('cardType');
             if (v.startsWith('4')) type.textContent = 'Visa';
             else if (v.startsWith('5') || v.startsWith('2')) type.textContent = 'Mastercard';
             else if (v.startsWith('3')) type.textContent = 'Amex';
             else type.textContent = '';
         });
-
-        // Auto-format expiry with /
         document.getElementById('ExpiryDate').addEventListener('input', function(e) {
             let v = e.target.value.replace(/\D/g, '').substring(0, 4);
             if (v.length >= 2) v = v.substring(0, 2) + '/' + v.substring(2);
             e.target.value = v;
         });
-
-        // CVC: numbers only, max 3
         document.getElementById('Cvc').addEventListener('input', function(e) {
             e.target.value = e.target.value.replace(/\D/g, '').substring(0, 3);
         });
 
-        // Payment submission
         document.getElementById('payment-form').addEventListener('submit', async function (e) {
             e.preventDefault();
-
             const overlay = document.getElementById('payment-overlay');
             const spinner = document.getElementById('spinner-container');
             const success = document.getElementById('success-container');
@@ -250,7 +268,7 @@
             const cvc = form.querySelector("#Cvc").value;
 
             if (!cardName || cardNumber.length < 16 || expiry.length < 5 || cvc.length < 3) {
-                alert("Please fill out all payment fields correctly.");
+                alert("Моля, попълнете всички полета коректно.");
                 return;
             }
 
@@ -260,7 +278,6 @@
 
             try {
                 const formData = new FormData(form);
-                // Send raw card number without spaces
                 formData.set('CardNumber', cardNumber);
 
                 const response = await fetch("@Url.Action("ProcessPayment", "Booking")", {
@@ -269,7 +286,7 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error("Payment processing failed.");
+                    throw new Error("Грешка при обработка на плащането.");
                 }
 
                 const result = await response.json();
@@ -280,18 +297,18 @@
                     if (result.qrCodeUrl) {
                         document.getElementById('qr-section').classList.remove('hidden');
                         document.getElementById('qr-img').src = result.qrCodeUrl;
-                        document.getElementById('confirm-code').textContent = 'CODE: ' + result.confirmationCode;
+                        document.getElementById('confirm-code').textContent = 'КОД: ' + result.confirmationCode;
                     }
                 } else {
                     spinner.classList.add('hidden');
                     overlay.classList.add('opacity-0', 'pointer-events-none');
-                    alert(result.message || "Payment was not successful. Please try again.");
+                    alert(result.message || "Плащането не бе успешно. Опитайте отново.");
                 }
             } catch (error) {
                 console.error('Payment Error:', error);
                 spinner.classList.add('hidden');
                 overlay.classList.add('opacity-0', 'pointer-events-none');
-                alert('An error occurred during payment. Please try again.');
+                alert('Възникна грешка при плащането. Опитайте отново.');
             }
         });
     </script>

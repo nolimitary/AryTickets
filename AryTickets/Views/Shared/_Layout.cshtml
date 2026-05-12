@@ -3,40 +3,58 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bg">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - AryTix</title>
+    <title>@ViewData["Title"] · AryTix</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        accent: {
-                            50: '#fff1f2',
-                            100: '#ffe4e6',
-                            200: '#fecdd3',
-                            300: '#fda4af',
-                            400: '#fb7185',
-                            500: '#e11d48',
-                            600: '#be123c',
-                            700: '#9f1239',
+                        burgundy: {
+                            50: '#fbf0f0',
+                            100: '#f5d6d6',
+                            200: '#e8a4a4',
+                            300: '#d36b6b',
+                            400: '#a83838',
+                            500: '#8b1a1a',
+                            600: '#722f37',
+                            700: '#5c1818',
+                            800: '#3d1414',
+                            900: '#2b0a0a',
+                            950: '#1a0606',
                         },
-                        surface: {
-                            50: '#27272a',
-                            100: '#1c1c1f',
-                            200: '#141416',
-                            300: '#0c0c0e',
-                            400: '#09090b',
+                        gold: {
+                            50: '#fdf9ed',
+                            100: '#f9efc8',
+                            200: '#f0db8d',
+                            300: '#e6c45a',
+                            400: '#d4af37',
+                            500: '#c9a961',
+                            600: '#b8860b',
+                            700: '#8b6914',
+                            800: '#6b4f15',
+                            900: '#4a3810',
+                        },
+                        ivory: {
+                            50: '#fefcf7',
+                            100: '#faf6e8',
+                            200: '#f5e6d3',
+                            300: '#e8d4b8',
+                            400: '#d4c8b5',
                         }
                     },
                     fontFamily: {
-                        sans: ['Outfit', 'system-ui', 'sans-serif'],
+                        serif: ['"Playfair Display"', 'Georgia', 'serif'],
+                        display: ['"Playfair Display"', 'Georgia', 'serif'],
+                        garamond: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
                     }
                 }
             }
@@ -46,30 +64,55 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Outfit', system-ui, sans-serif;
-            background-color: #09090b;
-            color: #e4e4e7;
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            background-color: #1a0606;
+            background-image:
+                radial-gradient(ellipse at 20% 0%, rgba(139, 26, 26, 0.25) 0%, transparent 55%),
+                radial-gradient(ellipse at 80% 100%, rgba(114, 47, 55, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.04) 0%, transparent 70%);
+            color: #f5e6d3;
             overflow-x: hidden;
+            min-height: 100vh;
         }
 
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #09090b; }
-        ::-webkit-scrollbar-thumb { background: #e11d48; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #fb7185; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1a0606; }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #8b6914 0%, #d4af37 100%);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover { background: #d4af37; }
 
-        ::selection { background: rgba(225, 29, 72, 0.3); color: #fff; }
+        ::selection { background: rgba(212, 175, 55, 0.35); color: #1a0606; }
         html { scroll-behavior: smooth; }
 
+        /* Curtain band at the top of every page */
+        .curtain-band {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                #8b1a1a 8%,
+                #d4af37 25%,
+                #8b1a1a 50%,
+                #d4af37 75%,
+                #8b1a1a 92%,
+                transparent 100%);
+            z-index: 60;
+            opacity: 0.7;
+        }
+
         .nav-blur {
-            background: rgba(9, 9, 11, 0.5);
+            background: rgba(26, 6, 6, 0.55);
             backdrop-filter: blur(0px);
             transition: all 0.4s ease;
             border-bottom: 1px solid transparent;
         }
         .nav-blur.scrolled {
-            background: rgba(9, 9, 11, 0.9);
-            backdrop-filter: blur(24px);
-            border-bottom: 1px solid rgba(255,255,255,0.06);
+            background: rgba(26, 6, 6, 0.92);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.18);
         }
 
         .dd-panel {
@@ -83,69 +126,124 @@
             transform: translateY(0) scale(1);
             pointer-events: auto;
         }
+
+        .gold-divider {
+            display: inline-block;
+            width: 64px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #d4af37, transparent);
+            vertical-align: middle;
+        }
+
+        .gold-line {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.5), transparent);
+        }
+
+        h1, h2, h3, h4, h5, h6 { font-family: 'Playfair Display', Georgia, serif; }
+
+        .ornament {
+            color: #d4af37;
+            font-family: 'Playfair Display', serif;
+            opacity: 0.5;
+        }
+
+        .btn-gold {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.85rem 2rem;
+            background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%);
+            color: #1a0606;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            border-radius: 2px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(212, 175, 55, 0.4);
+        }
+        .btn-gold:hover {
+            background: linear-gradient(135deg, #e6c45a 0%, #d4af37 100%);
+            box-shadow: 0 8px 28px rgba(212, 175, 55, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-ghost {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.85rem 2rem;
+            background: transparent;
+            border: 1px solid rgba(212, 175, 55, 0.35);
+            color: #d4af37;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            border-radius: 2px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .btn-ghost:hover {
+            background: rgba(212, 175, 55, 0.08);
+            border-color: #d4af37;
+            color: #e6c45a;
+        }
     </style>
 </head>
-<body class="bg-surface-400 text-zinc-200">
+<body>
+    <div class="curtain-band"></div>
 
     <header id="navbar" class="nav-blur fixed top-0 left-0 right-0 z-50">
-        <nav class="max-w-[1360px] mx-auto px-6 py-4 flex justify-between items-center">
-            <a asp-area="" asp-controller="Home" asp-action="Index" class="flex items-center gap-0.5">
-                <span class="text-[22px] font-bold text-white">Ary</span>
-                <span class="text-[22px] font-light text-accent-500">Tix</span>
+        <nav class="max-w-[1360px] mx-auto px-6 py-5 flex justify-between items-center">
+            <a asp-area="" asp-controller="Home" asp-action="Index" class="flex items-baseline gap-1 group">
+                <span class="font-serif text-[26px] font-semibold text-ivory-200 tracking-wider">Ary</span>
+                <span class="font-serif text-[26px] font-light italic text-gold-400 tracking-wider">Tix</span>
+                <span class="hidden sm:inline-block ml-2 text-[10px] font-sans tracking-[0.3em] text-gold-500 uppercase mt-2">Театър</span>
             </a>
 
-            <div class="hidden md:flex items-center gap-8">
-                <a asp-area="" asp-controller="Home" asp-action="Index" class="text-sm text-zinc-400 hover:text-white transition-colors">Home</a>
-                <a href="#now-showing" class="text-sm text-zinc-400 hover:text-white transition-colors">Now Showing</a>
-                <a href="#coming-soon" class="text-sm text-zinc-400 hover:text-white transition-colors">Coming Soon</a>
-                <form asp-controller="Movie" asp-action="Search" method="get" class="relative hidden md:block">
-                    <input type="text" name="query" placeholder="Search movies..." class="bg-surface-200 border border-white/[0.06] text-white text-sm rounded-lg pl-9 pr-4 py-2 w-44 focus:w-56 transition-all focus:border-accent-500/30 focus:outline-none placeholder-zinc-600" />
-                    <svg class="w-4 h-4 text-zinc-600 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+            <div class="hidden md:flex items-center gap-10">
+                <a asp-area="" asp-controller="Home" asp-action="Index" class="text-[13px] font-sans tracking-wider uppercase text-ivory-200/70 hover:text-gold-400 transition-colors">Начало</a>
+                <a href="/#repertoar" class="text-[13px] font-sans tracking-wider uppercase text-ivory-200/70 hover:text-gold-400 transition-colors">Репертоар</a>
+                <a href="/#premieri" class="text-[13px] font-sans tracking-wider uppercase text-ivory-200/70 hover:text-gold-400 transition-colors">Премиери</a>
+                <form asp-controller="Production" asp-action="Search" method="get" class="relative hidden md:block">
+                    <input type="text" name="query" placeholder="Търсене на пиеса…"
+                           class="bg-burgundy-900/60 border border-gold-500/20 text-ivory-200 text-[13px] font-sans rounded-sm pl-9 pr-4 py-2 w-48 focus:w-64 transition-all focus:border-gold-400/60 focus:outline-none placeholder-ivory-400/40" />
+                    <svg class="w-4 h-4 text-gold-500/60 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
                 </form>
             </div>
 
             <div class="flex items-center gap-4">
-                <div class="relative" id="regionDropdownContainer">
-                    <button id="regionDropdownButton" class="flex items-center gap-1.5 text-sm text-zinc-500 hover:text-white transition-colors">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" /></svg>
-                        <span id="currentRegionText">@ViewData["CurrentRegion"]</span>
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
-                    </button>
-                    <div id="regionDropdownMenu" class="dd-panel absolute right-0 mt-2.5 w-44 bg-surface-100 border border-white/[0.06] rounded-xl shadow-2xl overflow-hidden">
-                        <a href="/Home/Index?region=US" class="block px-4 py-2.5 text-sm text-zinc-400 hover:text-white hover:bg-white/[0.04] transition-all">United States</a>
-                        <a href="/Home/Index?region=GB" class="block px-4 py-2.5 text-sm text-zinc-400 hover:text-white hover:bg-white/[0.04] transition-all">United Kingdom</a>
-                        <a href="/Home/Index?region=CA" class="block px-4 py-2.5 text-sm text-zinc-400 hover:text-white hover:bg-white/[0.04] transition-all">Canada</a>
-                        <a href="/Home/Index?region=AU" class="block px-4 py-2.5 text-sm text-zinc-400 hover:text-white hover:bg-white/[0.04] transition-all">Australia</a>
-                    </div>
-                </div>
-
                 @if (SignInManager.IsSignedIn(User))
                 {
                     <div class="relative" id="userDropdownContainer">
-                        <button id="userDropdownButton" class="w-8 h-8 rounded-full bg-accent-500/10 border border-accent-500/20 flex items-center justify-center hover:bg-accent-500/20 transition-all">
-                            <svg class="w-4 h-4 text-accent-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd"></path></svg>
+                        <button id="userDropdownButton" class="w-9 h-9 rounded-full bg-gold-400/10 border border-gold-400/30 flex items-center justify-center hover:bg-gold-400/20 transition-all">
+                            <svg class="w-4 h-4 text-gold-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd"></path></svg>
                         </button>
-                        <div id="userDropdownMenu" class="dd-panel absolute right-0 mt-2.5 w-52 bg-surface-100 border border-white/[0.06] rounded-xl shadow-2xl overflow-hidden">
-                            <div class="px-4 py-3 border-b border-white/[0.06]">
-                                <p class="text-[11px] text-zinc-500 mb-0.5">Signed in as</p>
-                                <p class="text-sm text-white truncate">@User.Identity?.Name</p>
+                        <div id="userDropdownMenu" class="dd-panel absolute right-0 mt-3 w-56 bg-burgundy-950 border border-gold-500/20 rounded-sm shadow-2xl overflow-hidden">
+                            <div class="px-4 py-3 border-b border-gold-500/15">
+                                <p class="text-[10px] uppercase tracking-widest text-gold-500/80 mb-1 font-sans">В системата</p>
+                                <p class="text-sm font-serif text-ivory-200 truncate">@User.Identity?.Name</p>
                             </div>
-                            <a asp-controller="Profile" asp-action="Index" class="block px-4 py-2.5 text-sm text-zinc-400 hover:text-white hover:bg-white/[0.04] transition-all">My Profile</a>
+                            <a asp-controller="Profile" asp-action="Index" class="block px-4 py-3 text-sm font-serif text-ivory-200/80 hover:text-gold-400 hover:bg-burgundy-800/40 transition-all">Моят профил</a>
                             @if (User.IsInRole("Admin"))
                             {
-                                <a asp-controller="Admin" asp-action="Index" class="block px-4 py-2.5 text-sm text-accent-400 hover:text-accent-300 hover:bg-accent-500/5 transition-all">Admin Panel</a>
+                                <a asp-controller="Admin" asp-action="Index" class="block px-4 py-3 text-sm font-serif text-gold-400 hover:text-gold-300 hover:bg-burgundy-800/40 transition-all">Администрация</a>
                             }
                             <form class="w-full" asp-area="" asp-controller="Account" asp-action="Logout" method="post">
-                                <button type="submit" class="w-full text-left px-4 py-2.5 text-sm text-zinc-400 hover:text-white hover:bg-white/[0.04] transition-all">Sign out</button>
+                                <button type="submit" class="w-full text-left px-4 py-3 text-sm font-serif text-ivory-200/80 hover:text-gold-400 hover:bg-burgundy-800/40 transition-all">Изход</button>
                             </form>
                         </div>
                     </div>
                 }
                 else
                 {
-                    <a asp-controller="Account" asp-action="Login"
-                       class="text-sm font-medium bg-accent-500 text-white px-5 py-2 rounded-lg hover:bg-accent-600 transition-all duration-200">
-                        Sign In
+                    <a asp-controller="Account" asp-action="Login" class="btn-gold">
+                        Вход
                     </a>
                 }
             </div>
@@ -156,32 +254,32 @@
         @RenderBody()
     </main>
 
-    <footer class="border-t border-white/[0.04] mt-24">
+    <footer class="border-t border-gold-500/15 mt-24 bg-burgundy-950/60">
         <div class="max-w-[1360px] mx-auto px-6 py-14">
             <div class="grid md:grid-cols-3 gap-10 items-start">
                 <div>
-                    <div class="flex items-center gap-0.5 mb-3">
-                        <span class="text-lg font-bold text-white">Ary</span>
-                        <span class="text-lg font-light text-accent-500">Tix</span>
+                    <div class="flex items-baseline gap-1 mb-3">
+                        <span class="font-serif text-2xl font-semibold text-ivory-200">Ary</span>
+                        <span class="font-serif text-2xl font-light italic text-gold-400">Tix</span>
                     </div>
-                    <p class="text-sm text-zinc-500 leading-relaxed max-w-xs">
-                        Your go-to platform for discovering and booking the latest films.
+                    <p class="text-[15px] text-ivory-300/70 leading-relaxed max-w-xs font-garamond">
+                        Място, където класическата сцена среща съвременния зрител. Резервирайте своя билет за следващата вечер с театър.
                     </p>
                 </div>
                 <div class="flex flex-col gap-2.5">
-                    <span class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Navigate</span>
-                    <a asp-area="" asp-controller="Home" asp-action="Index" class="text-sm text-zinc-500 hover:text-white transition-colors">Home</a>
-                    <a href="#now-showing" class="text-sm text-zinc-500 hover:text-white transition-colors">Now Showing</a>
-                    <a href="#coming-soon" class="text-sm text-zinc-500 hover:text-white transition-colors">Coming Soon</a>
+                    <span class="text-[10px] font-sans text-gold-500/80 uppercase tracking-[0.25em] mb-1">Навигация</span>
+                    <a asp-area="" asp-controller="Home" asp-action="Index" class="text-[15px] font-garamond text-ivory-300/70 hover:text-gold-400 transition-colors">Начало</a>
+                    <a href="/#repertoar" class="text-[15px] font-garamond text-ivory-300/70 hover:text-gold-400 transition-colors">Репертоар</a>
+                    <a href="/#premieri" class="text-[15px] font-garamond text-ivory-300/70 hover:text-gold-400 transition-colors">Премиери</a>
                 </div>
                 <div class="flex flex-col gap-2.5">
-                    <span class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Legal</span>
-                    <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-sm text-zinc-500 hover:text-white transition-colors">Privacy Policy</a>
-                    <a href="#" class="text-sm text-zinc-500 hover:text-white transition-colors">Terms of Service</a>
+                    <span class="text-[10px] font-sans text-gold-500/80 uppercase tracking-[0.25em] mb-1">Информация</span>
+                    <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-[15px] font-garamond text-ivory-300/70 hover:text-gold-400 transition-colors">Политика за поверителност</a>
+                    <a href="#" class="text-[15px] font-garamond text-ivory-300/70 hover:text-gold-400 transition-colors">Общи условия</a>
                 </div>
             </div>
-            <div class="mt-12 pt-6 border-t border-white/[0.04] text-center">
-                <p class="text-xs text-zinc-600">&copy; @DateTime.Now.Year AryTix. All rights reserved.</p>
+            <div class="mt-12 pt-6 border-t border-gold-500/15 text-center">
+                <p class="text-[12px] font-sans text-gold-500/60 tracking-widest uppercase">&copy; @DateTime.Now.Year · AryTix · Театрална сцена</p>
             </div>
         </div>
     </footer>
@@ -198,7 +296,6 @@
             b.addEventListener('click', e => { e.stopPropagation(); m.classList.toggle('open'); });
             window.addEventListener('click', e => { if (!c.contains(e.target)) m.classList.remove('open'); });
         }
-        setupDropdown('regionDropdownContainer', 'regionDropdownButton', 'regionDropdownMenu');
         setupDropdown('userDropdownContainer', 'userDropdownButton', 'userDropdownMenu');
     </script>
     @await RenderSectionAsync("Scripts", required: false)

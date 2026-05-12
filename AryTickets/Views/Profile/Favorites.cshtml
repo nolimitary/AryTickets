@@ -1,22 +1,23 @@
 @model IEnumerable<UserFavorite>
 @{
-    ViewData["Title"] = "My Favorites";
+    ViewData["Title"] = "Любими постановки";
     Layout = "_ProfileLayout";
 }
 
-<div class="p-8 bg-[#141416] rounded-xl shadow-lg">
-    <h3 class="text-2xl font-bold mb-8 text-white" style="font-family: 'Outfit', sans-serif;">My Favorite Movies</h3>
+<div class="p-8 panel">
+    <h3 class="font-serif text-2xl font-semibold mb-2 text-ivory-100">Любими постановки</h3>
+    <p class="font-garamond italic text-ivory-300/70 mb-8">Запазените от Вас пиеси за бъдещи прегледи</p>
 
     @if (Model.Any())
     {
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
             @foreach (var favorite in Model)
             {
-                <a asp-controller="Movie" asp-action="Details" asp-route-id="@favorite.MovieId" class="group block">
-                    <div class="rounded-xl overflow-hidden bg-[#09090b] ring-2 ring-transparent transition-all duration-300 hover:ring-rose-600/30 hover:shadow-lg hover:shadow-rose-600/10">
-                        <img src="@favorite.FullPosterPath" alt="@favorite.MovieTitle" class="w-full h-auto aspect-[2/3] object-cover">
+                <a asp-controller="Production" asp-action="Details" asp-route-id="@favorite.ProductionId" class="group block">
+                    <div class="rounded-sm overflow-hidden bg-burgundy-900 border border-gold-500/15 transition-all duration-500 group-hover:border-gold-400/50 group-hover:-translate-y-1">
+                        <img src="@favorite.FullPosterUrl" alt="@favorite.ProductionTitle" class="w-full h-auto aspect-[2/3] object-cover">
                     </div>
-                    <p class="mt-2 text-sm text-zinc-400 group-hover:text-white transition-colors truncate" style="font-family: 'Outfit', sans-serif;">@favorite.MovieTitle</p>
+                    <p class="mt-3 font-serif text-ivory-100 group-hover:text-gold-400 transition-colors truncate text-center">@favorite.ProductionTitle</p>
                 </a>
             }
         </div>
@@ -24,10 +25,10 @@
     else
     {
         <div class="text-center py-16">
-            <div class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style="background: rgba(225, 29, 72, 0.1);">
-                <svg class="w-8 h-8" fill="none" stroke="#e11d48" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+            <div class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style="background: rgba(212, 175, 55, 0.12); border: 1px solid rgba(212,175,55,0.3);">
+                <svg class="w-8 h-8" fill="none" stroke="#d4af37" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
             </div>
-            <p class="text-zinc-500" style="font-family: 'Outfit', sans-serif;">You haven't favorited any movies yet.</p>
+            <p class="font-garamond italic text-ivory-300/70">Все още не сте запазили постановки.</p>
         </div>
     }
 </div>

@@ -1,10 +1,9 @@
-﻿using AryTickets.Data;
+using AryTickets.Data;
 using AryTickets.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace AryTickets.Controllers
@@ -23,30 +22,29 @@ namespace AryTickets.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ToggleFavorite(int movieId, string movieTitle, string posterPath)
+        public async Task<IActionResult> ToggleFavorite(int productionId, string productionTitle, string posterUrl)
         {
             var userId = _userManager.GetUserId(User);
-            var existingFavorite = await _context.UserFavorites
-                .FirstOrDefaultAsync(f => f.UserId == userId && f.MovieId == movieId);
+            var existing = await _context.UserFavorites
+                .FirstOrDefaultAsync(f => f.UserId == userId && f.ProductionId == productionId);
 
-            if (existingFavorite != null)
+            if (existing != null)
             {
-                _context.UserFavorites.Remove(existingFavorite);
+                _context.UserFavorites.Remove(existing);
             }
             else
             {
-                var newFavorite = new UserFavorite
+                _context.UserFavorites.Add(new UserFavorite
                 {
                     UserId = userId,
-                    MovieId = movieId,
-                    MovieTitle = movieTitle,
-                    PosterPath = posterPath
-                };
-                _context.UserFavorites.Add(newFavorite);
+                    ProductionId = productionId,
+                    ProductionTitle = productionTitle,
+                    PosterUrl = posterUrl
+                });
             }
 
             await _context.SaveChangesAsync();
-            return RedirectToAction("Details", "Movie", new { id = movieId });
+            return RedirectToAction("Details", "Production", new { id = productionId });
         }
     }
 }

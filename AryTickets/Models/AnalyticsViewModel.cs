@@ -6,12 +6,12 @@ namespace AryTickets.Models
     {
         public List<string> RevenueDates { get; set; } = new();
         public List<decimal> RevenueValues { get; set; } = new();
-        public List<string> TopMovieNames { get; set; } = new();
-        public List<int> TopMovieBookings { get; set; } = new();
+        public List<string> TopProductionNames { get; set; } = new();
+        public List<int> TopProductionBookings { get; set; } = new();
         public List<string> DayNames { get; set; } = new();
         public List<int> DayCounts { get; set; } = new();
-        public List<string> RevenueMovieNames { get; set; } = new();
-        public List<decimal> RevenueMovieValues { get; set; } = new();
+        public List<string> RevenueProductionNames { get; set; } = new();
+        public List<decimal> RevenueProductionValues { get; set; } = new();
         public decimal TotalRevenue { get; set; }
         public int TotalBookings { get; set; }
         public decimal AverageOrderValue { get; set; }

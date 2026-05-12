@@ -1,0 +1,51 @@
+@model List<AryTickets.Models.Production>
+@{
+    ViewData["Title"] = "Търсене";
+    var query = ViewData["SearchQuery"] as string ?? "";
+}
+
+<section class="pt-32 pb-16 max-w-[1360px] mx-auto px-6">
+    <div class="text-center mb-12">
+        <p class="text-[11px] font-sans tracking-[0.3em] uppercase text-gold-400 mb-4">Архив на сцената</p>
+        <h1 class="font-serif font-semibold text-ivory-100 text-4xl md:text-5xl mb-3">Резултати от търсене</h1>
+        @if (!string.IsNullOrWhiteSpace(query))
+        {
+            <p class="font-garamond italic text-lg text-ivory-300/70">за „<span class="text-gold-400">@query</span>“</p>
+        }
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-20 max-w-md mx-auto border border-dashed border-gold-500/20 rounded-sm">
+            <p class="font-garamond italic text-xl text-ivory-200/70 mb-2">Няма намерени постановки</p>
+            <p class="text-sm font-sans tracking-wider uppercase text-gold-500/60">Опитайте с друга дума</p>
+        </div>
+    }
+    else
+    {
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+            @foreach (var production in Model)
+            {
+                <a asp-controller="Production" asp-action="Details" asp-route-id="@production.Id" class="block no-underline group">
+                    <div class="relative border border-gold-500/15 bg-burgundy-900/40 rounded-sm overflow-hidden transition-all duration-500 hover:border-gold-400/50 hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/50">
+                        <div class="relative aspect-[2/3] overflow-hidden">
+                            <img src="@production.FullPosterUrl" alt="@production.Title" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                            <div class="absolute inset-0 bg-gradient-to-t from-burgundy-950 via-transparent to-transparent"></div>
+                            @if (!string.IsNullOrEmpty(production.Genre))
+                            {
+                                <span class="absolute top-3 left-3 px-2.5 py-1 bg-burgundy-950/90 border border-gold-500/35 text-[10px] tracking-[0.2em] uppercase text-gold-400 font-sans">@production.Genre</span>
+                            }
+                        </div>
+                        <div class="p-4 text-center">
+                            <h3 class="font-serif text-lg text-ivory-100 group-hover:text-gold-400 transition-colors line-clamp-2 min-h-[2.5em]">@production.Title</h3>
+                            @if (!string.IsNullOrEmpty(production.Playwright))
+                            {
+                                <p class="font-garamond italic text-sm text-gold-500/80 mt-1">@production.Playwright</p>
+                            }
+                        </div>
+                    </div>
+                </a>
+            }
+        </div>
+    }
+</section>

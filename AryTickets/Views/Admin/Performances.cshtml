@@ -1,0 +1,128 @@
+@model List<AryTickets.Models.Performance>
+@{
+    ViewData["Title"] = "Представления";
+    Layout = "_Layout";
+    var productions = ViewData["Productions"] as List<AryTickets.Models.Production> ?? new List<AryTickets.Models.Production>();
+    var grouped = Model
+        .Where(p => p.Production != null)
+        .GroupBy(p => new { p.ProductionId, p.Production.Title, p.Production.FullPosterUrl })
+        .OrderBy(g => g.Key.Title)
+        .ToList();
+}
+
+@section Styles {
+    @await Html.PartialAsync("_AdminStyles")
+    <style>
+        .perf-group {
+            background: rgba(43, 10, 10, 0.5);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .perf-poster {
+            width: 84px;
+            aspect-ratio: 2/3;
+            object-fit: cover;
+            border-radius: 2px;
+        }
+        .perf-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.45rem 0.85rem;
+            background: rgba(26, 6, 6, 0.7);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            border-radius: 2px;
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            color: #f5e6d3;
+        }
+        .perf-pill .delete {
+            color: #d36b6b;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+        .perf-pill:hover .delete { opacity: 1; }
+    </style>
+}
+
+@await Html.PartialAsync("_AdminSidebar")
+
+<div class="admin-main">
+    <div class="mb-10">
+        <span class="text-[11px] font-sans tracking-[0.3em] uppercase text-gold-400">Афиш</span>
+        <h1 class="font-serif text-4xl font-semibold text-ivory-100 mt-1">Представления</h1>
+        <p class="font-garamond italic text-ivory-300/70 mt-1">Планиране на дати и часове по постановки</p>
+    </div>
+
+    <div class="panel p-6 mb-10 max-w-3xl">
+        <h3 class="font-serif text-xl text-ivory-100 mb-4">Добави представление</h3>
+        <form asp-action="CreatePerformance" method="post" class="space-y-4">
+            @Html.AntiForgeryToken()
+            <div>
+                <label class="admin-label">Постановка</label>
+                <select name="productionId" class="admin-input" required>
+                    <option value="">— Изберете постановка —</option>
+                    @foreach (var p in productions)
+                    {
+                        <option value="@p.Id">@p.Title @(string.IsNullOrEmpty(p.Playwright) ? "" : "· " + p.Playwright)</option>
+                    }
+                </select>
+            </div>
+            <div>
+                <label class="admin-label">Дати и часове (ISO формат, разделени със запетая)</label>
+                <textarea name="performances" class="admin-input" rows="3" placeholder="2026-05-20 19:30, 2026-05-22 19:30, 2026-05-25 20:00" required></textarea>
+                <p class="text-[11px] font-sans text-gold-500/60 mt-1 italic">Пример: 2026-05-20 19:30</p>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="admin-label">Сцена</label>
+                    <input name="stage" class="admin-input" placeholder="Голяма сцена" value="Голяма сцена">
+                </div>
+                <div>
+                    <label class="admin-label">Цена (лв.)</label>
+                    <input name="price" type="number" step="0.01" min="0" class="admin-input" placeholder="35.00" value="35.00">
+                </div>
+            </div>
+            <button type="submit" class="admin-btn-primary">Запази представленията</button>
+        </form>
+    </div>
+
+    @if (!grouped.Any())
+    {
+        <div class="panel p-12 text-center">
+            <p class="font-garamond italic text-xl text-ivory-300/70">Все още няма обявени представления</p>
+        </div>
+    }
+    else
+    {
+        <div class="space-y-5">
+            @foreach (var group in grouped)
+            {
+                <div class="perf-group">
+                    <div class="p-5 flex gap-5 items-start">
+                        <img src="@group.Key.FullPosterUrl" alt="@group.Key.Title" class="perf-poster">
+                        <div class="flex-1">
+                            <h3 class="font-serif text-xl text-ivory-100 mb-3">@group.Key.Title</h3>
+                            <div class="flex flex-wrap gap-2">
+                                @foreach (var perf in group.OrderBy(p => p.ShowDateTime))
+                                {
+                                    <form asp-action="DeletePerformance" asp-route-id="@perf.Id" method="post" onsubmit="return confirm('Премахни това представление?')" class="inline-block">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="perf-pill">
+                                            <span>@perf.FormattedDateTime</span>
+                                            <span class="text-gold-500 italic font-garamond">· @perf.Stage</span>
+                                            <span class="text-gold-400">· @perf.Price.ToString("F2") лв.</span>
+                                            <span class="delete">×</span>
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

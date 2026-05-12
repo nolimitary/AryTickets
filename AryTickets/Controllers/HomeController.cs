@@ -1,88 +1,64 @@
+using AryTickets.Data;
 using AryTickets.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
-using System.Text.Json;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace AryTickets.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly string _apiKey;
+        private readonly ApplicationDbContext _db;
 
-        public HomeController(ILogger<HomeController> logger, IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext db)
         {
             _logger = logger;
-            _httpClientFactory = httpClientFactory;
-            _apiKey = configuration["TMDb:ApiKey"];
+            _db = db;
         }
 
-        public async Task<IActionResult> Index(string region = "US", int? genreId = null)
+        public async Task<IActionResult> Index(string genre = null)
         {
-            ViewData["CurrentRegion"] = region;
+            var now = System.DateTime.UtcNow;
 
-            if (string.IsNullOrEmpty(_apiKey))
-            {
-                _logger.LogWarning("TMDb API Key is not configured.");
-                return View(new HomeViewModel { NowShowingMovies = new List<Movie>(), ComingSoonMovies = new List<Movie>() });
-            }
+            // A production is "in repertoire" if it has any upcoming active performance
+            var productionsWithUpcoming = await _db.Performances
+                .Where(p => p.IsActive && p.ShowDateTime > now)
+                .Select(p => p.ProductionId)
+                .Distinct()
+                .ToListAsync();
 
-            var httpClient = _httpClientFactory.CreateClient();
+            var productionsQuery = _db.Productions.Where(p => p.IsActive);
 
-            // Fetch genre list
-            var genreUrl = $"https://api.themoviedb.org/3/genre/movie/list?api_key={_apiKey}&language=en-US";
-            var genreResponse = await httpClient.GetAsync(genreUrl);
-            var allGenres = new List<Genre>();
-            if (genreResponse.IsSuccessStatusCode)
-            {
-                var genreJson = await genreResponse.Content.ReadAsStringAsync();
-                var genreResult = JsonSerializer.Deserialize<GenreListResult>(genreJson);
-                allGenres = genreResult?.Genres ?? new List<Genre>();
-            }
+            if (!string.IsNullOrWhiteSpace(genre))
+                productionsQuery = productionsQuery.Where(p => p.Genre == genre);
 
-            var nowShowingUrl = $"https://api.themoviedb.org/3/movie/now_playing?api_key={_apiKey}&language=en-US&page=1&region={region}";
-            var nowShowingResponse = await httpClient.GetAsync(nowShowingUrl);
-            List<Movie> nowShowingMovies = new List<Movie>();
-            if (nowShowingResponse.IsSuccessStatusCode)
-            {
-                var jsonResponse = await nowShowingResponse.Content.ReadAsStringAsync();
-                var apiResult = JsonSerializer.Deserialize<ApiResult>(jsonResponse);
-                nowShowingMovies = apiResult?.Results ?? new List<Movie>();
-            }
+            var allProductions = await productionsQuery.OrderByDescending(p => p.Rating).ToListAsync();
 
-            var comingSoonUrl = $"https://api.themoviedb.org/3/movie/upcoming?api_key={_apiKey}&language=en-US&page=1&region={region}";
-            var comingSoonResponse = await httpClient.GetAsync(comingSoonUrl);
-            List<Movie> comingSoonMovies = new List<Movie>();
-            if (comingSoonResponse.IsSuccessStatusCode)
-            {
-                var jsonResponse = await comingSoonResponse.Content.ReadAsStringAsync();
-                var apiResult = JsonSerializer.Deserialize<ApiResult>(jsonResponse);
-                comingSoonMovies = apiResult?.Results ?? new List<Movie>();
-            }
+            var currentRepertoire = allProductions
+                .Where(p => productionsWithUpcoming.Contains(p.Id))
+                .ToList();
 
-            var nowShowingIds = new HashSet<int>(nowShowingMovies.Select(m => m.Id));
-            var filteredComingSoonMovies = comingSoonMovies.Where(m => !nowShowingIds.Contains(m.Id)).ToList();
+            var upcomingPremieres = allProductions
+                .Where(p => !productionsWithUpcoming.Contains(p.Id) && p.PremiereDate > now)
+                .OrderBy(p => p.PremiereDate)
+                .ToList();
 
-            // Apply genre filter
-            if (genreId.HasValue)
-            {
-                nowShowingMovies = nowShowingMovies.Where(m => m.GenreIds != null && m.GenreIds.Contains(genreId.Value)).ToList();
-                filteredComingSoonMovies = filteredComingSoonMovies.Where(m => m.GenreIds != null && m.GenreIds.Contains(genreId.Value)).ToList();
-            }
+            var allGenres = await _db.Productions
+                .Where(p => p.IsActive && !string.IsNullOrEmpty(p.Genre))
+                .Select(p => p.Genre)
+                .Distinct()
+                .OrderBy(g => g)
+                .ToListAsync();
 
             var viewModel = new HomeViewModel
             {
-                NowShowingMovies = nowShowingMovies,
-                ComingSoonMovies = filteredComingSoonMovies,
+                CurrentRepertoire = currentRepertoire,
+                UpcomingPremieres = upcomingPremieres,
                 AllGenres = allGenres,
-                SelectedGenreId = genreId
+                SelectedGenre = genre
             };
 
             return View(viewModel);
@@ -109,11 +85,5 @@ namespace AryTickets.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
-    }
-
-    public class GenreListResult
-    {
-        [System.Text.Json.Serialization.JsonPropertyName("genres")]
-        public List<Genre> Genres { get; set; }
     }
 }

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace AryTickets.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialTheaterSchema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -63,13 +63,14 @@ namespace AryTickets.Migrations
                     UserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     UserEmail = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    MovieTitle = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Showtime = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ProductionTitle = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PerformanceDateTime = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Stage = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Seats = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     BookedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ConfirmationCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ShowtimeId = table.Column<int>(type: "int", nullable: true)
+                    PerformanceId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -77,60 +78,30 @@ namespace AryTickets.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Showtimes",
+                name: "Productions",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    TmdbMovieId = table.Column<int>(type: "int", nullable: false),
-                    MovieTitle = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PosterPath = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ShowDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Hall = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    TotalSeats = table.Column<int>(type: "int", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    TitleOriginal = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Synopsis = table.Column<string>(type: "nvarchar(4000)", maxLength: 4000, nullable: false),
+                    Playwright = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Director = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Cast = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    Genre = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: false),
+                    DurationMinutes = table.Column<int>(type: "int", nullable: false),
+                    PosterUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    BackdropUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    TrailerUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    PremiereDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Rating = table.Column<double>(type: "float", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Showtimes", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UserFavorites",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    MovieId = table.Column<int>(type: "int", nullable: false),
-                    MovieTitle = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PosterPath = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserFavorites", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UserReviews",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IsCritic = table.Column<bool>(type: "bit", nullable: false),
-                    MovieId = table.Column<int>(type: "int", nullable: false),
-                    MovieTitle = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Rating = table.Column<int>(type: "int", nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserReviews", x => x.Id);
+                    table.PrimaryKey("PK_Productions", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -268,12 +239,85 @@ namespace AryTickets.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Performances",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ProductionId = table.Column<int>(type: "int", nullable: false),
+                    ShowDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Stage = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    TotalSeats = table.Column<int>(type: "int", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Performances", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Performances_Productions_ProductionId",
+                        column: x => x.ProductionId,
+                        principalTable: "Productions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserFavorites",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ProductionId = table.Column<int>(type: "int", nullable: false),
+                    ProductionTitle = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PosterUrl = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserFavorites", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserFavorites_Productions_ProductionId",
+                        column: x => x.ProductionId,
+                        principalTable: "Productions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserReviews",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsCritic = table.Column<bool>(type: "bit", nullable: false),
+                    ProductionId = table.Column<int>(type: "int", nullable: false),
+                    ProductionTitle = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Rating = table.Column<int>(type: "int", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserReviews", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserReviews_Productions_ProductionId",
+                        column: x => x.ProductionId,
+                        principalTable: "Productions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SeatReservations",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ShowtimeId = table.Column<int>(type: "int", nullable: false),
+                    PerformanceId = table.Column<int>(type: "int", nullable: false),
                     BookingId = table.Column<int>(type: "int", nullable: false),
                     SeatNumber = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
@@ -287,9 +331,9 @@ namespace AryTickets.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_SeatReservations_Showtimes_ShowtimeId",
-                        column: x => x.ShowtimeId,
-                        principalTable: "Showtimes",
+                        name: "FK_SeatReservations_Performances_PerformanceId",
+                        column: x => x.PerformanceId,
+                        principalTable: "Performances",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -339,15 +383,30 @@ namespace AryTickets.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Performances_ProductionId",
+                table: "Performances",
+                column: "ProductionId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SeatReservations_BookingId",
                 table: "SeatReservations",
                 column: "BookingId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SeatReservations_ShowtimeId_SeatNumber",
+                name: "IX_SeatReservations_PerformanceId_SeatNumber",
                 table: "SeatReservations",
-                columns: new[] { "ShowtimeId", "SeatNumber" },
+                columns: new[] { "PerformanceId", "SeatNumber" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserFavorites_ProductionId",
+                table: "UserFavorites",
+                column: "ProductionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserReviews_ProductionId",
+                table: "UserReviews",
+                column: "ProductionId");
         }
 
         /// <inheritdoc />
@@ -390,7 +449,10 @@ namespace AryTickets.Migrations
                 name: "Bookings");
 
             migrationBuilder.DropTable(
-                name: "Showtimes");
+                name: "Performances");
+
+            migrationBuilder.DropTable(
+                name: "Productions");
         }
     }
 }

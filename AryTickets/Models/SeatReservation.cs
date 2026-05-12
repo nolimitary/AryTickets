@@ -8,10 +8,10 @@ namespace AryTickets.Models
         public int Id { get; set; }
 
         [Required]
-        public int ShowtimeId { get; set; }
+        public int PerformanceId { get; set; }
 
-        [ForeignKey("ShowtimeId")]
-        public Showtime Showtime { get; set; }
+        [ForeignKey("PerformanceId")]
+        public Performance Performance { get; set; }
 
         [Required]
         public int BookingId { get; set; }

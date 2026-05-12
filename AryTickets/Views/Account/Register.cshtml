@@ -1,124 +1,81 @@
 @model RegisterViewModel
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = "Регистрация";
     Layout = "_Layout";
 }
 
 @section Styles {
     <style>
-        :root {
-            --accent-500: #e11d48;
-            --accent-600: #be123c;
-        }
-
-        .electric-card {
+        .auth-card {
+            background: rgba(43, 10, 10, 0.78);
+            border: 1px solid rgba(212, 175, 55, 0.22);
+            border-radius: 4px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 24px 48px rgba(0,0,0,0.5);
             animation: fadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
             opacity: 0;
         }
-
-        @@keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(16px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        @@keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+        .auth-input {
+            background-color: rgba(26, 6, 6, 0.7);
+            border: 1px solid rgba(212, 175, 55, 0.22);
+            color: #f5e6d3;
+            font-family: 'Cormorant Garamond', serif;
+            transition: border-color 0.25s, box-shadow 0.25s;
         }
-
-        .electric-input {
-            background-color: #0c0c0e;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            color: #fff;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-        .electric-input:focus {
+        .auth-input:focus {
             outline: none;
-            border-color: rgba(225, 29, 72, 0.4);
-            box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.2);
+            border-color: rgba(212, 175, 55, 0.6);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
         }
-        .electric-input::placeholder {
-            color: #52525b;
-        }
-
-        .electric-btn {
-            background-color: var(--accent-500);
-            color: #fff;
-            font-weight: 600;
-            transition: background-color 0.2s ease;
-        }
-        .electric-btn:hover {
-            background-color: var(--accent-600);
-        }
-
-        .electric-link {
-            color: #71717a;
-            transition: color 0.2s ease;
-        }
-        .electric-link:hover {
-            color: #fb7185;
-        }
+        .auth-input::placeholder { color: rgba(245, 230, 211, 0.35); }
     </style>
 }
 
-<div class="min-h-screen flex items-center justify-center px-4" style="background-color: #09090b;">
-    <div class="electric-card w-full max-w-md p-10 rounded-2xl" style="background-color: #141416; border: 1px solid rgba(255, 255, 255, 0.06);">
-
-        <!-- Logo -->
+<div class="min-h-screen flex items-center justify-center px-4 pt-24 pb-12">
+    <div class="auth-card w-full max-w-md p-10">
         <div class="text-center mb-8">
-            <span class="font-bold text-2xl tracking-tight">
-                <span class="text-white">Ary</span><span style="color: var(--accent-500);">Tix</span>
-            </span>
+            <div class="font-serif text-3xl tracking-wider">
+                <span class="text-ivory-100 font-semibold">Ary</span><span class="text-gold-400 font-light italic">Tix</span>
+            </div>
+            <p class="text-[10px] font-sans tracking-[0.3em] uppercase text-gold-500/70 mt-1">Т Е А Т Р А Л Н А &nbsp; С Ц Е Н А</p>
         </div>
 
-        <!-- Title -->
-        <h2 class="text-center text-2xl font-bold text-white mb-1.5">Create Account</h2>
-        <p class="text-center text-sm text-zinc-500 mb-8">Get started with your free account</p>
+        <h2 class="text-center font-serif text-2xl font-semibold text-ivory-100 mb-1.5">Регистрация</h2>
+        <p class="text-center font-garamond italic text-ivory-300/70 mb-8">Създайте безплатен профил</p>
 
         <form class="space-y-5" asp-action="Register" method="post">
-            <div asp-validation-summary="All" class="text-red-400 text-sm list-disc pl-5 mb-4"></div>
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="All" class="text-burgundy-200 text-sm list-disc pl-5 mb-4 font-garamond italic"></div>
 
-            <!-- Username -->
             <div>
-                <label asp-for="Username" class="block text-sm text-zinc-400 mb-1.5">Username</label>
-                <input asp-for="Username" class="electric-input w-full px-4 py-3 rounded-lg text-sm" placeholder="Choose a username">
-                <span asp-validation-for="Username" class="text-red-400 text-xs mt-1 block"></span>
+                <label asp-for="Username" class="block text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-2">Потребителско име</label>
+                <input asp-for="Username" class="auth-input w-full px-4 py-3 rounded-sm text-base" placeholder="Изберете име">
+                <span asp-validation-for="Username" class="text-burgundy-200 text-xs mt-1 block font-garamond italic"></span>
             </div>
 
-            <!-- Email -->
             <div>
-                <label asp-for="Email" class="block text-sm text-zinc-400 mb-1.5">Email address</label>
-                <input asp-for="Email" class="electric-input w-full px-4 py-3 rounded-lg text-sm" placeholder="you@example.com">
-                <span asp-validation-for="Email" class="text-red-400 text-xs mt-1 block"></span>
+                <label asp-for="Email" class="block text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-2">Електронна поща</label>
+                <input asp-for="Email" class="auth-input w-full px-4 py-3 rounded-sm text-base" placeholder="ваш@имейл.com">
+                <span asp-validation-for="Email" class="text-burgundy-200 text-xs mt-1 block font-garamond italic"></span>
             </div>
 
-            <!-- Password -->
             <div>
-                <label asp-for="Password" class="block text-sm text-zinc-400 mb-1.5">Password</label>
-                <input asp-for="Password" class="electric-input w-full px-4 py-3 rounded-lg text-sm" placeholder="Create a password">
-                <span asp-validation-for="Password" class="text-red-400 text-xs mt-1 block"></span>
+                <label asp-for="Password" class="block text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-2">Парола</label>
+                <input asp-for="Password" class="auth-input w-full px-4 py-3 rounded-sm text-base" placeholder="Създайте парола">
+                <span asp-validation-for="Password" class="text-burgundy-200 text-xs mt-1 block font-garamond italic"></span>
             </div>
 
-            <!-- Confirm Password -->
             <div>
-                <label asp-for="ConfirmPassword" class="block text-sm text-zinc-400 mb-1.5">Confirm password</label>
-                <input asp-for="ConfirmPassword" class="electric-input w-full px-4 py-3 rounded-lg text-sm" placeholder="Confirm your password">
-                <span asp-validation-for="ConfirmPassword" class="text-red-400 text-xs mt-1 block"></span>
+                <label asp-for="ConfirmPassword" class="block text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-2">Потвърди паролата</label>
+                <input asp-for="ConfirmPassword" class="auth-input w-full px-4 py-3 rounded-sm text-base" placeholder="Потвърдете паролата">
+                <span asp-validation-for="ConfirmPassword" class="text-burgundy-200 text-xs mt-1 block font-garamond italic"></span>
             </div>
 
-            <!-- Submit -->
-            <div>
-                <button type="submit" class="electric-btn w-full py-3 text-sm rounded-lg">
-                    Create account
-                </button>
-            </div>
+            <button type="submit" class="btn-gold w-full justify-center">Регистрация</button>
 
-            <!-- Login Link -->
             <div class="text-center pt-2">
-                <a asp-action="Login" class="electric-link text-sm">
-                    Already have an account? Sign in
-                </a>
+                <a asp-action="Login" class="font-garamond italic text-gold-400 hover:text-gold-300 transition-colors">Вече имате профил? Влезте</a>
             </div>
         </form>
     </div>

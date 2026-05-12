@@ -31,35 +31,35 @@ namespace AryTickets.Controllers
             _seatHub = seatHub;
         }
 
-        public async Task<IActionResult> SelectSeats(int? showtimeId)
+        public async Task<IActionResult> SelectSeats(int? performanceId)
         {
-            if (!showtimeId.HasValue)
-                return BadRequest("A valid showtime is required.");
+            if (!performanceId.HasValue)
+                return BadRequest("Изисква се валидно представление.");
 
-            var st = await _db.Showtimes.FindAsync(showtimeId.Value);
-            if (st == null || !st.IsActive)
+            var perf = await _db.Performances
+                .Include(p => p.Production)
+                .FirstOrDefaultAsync(p => p.Id == performanceId.Value);
+            if (perf == null || !perf.IsActive)
                 return NotFound();
 
-            // Don't allow booking past showtimes
-            if (st.ShowDateTime <= System.DateTime.UtcNow)
-                return BadRequest("This showtime has already passed.");
+            if (perf.ShowDateTime <= System.DateTime.UtcNow)
+                return BadRequest("Това представление вече се е състояло.");
 
-            // Get already reserved seats for this showtime
             var reservedSeatsList = await _db.SeatReservations
-                .Where(r => r.ShowtimeId == showtimeId.Value)
+                .Where(r => r.PerformanceId == performanceId.Value)
                 .Select(r => r.SeatNumber)
                 .ToListAsync();
             var reservedSeats = new HashSet<string>(reservedSeatsList);
 
             var viewModel = new SeatSelectionViewModel
             {
-                MovieId = st.TmdbMovieId,
-                MovieTitle = st.MovieTitle,
-                Showtime = st.FormattedDateTime,
-                ShowtimeId = st.Id,
-                Hall = st.Hall,
-                TicketPrice = st.Price,
-                SeatingChart = GenerateSeatingChart(reservedSeats, st.Price)
+                ProductionId = perf.ProductionId,
+                ProductionTitle = perf.Production?.Title ?? string.Empty,
+                PerformanceDateTime = perf.FormattedDateTime,
+                PerformanceId = perf.Id,
+                Stage = perf.Stage,
+                TicketPrice = perf.Price,
+                SeatingChart = GenerateSeatingChart(reservedSeats, perf.Price)
             };
 
             return View(viewModel);
@@ -67,15 +67,16 @@ namespace AryTickets.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Checkout(string movieTitle, string showtime, string selectedSeats, decimal totalPrice, int? showtimeId)
+        public IActionResult Checkout(string productionTitle, string performanceDateTime, string stage, string selectedSeats, decimal totalPrice, int? performanceId)
         {
             var viewModel = new CheckoutViewModel
             {
-                MovieTitle = movieTitle,
-                Showtime = showtime,
+                ProductionTitle = productionTitle,
+                PerformanceDateTime = performanceDateTime,
+                Stage = stage,
                 SelectedSeats = selectedSeats,
                 TotalPrice = totalPrice,
-                ShowtimeId = showtimeId
+                PerformanceId = performanceId
             };
             return View(viewModel);
         }
@@ -92,38 +93,36 @@ namespace AryTickets.Controllers
 
             if (!ModelState.IsValid)
             {
-                return BadRequest("Invalid payment details.");
+                return BadRequest("Невалидни данни за плащане.");
             }
 
             await Task.Delay(2500);
 
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
-                return Json(new { success = false, message = "User not found." });
+                return Json(new { success = false, message = "Потребителят не е намерен." });
 
             var confirmCode = System.Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper();
 
-            // Use a transaction when the provider supports it (not InMemory)
             var supportsTransactions = !_db.Database.ProviderName?.Contains("InMemory", System.StringComparison.OrdinalIgnoreCase) == true;
             var transaction = supportsTransactions ? await _db.Database.BeginTransactionAsync() : null;
             try
             {
-                // Check seat availability before booking
                 var seatNumbers = System.Array.Empty<string>();
-                if (model.ShowtimeId.HasValue && !string.IsNullOrEmpty(model.SelectedSeats))
+                if (model.PerformanceId.HasValue && !string.IsNullOrEmpty(model.SelectedSeats))
                 {
                     seatNumbers = model.SelectedSeats.Split(',', System.StringSplitOptions.RemoveEmptyEntries)
                         .Select(s => s.Trim()).ToArray();
 
                     var alreadyTaken = await _db.SeatReservations
-                        .Where(r => r.ShowtimeId == model.ShowtimeId.Value && seatNumbers.Contains(r.SeatNumber))
+                        .Where(r => r.PerformanceId == model.PerformanceId.Value && seatNumbers.Contains(r.SeatNumber))
                         .Select(r => r.SeatNumber)
                         .ToListAsync();
 
                     if (alreadyTaken.Any())
                     {
                         if (transaction != null) await transaction.RollbackAsync();
-                        return Json(new { success = false, message = $"Seats already taken: {string.Join(", ", alreadyTaken)}", takenSeats = alreadyTaken });
+                        return Json(new { success = false, message = $"Места вече са заети: {string.Join(", ", alreadyTaken)}", takenSeats = alreadyTaken });
                     }
                 }
 
@@ -132,25 +131,25 @@ namespace AryTickets.Controllers
                     UserId = user.Id,
                     UserEmail = user.Email,
                     UserName = user.UserName,
-                    MovieTitle = model.MovieTitle,
-                    Showtime = model.Showtime,
+                    ProductionTitle = model.ProductionTitle,
+                    PerformanceDateTime = model.PerformanceDateTime,
+                    Stage = model.Stage,
                     Seats = model.SelectedSeats,
                     TotalPrice = model.TotalPrice,
                     BookedAt = System.DateTime.UtcNow,
                     ConfirmationCode = confirmCode,
-                    ShowtimeId = model.ShowtimeId
+                    PerformanceId = model.PerformanceId
                 };
                 _db.Bookings.Add(booking);
                 await _db.SaveChangesAsync();
 
-                // Create seat reservations
-                if (model.ShowtimeId.HasValue && seatNumbers.Length > 0)
+                if (model.PerformanceId.HasValue && seatNumbers.Length > 0)
                 {
                     foreach (var seat in seatNumbers)
                     {
                         _db.SeatReservations.Add(new SeatReservation
                         {
-                            ShowtimeId = model.ShowtimeId.Value,
+                            PerformanceId = model.PerformanceId.Value,
                             BookingId = booking.Id,
                             SeatNumber = seat
                         });
@@ -160,23 +159,21 @@ namespace AryTickets.Controllers
 
                 if (transaction != null) await transaction.CommitAsync();
 
-                // Notify all browsers viewing this showtime that seats are now taken
-                if (model.ShowtimeId.HasValue && seatNumbers.Length > 0)
+                if (model.PerformanceId.HasValue && seatNumbers.Length > 0)
                 {
-                    await _seatHub.Clients.Group($"showtime-{model.ShowtimeId.Value}")
+                    await _seatHub.Clients.Group($"performance-{model.PerformanceId.Value}")
                         .SendAsync("SeatsBooked", seatNumbers);
                 }
 
-                // Send confirmation email (non-blocking — don't fail the booking if email fails)
                 try
                 {
-                    var qrUrl = $"https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=ARYTIX-{confirmCode}|{model.MovieTitle}|{model.Showtime}|{model.SelectedSeats}";
+                    var qrUrl = $"https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=ARYTIX-{confirmCode}|{model.ProductionTitle}|{model.PerformanceDateTime}|{model.SelectedSeats}";
                     var emailBody = BuildTicketEmail(model, user.UserName, confirmCode);
 
                     byte[] pdfBytes = null;
                     try
                     {
-                        pdfBytes = _pdfGenerator.Generate(model.MovieTitle, model.Showtime, model.SelectedSeats, model.TotalPrice, confirmCode, qrUrl);
+                        pdfBytes = _pdfGenerator.Generate(model.ProductionTitle, model.PerformanceDateTime, model.SelectedSeats, model.TotalPrice, confirmCode, qrUrl);
                     }
                     catch { }
 
@@ -184,20 +181,20 @@ namespace AryTickets.Controllers
                     {
                         await _emailSender.SendEmailWithAttachmentAsync(
                             user.Email,
-                            "Your Tickets for " + model.MovieTitle,
+                            "Вашите билети за " + model.ProductionTitle,
                             emailBody,
                             pdfBytes,
-                            $"AryTix-Ticket-{confirmCode}.pdf"
+                            $"AryTix-Bilet-{confirmCode}.pdf"
                         );
                     }
                     else
                     {
-                        await _emailSender.SendEmailAsync(user.Email, "Your Tickets for " + model.MovieTitle, emailBody);
+                        await _emailSender.SendEmailAsync(user.Email, "Вашите билети за " + model.ProductionTitle, emailBody);
                     }
                 }
                 catch
                 {
-                    // Email sending failed but payment still succeeds
+                    // email failure should not roll back the booking
                 }
 
                 return Json(new { success = true, confirmationCode = booking.ConfirmationCode, qrCodeUrl = booking.QrCodeUrl });
@@ -205,7 +202,7 @@ namespace AryTickets.Controllers
             catch (DbUpdateException)
             {
                 if (transaction != null) await transaction.RollbackAsync();
-                return Json(new { success = false, message = "Those seats were just booked by someone else. Please select different seats." });
+                return Json(new { success = false, message = "Тези места току-що бяха резервирани от друг зрител. Моля изберете други." });
             }
             finally
             {
@@ -216,30 +213,32 @@ namespace AryTickets.Controllers
         private string BuildTicketEmail(CheckoutViewModel model, string username, string confirmCode)
         {
             var sb = new StringBuilder();
-            sb.Append("<div style='font-family: Arial, Helvetica, sans-serif; background-color: #09090b; color: #e4e4e7; padding: 40px 20px; text-align: center;'>");
-            sb.Append("<div style='max-width: 500px; margin: 0 auto;'>");
-            sb.Append("<h1 style='font-size: 26px; margin-bottom: 8px;'><span style='color: #fff; font-weight: 700;'>Ary</span><span style='color: #e11d48; font-weight: 300;'>Tix</span></h1>");
-            sb.Append("<p style='color: #71717a; font-size: 13px; margin-bottom: 30px;'>Your ticket confirmation</p>");
-            sb.Append("<div style='background-color: #141416; border-radius: 16px; padding: 32px; text-align: left; border: 1px solid rgba(255,255,255,0.06);'>");
-            sb.Append("<h2 style='color: #fff; font-size: 20px; margin: 0 0 6px 0;'>Booking Confirmed!</h2>");
-            sb.AppendFormat("<p style='color: #a1a1aa; font-size: 14px; margin: 0 0 24px 0;'>Hi {0}, here are your ticket details:</p>", username);
-            sb.Append("<div style='background-color: #09090b; border-radius: 12px; padding: 20px; margin-bottom: 24px;'>");
+            sb.Append("<div style='font-family: Georgia, \"Times New Roman\", serif; background-color: #1a0606; color: #f5e6d3; padding: 40px 20px; text-align: center;'>");
+            sb.Append("<div style='max-width: 520px; margin: 0 auto;'>");
+            sb.Append("<h1 style='font-size: 30px; letter-spacing: 0.18em; margin-bottom: 4px;'><span style='color: #f5e6d3; font-weight: 400;'>ARY</span><span style='color: #d4af37; font-weight: 400;'>TIX</span></h1>");
+            sb.Append("<p style='color: #d4af37; font-size: 11px; letter-spacing: 0.28em; margin-bottom: 30px;'>Т Е А Т Р А Л Н А &nbsp; С Ц Е Н А</p>");
+            sb.Append("<div style='background-color: #2b0a0a; border: 1px solid rgba(212,175,55,0.25); border-radius: 6px; padding: 36px 32px; text-align: left; box-shadow: 0 8px 32px rgba(0,0,0,0.4);'>");
+            sb.Append("<h2 style='color: #f5e6d3; font-size: 22px; margin: 0 0 6px 0; font-weight: 400;'>Резервацията е потвърдена</h2>");
+            sb.AppendFormat("<p style='color: #c9a961; font-size: 14px; margin: 0 0 24px 0; font-style: italic;'>Уважаеми {0}, очакваме Ви на представлението:</p>", username);
+            sb.Append("<div style='background-color: #1a0606; border: 1px solid rgba(212,175,55,0.15); border-radius: 4px; padding: 22px; margin-bottom: 24px;'>");
             sb.Append("<table style='width: 100%; border-collapse: collapse;'>");
-            sb.AppendFormat("<tr><td style='padding: 8px 0; color: #71717a; font-size: 13px;'>Movie</td><td style='padding: 8px 0; color: #fff; font-size: 14px; font-weight: 600; text-align: right;'>{0}</td></tr>", model.MovieTitle);
-            sb.AppendFormat("<tr><td style='padding: 8px 0; color: #71717a; font-size: 13px;'>Showtime</td><td style='padding: 8px 0; color: #fff; font-size: 14px; text-align: right;'>{0}</td></tr>", model.Showtime);
-            sb.AppendFormat("<tr><td style='padding: 8px 0; color: #71717a; font-size: 13px;'>Seats</td><td style='padding: 8px 0; color: #fff; font-size: 14px; text-align: right;'>{0}</td></tr>", model.SelectedSeats);
-            sb.Append("<tr><td colspan='2' style='padding: 12px 0 0 0;'><div style='border-top: 1px solid rgba(255,255,255,0.06);'></div></td></tr>");
-            sb.AppendFormat("<tr><td style='padding: 12px 0 0 0; color: #71717a; font-size: 13px;'>Total</td><td style='padding: 12px 0 0 0; color: #e11d48; font-size: 18px; font-weight: 700; text-align: right;'>${0:F2}</td></tr>", model.TotalPrice);
+            sb.AppendFormat("<tr><td style='padding: 8px 0; color: #c9a961; font-size: 12px; letter-spacing: 0.1em;'>ПИЕСА</td><td style='padding: 8px 0; color: #f5e6d3; font-size: 15px; font-weight: 600; text-align: right;'>{0}</td></tr>", model.ProductionTitle);
+            sb.AppendFormat("<tr><td style='padding: 8px 0; color: #c9a961; font-size: 12px; letter-spacing: 0.1em;'>ДАТА И ЧАС</td><td style='padding: 8px 0; color: #f5e6d3; font-size: 14px; text-align: right;'>{0}</td></tr>", model.PerformanceDateTime);
+            if (!string.IsNullOrEmpty(model.Stage))
+                sb.AppendFormat("<tr><td style='padding: 8px 0; color: #c9a961; font-size: 12px; letter-spacing: 0.1em;'>СЦЕНА</td><td style='padding: 8px 0; color: #f5e6d3; font-size: 14px; text-align: right;'>{0}</td></tr>", model.Stage);
+            sb.AppendFormat("<tr><td style='padding: 8px 0; color: #c9a961; font-size: 12px; letter-spacing: 0.1em;'>МЕСТА</td><td style='padding: 8px 0; color: #f5e6d3; font-size: 14px; text-align: right;'>{0}</td></tr>", model.SelectedSeats);
+            sb.Append("<tr><td colspan='2' style='padding: 12px 0 0 0;'><div style='border-top: 1px solid rgba(212,175,55,0.15);'></div></td></tr>");
+            sb.AppendFormat("<tr><td style='padding: 12px 0 0 0; color: #c9a961; font-size: 12px; letter-spacing: 0.1em;'>ОБЩА СУМА</td><td style='padding: 12px 0 0 0; color: #d4af37; font-size: 20px; font-weight: 700; text-align: right;'>{0:F2} лв.</td></tr>", model.TotalPrice);
             sb.Append("</table></div>");
-            var qrUrl = $"https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=ARYTIX-{confirmCode}|{model.MovieTitle}|{model.Showtime}|{model.SelectedSeats}";
+            var qrUrl = $"https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=ARYTIX-{confirmCode}|{model.ProductionTitle}|{model.PerformanceDateTime}|{model.SelectedSeats}";
             sb.Append("<div style='text-align: center; margin: 24px 0 16px;'>");
-            sb.AppendFormat("<img src='{0}' alt='QR Code' style='border-radius: 8px;' width='180' height='180' />", qrUrl);
-            sb.AppendFormat("<p style='color: #71717a; font-size: 11px; margin-top: 8px; letter-spacing: 0.1em;'>CODE: {0}</p>", confirmCode);
+            sb.AppendFormat("<img src='{0}' alt='QR Code' style='border-radius: 4px; background: #f5e6d3; padding: 8px;' width='180' height='180' />", qrUrl);
+            sb.AppendFormat("<p style='color: #c9a961; font-size: 11px; margin-top: 10px; letter-spacing: 0.2em;'>КОД: {0}</p>", confirmCode);
             sb.Append("</div>");
-            sb.Append("<p style='color: #52525b; font-size: 12px; text-align: center; margin: 0;'>Scan the QR code or show this confirmation at the theater entrance.</p>");
-            sb.Append("<p style='color: #52525b; font-size: 12px; text-align: center; margin-top: 8px;'>A PDF ticket is attached to this email.</p>");
+            sb.Append("<p style='color: #8b6914; font-size: 12px; text-align: center; margin: 0; font-style: italic;'>Покажете този QR код или потвърждение на входа на театъра.</p>");
+            sb.Append("<p style='color: #8b6914; font-size: 12px; text-align: center; margin-top: 8px;'>Прикачен е PDF билет към този имейл.</p>");
             sb.Append("</div>");
-            sb.Append("<p style='color: #3f3f46; font-size: 11px; margin-top: 24px;'>&copy; 2026 AryTix. All rights reserved.</p>");
+            sb.Append("<p style='color: #6b4f15; font-size: 11px; margin-top: 24px;'>&copy; 2026 AryTix · Всички права запазени</p>");
             sb.Append("</div></div>");
             return sb.ToString();
         }
@@ -267,6 +266,5 @@ namespace AryTickets.Controllers
             }
             return chart;
         }
-
     }
 }

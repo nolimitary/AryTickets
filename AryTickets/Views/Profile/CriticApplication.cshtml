@@ -1,77 +1,66 @@
 @model AryTickets.Models.CriticApplicationViewModel
 @{
-    ViewData["Title"] = "Critic Application";
+    ViewData["Title"] = "Заявка за критик";
     Layout = "_ProfileLayout";
 }
 
 <div class="space-y-10">
+    <div class="panel p-8">
+        <h3 class="font-serif text-2xl font-semibold text-ivory-100 mb-1">Заявка за критик</h3>
+        <p class="font-garamond italic text-ivory-300/70 mb-8">Разкажете ни за опита си и мотивацията да станете сертифициран театрален критик.</p>
 
-    <div class="bg-[#141416] border border-white/[0.06] rounded-2xl p-8">
-        <h3 class="text-2xl font-semibold text-white mb-1" style="font-family: 'Outfit', sans-serif;">Critic Application</h3>
-        <p class="text-sm text-zinc-400 mb-8" style="font-family: 'Outfit', sans-serif;">Tell us about your experience and why you'd like to become a verified critic.</p>
-
-        <form asp-action="CriticApplication" method="post" class="space-y-6">
+        <form asp-action="CriticApplication" method="post" class="space-y-5">
             @Html.AntiForgeryToken()
-            <div asp-validation-summary="ModelOnly" class="text-red-400 text-sm"></div>
+            <div asp-validation-summary="ModelOnly" class="text-burgundy-200 text-sm font-garamond italic"></div>
 
-            <!-- Full Name -->
             <div>
-                <label asp-for="FullName" class="block text-sm text-zinc-400 mb-2" style="font-family: 'Outfit', sans-serif;"></label>
-                <input asp-for="FullName" class="block w-full px-4 py-2.5 bg-[#0c0c0e] border border-white/[0.08] rounded-lg text-white text-sm focus:border-[#e11d48]/40 focus:outline-none transition-colors" placeholder="Your full name" />
-                <span asp-validation-for="FullName" class="text-red-400 text-xs mt-1"></span>
+                <label class="block text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-2">Пълно име</label>
+                <input asp-for="FullName" class="w-full px-4 py-2.5 bg-burgundy-950 border border-gold-500/22 rounded-sm text-ivory-100 font-garamond focus:border-gold-400/60 focus:outline-none" placeholder="Иван Иванов" />
+                <span asp-validation-for="FullName" class="text-burgundy-200 text-xs font-garamond italic mt-1"></span>
             </div>
 
-            <!-- Bio -->
             <div>
-                <label asp-for="Bio" class="block text-sm text-zinc-400 mb-2" style="font-family: 'Outfit', sans-serif;"></label>
-                <textarea asp-for="Bio" rows="4" class="block w-full px-4 py-2.5 bg-[#0c0c0e] border border-white/[0.08] rounded-lg text-white text-sm focus:border-[#e11d48]/40 focus:outline-none transition-colors resize-none" placeholder="Tell us about yourself and your background in film criticism..."></textarea>
-                <span asp-validation-for="Bio" class="text-red-400 text-xs mt-1"></span>
+                <label class="block text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-2">Биография</label>
+                <textarea asp-for="Bio" rows="4" class="w-full px-4 py-2.5 bg-burgundy-950 border border-gold-500/22 rounded-sm text-ivory-100 font-garamond focus:border-gold-400/60 focus:outline-none resize-none" placeholder="Разкажете за себе си и опита си в театралната критика…"></textarea>
+                <span asp-validation-for="Bio" class="text-burgundy-200 text-xs font-garamond italic mt-1"></span>
             </div>
 
-            <!-- Years of Experience -->
             <div>
-                <label asp-for="YearsOfExperience" class="block text-sm text-zinc-400 mb-2" style="font-family: 'Outfit', sans-serif;"></label>
-                <input asp-for="YearsOfExperience" type="number" min="0" max="50" class="block w-full px-4 py-2.5 bg-[#0c0c0e] border border-white/[0.08] rounded-lg text-white text-sm focus:border-[#e11d48]/40 focus:outline-none transition-colors" placeholder="0" />
-                <span asp-validation-for="YearsOfExperience" class="text-red-400 text-xs mt-1"></span>
+                <label class="block text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-2">Години опит</label>
+                <input asp-for="YearsOfExperience" type="number" min="0" max="50" class="w-full px-4 py-2.5 bg-burgundy-950 border border-gold-500/22 rounded-sm text-ivory-100 font-garamond focus:border-gold-400/60 focus:outline-none" placeholder="0" />
+                <span asp-validation-for="YearsOfExperience" class="text-burgundy-200 text-xs font-garamond italic mt-1"></span>
             </div>
 
-            <!-- Past Employers -->
             <div>
-                <label asp-for="PastEmployers" class="block text-sm text-zinc-400 mb-2" style="font-family: 'Outfit', sans-serif;"></label>
-                <textarea asp-for="PastEmployers" rows="3" class="block w-full px-4 py-2.5 bg-[#0c0c0e] border border-white/[0.08] rounded-lg text-white text-sm focus:border-[#e11d48]/40 focus:outline-none transition-colors resize-none" placeholder="Publications, websites, or organizations you've written for..."></textarea>
-                <span asp-validation-for="PastEmployers" class="text-red-400 text-xs mt-1"></span>
+                <label class="block text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-2">Предишни работодатели</label>
+                <textarea asp-for="PastEmployers" rows="3" class="w-full px-4 py-2.5 bg-burgundy-950 border border-gold-500/22 rounded-sm text-ivory-100 font-garamond focus:border-gold-400/60 focus:outline-none resize-none" placeholder="Издания, сайтове или организации, за които сте писали…"></textarea>
+                <span asp-validation-for="PastEmployers" class="text-burgundy-200 text-xs font-garamond italic mt-1"></span>
             </div>
 
-            <!-- Review Links (Dynamic) -->
             <div>
-                <label class="block text-sm text-zinc-400 mb-2" style="font-family: 'Outfit', sans-serif;">Links to Past Reviews</label>
+                <label class="block text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-2">Връзки към публикувани отзиви</label>
                 <div id="review-links-container" class="space-y-3">
-                    <div class="flex items-center space-x-2">
-                        <input type="url" name="ReviewLinks[0]" class="block w-full px-4 py-2.5 bg-[#0c0c0e] border border-white/[0.08] rounded-lg text-white text-sm focus:border-[#e11d48]/40 focus:outline-none transition-colors" placeholder="https://example.com/your-review" />
+                    <div class="flex items-center gap-2">
+                        <input type="url" name="ReviewLinks[0]" class="w-full px-4 py-2.5 bg-burgundy-950 border border-gold-500/22 rounded-sm text-ivory-100 font-garamond focus:border-gold-400/60 focus:outline-none" placeholder="https://example.com/моят-отзив" />
                     </div>
                 </div>
-                <button type="button" id="add-review-link" class="mt-3 flex items-center space-x-2 text-[#fb7185] text-sm hover:text-[#e11d48] transition-colors" style="font-family: 'Outfit', sans-serif;">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    <span>Add another link</span>
+                <button type="button" id="add-review-link" class="mt-3 flex items-center gap-2 text-gold-400 hover:text-gold-300 transition-colors text-sm font-garamond italic">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    <span>Добави още линк</span>
                 </button>
             </div>
 
-            <!-- Motivation -->
             <div>
-                <label asp-for="Motivation" class="block text-sm text-zinc-400 mb-2" style="font-family: 'Outfit', sans-serif;"></label>
-                <textarea asp-for="Motivation" rows="4" class="block w-full px-4 py-2.5 bg-[#0c0c0e] border border-white/[0.08] rounded-lg text-white text-sm focus:border-[#e11d48]/40 focus:outline-none transition-colors resize-none" placeholder="Why do you want to become a verified critic on AryTickets?"></textarea>
-                <span asp-validation-for="Motivation" class="text-red-400 text-xs mt-1"></span>
+                <label class="block text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-2">Мотивация</label>
+                <textarea asp-for="Motivation" rows="4" class="w-full px-4 py-2.5 bg-burgundy-950 border border-gold-500/22 rounded-sm text-ivory-100 font-garamond focus:border-gold-400/60 focus:outline-none resize-none" placeholder="Защо искате да станете сертифициран критик в AryTix?"></textarea>
+                <span asp-validation-for="Motivation" class="text-burgundy-200 text-xs font-garamond italic mt-1"></span>
             </div>
 
-            <!-- Submit -->
             <div class="flex justify-end pt-2">
-                <button type="submit" class="px-6 py-2.5 bg-[#e11d48] text-white text-sm font-medium tracking-wide rounded-lg hover:bg-[#be123c] transition-all duration-300" style="font-family: 'Outfit', sans-serif;">Submit Application</button>
+                <button type="submit" class="btn-gold">Изпрати заявка</button>
             </div>
         </form>
     </div>
-
 </div>
 
 @section PageScripts {
@@ -80,25 +69,19 @@
             let idx = 1;
             const container = document.getElementById('review-links-container');
             const addBtn = document.getElementById('add-review-link');
-
             addBtn.addEventListener('click', function () {
                 const wrapper = document.createElement('div');
-                wrapper.className = 'flex items-center space-x-2';
-
+                wrapper.className = 'flex items-center gap-2';
                 const input = document.createElement('input');
                 input.type = 'url';
                 input.name = 'ReviewLinks[' + idx + ']';
-                input.className = 'block w-full px-4 py-2.5 bg-[#0c0c0e] border border-white/[0.08] rounded-lg text-white text-sm focus:border-[#e11d48]/40 focus:outline-none transition-colors';
-                input.placeholder = 'https://example.com/your-review';
-
+                input.className = 'w-full px-4 py-2.5 bg-burgundy-950 border border-gold-500/22 rounded-sm text-ivory-100 font-garamond focus:border-gold-400/60 focus:outline-none';
+                input.placeholder = 'https://example.com/моят-отзив';
                 const removeBtn = document.createElement('button');
                 removeBtn.type = 'button';
-                removeBtn.className = 'flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors';
+                removeBtn.className = 'flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-sm bg-burgundy-500/15 text-burgundy-200 hover:bg-burgundy-500/30 transition-colors';
                 removeBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>';
-                removeBtn.addEventListener('click', function () {
-                    wrapper.remove();
-                });
-
+                removeBtn.addEventListener('click', function () { wrapper.remove(); });
                 wrapper.appendChild(input);
                 wrapper.appendChild(removeBtn);
                 container.appendChild(wrapper);

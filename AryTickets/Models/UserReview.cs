@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AryTickets.Models
 {
@@ -13,8 +14,12 @@ namespace AryTickets.Models
         public bool IsCritic { get; set; }
 
         [Required]
-        public int MovieId { get; set; }
-        public string MovieTitle { get; set; }
+        public int ProductionId { get; set; }
+
+        [ForeignKey("ProductionId")]
+        public Production Production { get; set; }
+
+        public string ProductionTitle { get; set; }
 
         [Range(1, 10)]
         public int Rating { get; set; }

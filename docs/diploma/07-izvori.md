@@ -44,8 +44,8 @@
 
 22. SQLite Consortium (2024). *SQLite Documentation*. https://www.sqlite.org/docs.html
 
-23. The Movie Database (2024). *TMDb API Documentation — Getting Started*. https://developer.themoviedb.org/docs/getting-started
+23. Народен театър „Иван Вазов" (2024). *Репертоар и история*. https://nationaltheatre.bg/
 
-24. The Movie Database (2024). *TMDb API Reference — Movies*. https://developer.themoviedb.org/reference/movie-now-playing-list
+24. Театър „Българска армия" (2024). *Афишна програма и онлайн билети*. https://teatarbg.com/
 
-25. The Movie Database (2024). *TMDb API Reference — Search*. https://developer.themoviedb.org/reference/search-movie
+25. TodayTix Group (2024). *TodayTix — How it works*. https://www.todaytix.com/

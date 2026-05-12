@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AryTickets.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260503120105_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260512202505_InitialTheaterSchema")]
+    partial class InitialTheaterSchema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -117,7 +117,14 @@ namespace AryTickets.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("MovieTitle")
+                    b.Property<string>("PerformanceDateTime")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("PerformanceId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ProductionTitle")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -125,12 +132,9 @@ namespace AryTickets.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Showtime")
+                    b.Property<string>("Stage")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("ShowtimeId")
-                        .HasColumnType("int");
 
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("decimal(18,2)");
@@ -203,6 +207,122 @@ namespace AryTickets.Migrations
                     b.ToTable("CriticApplications");
                 });
 
+            modelBuilder.Entity("AryTickets.Models.Performance", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ProductionId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("ShowDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Stage")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("TotalSeats")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductionId");
+
+                    b.ToTable("Performances");
+                });
+
+            modelBuilder.Entity("AryTickets.Models.Production", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BackdropUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Cast")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Director")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("DurationMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Genre")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Playwright")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("PosterUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("PremiereDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<double>("Rating")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Synopsis")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("TitleOriginal")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("TrailerUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Productions");
+                });
+
             modelBuilder.Entity("AryTickets.Models.SeatReservation", b =>
                 {
                     b.Property<int>("Id")
@@ -214,64 +334,21 @@ namespace AryTickets.Migrations
                     b.Property<int>("BookingId")
                         .HasColumnType("int");
 
+                    b.Property<int>("PerformanceId")
+                        .HasColumnType("int");
+
                     b.Property<string>("SeatNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("ShowtimeId")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("BookingId");
 
-                    b.HasIndex("ShowtimeId", "SeatNumber")
+                    b.HasIndex("PerformanceId", "SeatNumber")
                         .IsUnique();
 
                     b.ToTable("SeatReservations");
-                });
-
-            modelBuilder.Entity("AryTickets.Models.Showtime", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Hall")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("MovieTitle")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PosterPath")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("ShowDateTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("TmdbMovieId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TotalSeats")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Showtimes");
                 });
 
             modelBuilder.Entity("AryTickets.Models.UserFavorite", b =>
@@ -282,14 +359,14 @@ namespace AryTickets.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("MovieId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("MovieTitle")
+                    b.Property<string>("PosterUrl")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PosterPath")
+                    b.Property<int>("ProductionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ProductionTitle")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -298,6 +375,8 @@ namespace AryTickets.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ProductionId");
 
                     b.ToTable("UserFavorites");
                 });
@@ -321,10 +400,10 @@ namespace AryTickets.Migrations
                     b.Property<bool>("IsCritic")
                         .HasColumnType("bit");
 
-                    b.Property<int>("MovieId")
+                    b.Property<int>("ProductionId")
                         .HasColumnType("int");
 
-                    b.Property<string>("MovieTitle")
+                    b.Property<string>("ProductionTitle")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -340,6 +419,8 @@ namespace AryTickets.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ProductionId");
 
                     b.ToTable("UserReviews");
                 });
@@ -492,6 +573,17 @@ namespace AryTickets.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("AryTickets.Models.Performance", b =>
+                {
+                    b.HasOne("AryTickets.Models.Production", "Production")
+                        .WithMany()
+                        .HasForeignKey("ProductionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Production");
+                });
+
             modelBuilder.Entity("AryTickets.Models.SeatReservation", b =>
                 {
                     b.HasOne("AryTickets.Models.Booking", "Booking")
@@ -500,15 +592,37 @@ namespace AryTickets.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("AryTickets.Models.Showtime", "Showtime")
+                    b.HasOne("AryTickets.Models.Performance", "Performance")
                         .WithMany()
-                        .HasForeignKey("ShowtimeId")
+                        .HasForeignKey("PerformanceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Booking");
 
-                    b.Navigation("Showtime");
+                    b.Navigation("Performance");
+                });
+
+            modelBuilder.Entity("AryTickets.Models.UserFavorite", b =>
+                {
+                    b.HasOne("AryTickets.Models.Production", "Production")
+                        .WithMany()
+                        .HasForeignKey("ProductionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Production");
+                });
+
+            modelBuilder.Entity("AryTickets.Models.UserReview", b =>
+                {
+                    b.HasOne("AryTickets.Models.Production", "Production")
+                        .WithMany()
+                        .HasForeignKey("ProductionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Production");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

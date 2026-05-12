@@ -1,27 +1,27 @@
-﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace AryTickets.Models
 {
     public class CheckoutViewModel
     {
-        public string MovieTitle { get; set; }
-        public string Showtime { get; set; }
+        public string ProductionTitle { get; set; }
+        public string PerformanceDateTime { get; set; }
+        public string Stage { get; set; }
         public string SelectedSeats { get; set; }
         public decimal TotalPrice { get; set; }
-        public int? ShowtimeId { get; set; }
+        public int? PerformanceId { get; set; }
 
         [Required]
-        [Display(Name = "Name on Card")]
+        [Display(Name = "Име на картодържателя")]
         public string CardHolderName { get; set; }
 
         [Required]
-        [Display(Name = "Card Number")]
+        [Display(Name = "Номер на карта")]
         public string CardNumber { get; set; }
 
         [Required]
-        [RegularExpression(@"^(0[1-9]|1[0-2])\/?([0-9]{2})$", ErrorMessage = "Expiry date must be in MM/YY format.")]
-        [Display(Name = "Expiry Date (MM/YY)")]
+        [RegularExpression(@"^(0[1-9]|1[0-2])\/?([0-9]{2})$", ErrorMessage = "Срокът трябва да е във формат MM/ГГ.")]
+        [Display(Name = "Срок (MM/ГГ)")]
         public string ExpiryDate { get; set; }
 
         [Required]

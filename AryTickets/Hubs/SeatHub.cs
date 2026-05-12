@@ -4,14 +4,14 @@ namespace AryTickets.Hubs
 {
     public class SeatHub : Hub
     {
-        public async Task JoinShowtime(int showtimeId)
+        public async Task JoinPerformance(int performanceId)
         {
-            await Groups.AddToGroupAsync(Context.ConnectionId, $"showtime-{showtimeId}");
+            await Groups.AddToGroupAsync(Context.ConnectionId, $"performance-{performanceId}");
         }
 
-        public async Task LeaveShowtime(int showtimeId)
+        public async Task LeavePerformance(int performanceId)
         {
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"showtime-{showtimeId}");
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"performance-{performanceId}");
         }
     }
 }
