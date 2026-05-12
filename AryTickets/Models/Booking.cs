@@ -8,20 +8,20 @@ namespace AryTickets.Models
         public int Id { get; set; }
 
         [Required]
-        public string UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
 
-        public string UserEmail { get; set; }
-        public string UserName { get; set; }
+        public string UserEmail { get; set; } = string.Empty;
+        public string UserName { get; set; } = string.Empty;
 
         [Required]
-        public string ProductionTitle { get; set; }
+        public string ProductionTitle { get; set; } = string.Empty;
 
-        public string PerformanceDateTime { get; set; }
-        public string Stage { get; set; }
-        public string Seats { get; set; }
+        public string PerformanceDateTime { get; set; } = string.Empty;
+        public string Stage { get; set; } = string.Empty;
+        public string Seats { get; set; } = string.Empty;
         public decimal TotalPrice { get; set; }
         public DateTime BookedAt { get; set; } = DateTime.UtcNow;
-        public string ConfirmationCode { get; set; }
+        public string ConfirmationCode { get; set; } = string.Empty;
 
         public int? PerformanceId { get; set; }
 

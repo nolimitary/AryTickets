@@ -9,37 +9,37 @@ namespace AryTickets.Models
 
         [Required]
         [MaxLength(200)]
-        public string Title { get; set; }
+        public string Title { get; set; } = string.Empty;
 
         [MaxLength(200)]
-        public string TitleOriginal { get; set; }
+        public string TitleOriginal { get; set; } = string.Empty;
 
         [Required]
         [MaxLength(4000)]
-        public string Synopsis { get; set; }
+        public string Synopsis { get; set; } = string.Empty;
 
         [MaxLength(200)]
-        public string Playwright { get; set; }
+        public string Playwright { get; set; } = string.Empty;
 
         [MaxLength(200)]
-        public string Director { get; set; }
+        public string Director { get; set; } = string.Empty;
 
         [MaxLength(1000)]
-        public string Cast { get; set; }
+        public string Cast { get; set; } = string.Empty;
 
         [MaxLength(60)]
-        public string Genre { get; set; }
+        public string Genre { get; set; } = string.Empty;
 
         public int DurationMinutes { get; set; }
 
         [MaxLength(500)]
-        public string PosterUrl { get; set; }
+        public string PosterUrl { get; set; } = string.Empty;
 
         [MaxLength(500)]
-        public string BackdropUrl { get; set; }
+        public string BackdropUrl { get; set; } = string.Empty;
 
         [MaxLength(500)]
-        public string TrailerUrl { get; set; }
+        public string TrailerUrl { get; set; } = string.Empty;
 
         public DateTime PremiereDate { get; set; } = DateTime.UtcNow;
 
