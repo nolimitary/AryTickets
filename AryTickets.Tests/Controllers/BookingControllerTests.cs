@@ -137,7 +137,7 @@ namespace AryTickets.Tests.Controllers
             var model = Assert.IsType<SeatSelectionViewModel>(view.Model);
             Assert.Equal(perf.Id, model.PerformanceId);
             Assert.Equal("Хамлет", model.ProductionTitle);
-            Assert.NotEmpty(model.Seats);
+            Assert.NotEmpty(model.SeatingChart);
         }
 
         [Fact]
@@ -147,7 +147,7 @@ namespace AryTickets.Tests.Controllers
             _db.SeatReservations.Add(new SeatReservation
             {
                 PerformanceId = perf.Id,
-                SeatNumber = "R1"
+                SeatNumber = "A1"
             });
             await _db.SaveChangesAsync();
 
@@ -155,8 +155,9 @@ namespace AryTickets.Tests.Controllers
             var view = (ViewResult)await controller.SelectSeats(perf.Id);
             var model = (SeatSelectionViewModel)view.Model!;
 
-            var r1 = model.Seats.First(s => s.SeatNumber == "R1");
-            Assert.Equal(SeatStatus.Taken, r1.Status);
+            var allSeats = model.SeatingChart.SelectMany(r => r).Where(s => s != null);
+            var a1 = allSeats.First(s => s.SeatNumber == "A1");
+            Assert.Equal(SeatStatus.Taken, a1.Status);
         }
 
         // ═══ Checkout ═══
