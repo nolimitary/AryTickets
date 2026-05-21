@@ -314,6 +314,51 @@ namespace AryTickets.Controllers
             }
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CancelBooking(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Forbid();
+
+            var booking = await _db.Bookings.FirstOrDefaultAsync(b => b.Id == id && b.UserId == user.Id);
+            if (booking == null)
+            {
+                TempData["ErrorMessage"] = "Booking not found.";
+                return RedirectToAction("BookingHistory", "Profile");
+            }
+
+            // Guard against cancelling shows that already happened or are within the
+            // 2-hour box-office cutoff.
+            if (booking.PerformanceId.HasValue)
+            {
+                var perf = await _db.Performances.FirstOrDefaultAsync(p => p.Id == booking.PerformanceId.Value);
+                if (perf == null || perf.ShowDateTime <= System.DateTime.UtcNow.AddHours(2))
+                {
+                    TempData["ErrorMessage"] = "This booking can no longer be cancelled — the show is past or too close.";
+                    return RedirectToAction("BookingHistory", "Profile");
+                }
+            }
+
+            // Release seat reservations and broadcast so live seat-pickers refresh.
+            var reservations = await _db.SeatReservations
+                .Where(r => r.BookingId == booking.Id)
+                .ToListAsync();
+            var releasedSeats = reservations.Select(r => r.SeatNumber).ToArray();
+            _db.SeatReservations.RemoveRange(reservations);
+            _db.Bookings.Remove(booking);
+            await _db.SaveChangesAsync();
+
+            if (booking.PerformanceId.HasValue && releasedSeats.Length > 0)
+            {
+                await _seatHub.Clients.Group($"performance-{booking.PerformanceId.Value}")
+                    .SendAsync("SeatsReleased", releasedSeats);
+            }
+
+            TempData["SuccessMessage"] = $"Booking cancelled. Seats {string.Join(", ", releasedSeats)} have been released.";
+            return RedirectToAction("BookingHistory", "Profile");
+        }
+
         private string BuildTicketEmail(CheckoutViewModel model, string username, string confirmCode)
         {
             var sb = new StringBuilder();

@@ -172,9 +172,9 @@ namespace AryTickets.Tests.Controllers
 
             var controller = CreateController();
             var view = Assert.IsType<ViewResult>(await controller.BookingHistory());
-            var list = Assert.IsAssignableFrom<List<Booking>>(view.Model);
+            var list = Assert.IsAssignableFrom<List<BookingHistoryItem>>(view.Model);
             Assert.Single(list);
-            Assert.Equal("Mine", list[0].ProductionTitle);
+            Assert.Equal("Mine", list[0].Booking.ProductionTitle);
         }
 
         [Fact]

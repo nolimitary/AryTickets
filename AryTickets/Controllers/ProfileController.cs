@@ -148,7 +148,23 @@ namespace AryTickets.Controllers
                 .Where(b => b.UserId == userId)
                 .OrderByDescending(b => b.BookedAt)
                 .ToListAsync();
-            return View(bookings);
+
+            // Resolve each booking's real ShowDateTime from the linked Performance
+            // row so the view can decide IsPast / CanCancel without parsing strings.
+            var perfIds = bookings.Where(b => b.PerformanceId.HasValue)
+                .Select(b => b.PerformanceId!.Value).Distinct().ToList();
+            var perfTimes = await _context.Performances
+                .Where(p => perfIds.Contains(p.Id))
+                .Select(p => new { p.Id, p.ShowDateTime })
+                .ToDictionaryAsync(p => p.Id, p => p.ShowDateTime);
+
+            var items = bookings.Select(b => new BookingHistoryItem
+            {
+                Booking = b,
+                ShowDateTime = b.PerformanceId.HasValue && perfTimes.TryGetValue(b.PerformanceId.Value, out var dt)
+                    ? dt : (DateTime?)null
+            }).ToList();
+            return View(items);
         }
 
         public async Task<IActionResult> Reviews()
