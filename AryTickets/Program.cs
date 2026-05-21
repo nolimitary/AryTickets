@@ -57,6 +57,21 @@ builder.Services.AddSession(options =>
 builder.Services.AddTransient<IEmailSender, ResendEmailSender>();
 builder.Services.AddTransient<TicketPdfGenerator>();
 QuestPDF.Settings.License = LicenseType.Community;
+
+// Stripe — env vars take precedence over appsettings so secrets stay out of source.
+var stripeSecret = Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY")
+    ?? builder.Configuration["Stripe:SecretKey"];
+var stripePublishable = Environment.GetEnvironmentVariable("STRIPE_PUBLISHABLE_KEY")
+    ?? builder.Configuration["Stripe:PublishableKey"];
+if (!string.IsNullOrWhiteSpace(stripeSecret))
+{
+    Stripe.StripeConfiguration.ApiKey = stripeSecret;
+}
+builder.Services.AddSingleton(new AryTickets.Services.StripeSettings
+{
+    SecretKey = stripeSecret ?? string.Empty,
+    PublishableKey = stripePublishable ?? string.Empty,
+});
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient();
 

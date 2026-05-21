@@ -4,29 +4,27 @@ namespace AryTickets.Models
 {
     public class CheckoutViewModel
     {
-        public string ProductionTitle { get; set; }
-        public string PerformanceDateTime { get; set; }
-        public string Stage { get; set; }
-        public string SelectedSeats { get; set; }
+        public string ProductionTitle { get; set; } = string.Empty;
+        public string PerformanceDateTime { get; set; } = string.Empty;
+        public string Stage { get; set; } = string.Empty;
+        public string SelectedSeats { get; set; } = string.Empty;
         public decimal TotalPrice { get; set; }
         public int? PerformanceId { get; set; }
 
-        [Required]
         [Display(Name = "Име на картодържателя")]
-        public string CardHolderName { get; set; }
+        public string? CardHolderName { get; set; }
 
-        [Required]
+        // Card fields are only populated for the simulated (no-Stripe) fallback flow.
         [Display(Name = "Номер на карта")]
-        public string CardNumber { get; set; }
+        public string? CardNumber { get; set; }
 
-        [Required]
-        [RegularExpression(@"^(0[1-9]|1[0-2])\/?([0-9]{2})$", ErrorMessage = "Срокът трябва да е във формат MM/ГГ.")]
         [Display(Name = "Срок (MM/ГГ)")]
-        public string ExpiryDate { get; set; }
+        public string? ExpiryDate { get; set; }
 
-        [Required]
-        [StringLength(4, MinimumLength = 3)]
         [Display(Name = "CVC")]
-        public string Cvc { get; set; }
+        public string? Cvc { get; set; }
+
+        // Populated by Stripe.js after a successful client-side PaymentIntent confirmation.
+        public string? StripePaymentIntentId { get; set; }
     }
 }

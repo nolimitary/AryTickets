@@ -21,14 +21,16 @@ namespace AryTickets.Controllers
         private readonly Data.ApplicationDbContext _db;
         private readonly TicketPdfGenerator _pdfGenerator;
         private readonly IHubContext<SeatHub> _seatHub;
+        private readonly StripeSettings _stripeSettings;
 
-        public BookingController(IEmailSender emailSender, UserManager<ApplicationUser> userManager, Data.ApplicationDbContext db, TicketPdfGenerator pdfGenerator, IHubContext<SeatHub> seatHub)
+        public BookingController(IEmailSender emailSender, UserManager<ApplicationUser> userManager, Data.ApplicationDbContext db, TicketPdfGenerator pdfGenerator, IHubContext<SeatHub> seatHub, StripeSettings stripeSettings)
         {
             _emailSender = emailSender;
             _userManager = userManager;
             _db = db;
             _pdfGenerator = pdfGenerator;
             _seatHub = seatHub;
+            _stripeSettings = stripeSettings;
         }
 
         public async Task<IActionResult> SelectSeats(int? performanceId)
@@ -71,14 +73,85 @@ namespace AryTickets.Controllers
         {
             var viewModel = new CheckoutViewModel
             {
-                ProductionTitle = productionTitle,
-                PerformanceDateTime = performanceDateTime,
-                Stage = stage,
-                SelectedSeats = selectedSeats,
+                ProductionTitle = productionTitle ?? string.Empty,
+                PerformanceDateTime = performanceDateTime ?? string.Empty,
+                Stage = stage ?? string.Empty,
+                SelectedSeats = selectedSeats ?? string.Empty,
                 TotalPrice = totalPrice,
                 PerformanceId = performanceId
             };
+            ViewData["StripeEnabled"] = _stripeSettings.IsConfigured;
+            ViewData["StripePublishableKey"] = _stripeSettings.PublishableKey;
             return View(viewModel);
+        }
+
+        // Returns the Stripe publishable key to the browser so the Checkout view can
+        // initialise Stripe Elements without ever exposing the secret key.
+        [HttpGet]
+        public IActionResult StripeConfig()
+        {
+            return Json(new
+            {
+                publishableKey = _stripeSettings.PublishableKey,
+                configured = _stripeSettings.IsConfigured
+            });
+        }
+
+        // Creates a Stripe PaymentIntent for the requested amount. The client confirms
+        // it with the card data via Stripe.js; raw card data never reaches our server.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreatePaymentIntent([FromForm] decimal amount, [FromForm] int? performanceId, [FromForm] string? selectedSeats)
+        {
+            if (!_stripeSettings.IsConfigured)
+                return BadRequest(new { message = "Stripe не е конфигуриран." });
+
+            if (amount <= 0)
+                return BadRequest(new { message = "Невалидна сума." });
+
+            // Re-check seat availability before charging the customer.
+            if (performanceId.HasValue && !string.IsNullOrEmpty(selectedSeats))
+            {
+                var seatNumbers = selectedSeats
+                    .Split(',', System.StringSplitOptions.RemoveEmptyEntries)
+                    .Select(s => s.Trim())
+                    .ToArray();
+
+                var alreadyTaken = await _db.SeatReservations
+                    .Where(r => r.PerformanceId == performanceId.Value && seatNumbers.Contains(r.SeatNumber))
+                    .Select(r => r.SeatNumber)
+                    .ToListAsync();
+
+                if (alreadyTaken.Any())
+                    return Conflict(new { message = $"Места вече са заети: {string.Join(", ", alreadyTaken)}", takenSeats = alreadyTaken });
+            }
+
+            try
+            {
+                var service = new Stripe.PaymentIntentService();
+                var intent = await service.CreateAsync(new Stripe.PaymentIntentCreateOptions
+                {
+                    // Stripe wants the amount in the smallest currency unit (stotinki for BGN).
+                    Amount = (long)(amount * 100m),
+                    Currency = "bgn",
+                    AutomaticPaymentMethods = new Stripe.PaymentIntentAutomaticPaymentMethodsOptions
+                    {
+                        Enabled = true,
+                        AllowRedirects = "never"
+                    },
+                    Metadata = new Dictionary<string, string>
+                    {
+                        ["performanceId"] = performanceId?.ToString() ?? string.Empty,
+                        ["seats"] = selectedSeats ?? string.Empty
+                    }
+                });
+
+                return Json(new { clientSecret = intent.ClientSecret, paymentIntentId = intent.Id });
+            }
+            catch (Stripe.StripeException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpPost]
@@ -88,15 +161,46 @@ namespace AryTickets.Controllers
             if (model.CardNumber != null)
                 model.CardNumber = model.CardNumber.Replace(" ", "");
 
-            ModelState.Clear();
-            TryValidateModel(model);
-
-            if (!ModelState.IsValid)
+            // Stripe path: trust the PaymentIntent status, ignore card-form fields.
+            // Simulated path: validate the dummy card form like before.
+            if (_stripeSettings.IsConfigured && !string.IsNullOrWhiteSpace(model.StripePaymentIntentId))
             {
-                return BadRequest("Невалидни данни за плащане.");
-            }
+                try
+                {
+                    var intentService = new Stripe.PaymentIntentService();
+                    var intent = await intentService.GetAsync(model.StripePaymentIntentId);
 
-            await Task.Delay(2500);
+                    if (intent == null || intent.Status != "succeeded")
+                        return Json(new { success = false, message = "Плащането не е потвърдено от Stripe." });
+
+                    var expectedAmount = (long)(model.TotalPrice * 100m);
+                    if (intent.Amount != expectedAmount)
+                        return Json(new { success = false, message = "Сумата не съответства на потвърденото плащане." });
+                }
+                catch (Stripe.StripeException ex)
+                {
+                    return Json(new { success = false, message = "Stripe грешка: " + ex.Message });
+                }
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(model.CardHolderName)
+                    || string.IsNullOrWhiteSpace(model.CardNumber)
+                    || string.IsNullOrWhiteSpace(model.ExpiryDate)
+                    || string.IsNullOrWhiteSpace(model.Cvc))
+                {
+                    return BadRequest("Невалидни данни за плащане.");
+                }
+
+                if (!System.Text.RegularExpressions.Regex.IsMatch(model.ExpiryDate, @"^(0[1-9]|1[0-2])\/?([0-9]{2})$"))
+                    return BadRequest("Невалиден срок на картата.");
+
+                if (model.Cvc.Length < 3 || model.Cvc.Length > 4)
+                    return BadRequest("Невалиден CVC.");
+
+                // Simulated processing latency for the fallback flow.
+                await Task.Delay(2500);
+            }
 
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
