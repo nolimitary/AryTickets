@@ -3,7 +3,7 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 <!DOCTYPE html>
-<html lang="bg">
+<html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -272,15 +272,15 @@
             <a asp-area="" asp-controller="Home" asp-action="Index" class="flex items-baseline gap-1 group">
                 <span class="font-serif text-[26px] font-semibold text-ivory-200 tracking-wider">Ary</span>
                 <span class="font-serif text-[26px] font-light italic text-gold-400 tracking-wider">Tix</span>
-                <span class="hidden sm:inline-block ml-2 text-[10px] font-sans tracking-[0.3em] text-gold-500 uppercase mt-2">Театър</span>
+                <span class="hidden sm:inline-block ml-2 text-[10px] font-sans tracking-[0.3em] text-gold-500 uppercase mt-2">Theatre</span>
             </a>
 
             <div class="hidden md:flex items-center gap-10">
-                <a asp-area="" asp-controller="Home" asp-action="Index" class="text-[13px] font-sans tracking-wider uppercase text-ivory-200/70 hover:text-gold-400 transition-colors">Начало</a>
-                <a href="/#repertoar" class="text-[13px] font-sans tracking-wider uppercase text-ivory-200/70 hover:text-gold-400 transition-colors">Репертоар</a>
-                <a href="/#premieri" class="text-[13px] font-sans tracking-wider uppercase text-ivory-200/70 hover:text-gold-400 transition-colors">Премиери</a>
+                <a asp-area="" asp-controller="Home" asp-action="Index" class="text-[13px] font-sans tracking-wider uppercase text-ivory-200/70 hover:text-gold-400 transition-colors">Home</a>
+                <a href="/#repertoar" class="text-[13px] font-sans tracking-wider uppercase text-ivory-200/70 hover:text-gold-400 transition-colors">Repertoire</a>
+                <a href="/#premieri" class="text-[13px] font-sans tracking-wider uppercase text-ivory-200/70 hover:text-gold-400 transition-colors">Premieres</a>
                 <form asp-controller="Production" asp-action="Search" method="get" class="relative hidden md:block">
-                    <input type="text" name="query" placeholder="Търсене на пиеса…"
+                    <input type="text" name="query" placeholder="Search productions…"
                            class="bg-burgundy-900/60 border border-gold-500/20 text-ivory-200 text-[13px] font-sans rounded-sm pl-9 pr-4 py-2 w-48 focus:w-64 transition-all focus:border-gold-400/60 focus:outline-none placeholder-ivory-400/40" />
                     <svg class="w-4 h-4 text-gold-500/60 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
                 </form>
@@ -295,16 +295,16 @@
                         </button>
                         <div id="userDropdownMenu" class="dd-panel absolute right-0 mt-3 w-56 bg-burgundy-950 border border-gold-500/20 rounded-sm shadow-2xl overflow-hidden">
                             <div class="px-4 py-3 border-b border-gold-500/15">
-                                <p class="text-[10px] uppercase tracking-widest text-gold-500/80 mb-1 font-sans">В системата</p>
+                                <p class="text-[10px] uppercase tracking-widest text-gold-500/80 mb-1 font-sans">Signed in</p>
                                 <p class="text-sm font-serif text-ivory-200 truncate">@User.Identity?.Name</p>
                             </div>
-                            <a asp-controller="Profile" asp-action="Index" class="block px-4 py-3 text-sm font-serif text-ivory-200/80 hover:text-gold-400 hover:bg-burgundy-800/40 transition-all">Моят профил</a>
+                            <a asp-controller="Profile" asp-action="Index" class="block px-4 py-3 text-sm font-serif text-ivory-200/80 hover:text-gold-400 hover:bg-burgundy-800/40 transition-all">My profile</a>
                             @if (User.IsInRole("Admin"))
                             {
-                                <a asp-controller="Admin" asp-action="Index" class="block px-4 py-3 text-sm font-serif text-gold-400 hover:text-gold-300 hover:bg-burgundy-800/40 transition-all">Администрация</a>
+                                <a asp-controller="Admin" asp-action="Index" class="block px-4 py-3 text-sm font-serif text-gold-400 hover:text-gold-300 hover:bg-burgundy-800/40 transition-all">Admin</a>
                             }
                             <form class="w-full" asp-area="" asp-controller="Account" asp-action="Logout" method="post">
-                                <button type="submit" class="w-full text-left px-4 py-3 text-sm font-serif text-ivory-200/80 hover:text-gold-400 hover:bg-burgundy-800/40 transition-all">Изход</button>
+                                <button type="submit" class="w-full text-left px-4 py-3 text-sm font-serif text-ivory-200/80 hover:text-gold-400 hover:bg-burgundy-800/40 transition-all">Sign out</button>
                             </form>
                         </div>
                     </div>
@@ -312,7 +312,7 @@
                 else
                 {
                     <a asp-controller="Account" asp-action="Login" class="btn-gold">
-                        Вход
+                        Sign in
                     </a>
                 }
             </div>
@@ -332,23 +332,23 @@
                         <span class="font-serif text-2xl font-light italic text-gold-400">Tix</span>
                     </div>
                     <p class="text-[15px] text-ivory-300/70 leading-relaxed max-w-xs font-garamond">
-                        Място, където класическата сцена среща съвременния зрител. Резервирайте своя билет за следващата вечер с театър.
+                        Where the classical stage meets the modern audience. Reserve your ticket for an unforgettable evening at the theatre.
                     </p>
                 </div>
                 <div class="flex flex-col gap-2.5">
-                    <span class="text-[10px] font-sans text-gold-500/80 uppercase tracking-[0.25em] mb-1">Навигация</span>
-                    <a asp-area="" asp-controller="Home" asp-action="Index" class="text-[15px] font-garamond text-ivory-300/70 hover:text-gold-400 transition-colors">Начало</a>
-                    <a href="/#repertoar" class="text-[15px] font-garamond text-ivory-300/70 hover:text-gold-400 transition-colors">Репертоар</a>
-                    <a href="/#premieri" class="text-[15px] font-garamond text-ivory-300/70 hover:text-gold-400 transition-colors">Премиери</a>
+                    <span class="text-[10px] font-sans text-gold-500/80 uppercase tracking-[0.25em] mb-1">Navigation</span>
+                    <a asp-area="" asp-controller="Home" asp-action="Index" class="text-[15px] font-garamond text-ivory-300/70 hover:text-gold-400 transition-colors">Home</a>
+                    <a href="/#repertoar" class="text-[15px] font-garamond text-ivory-300/70 hover:text-gold-400 transition-colors">Repertoire</a>
+                    <a href="/#premieri" class="text-[15px] font-garamond text-ivory-300/70 hover:text-gold-400 transition-colors">Premieres</a>
                 </div>
                 <div class="flex flex-col gap-2.5">
-                    <span class="text-[10px] font-sans text-gold-500/80 uppercase tracking-[0.25em] mb-1">Информация</span>
-                    <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-[15px] font-garamond text-ivory-300/70 hover:text-gold-400 transition-colors">Политика за поверителност</a>
-                    <a href="#" class="text-[15px] font-garamond text-ivory-300/70 hover:text-gold-400 transition-colors">Общи условия</a>
+                    <span class="text-[10px] font-sans text-gold-500/80 uppercase tracking-[0.25em] mb-1">Information</span>
+                    <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-[15px] font-garamond text-ivory-300/70 hover:text-gold-400 transition-colors">Privacy policy</a>
+                    <a href="#" class="text-[15px] font-garamond text-ivory-300/70 hover:text-gold-400 transition-colors">Terms of service</a>
                 </div>
             </div>
             <div class="mt-12 pt-6 border-t border-gold-500/15 text-center">
-                <p class="text-[12px] font-sans text-gold-500/60 tracking-widest uppercase">&copy; @DateTime.Now.Year · AryTix · Театрална сцена</p>
+                <p class="text-[12px] font-sans text-gold-500/60 tracking-widest uppercase">&copy; @DateTime.Now.Year · AryTix · Theatrical stage</p>
             </div>
         </div>
     </footer>

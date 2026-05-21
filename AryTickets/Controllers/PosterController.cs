@@ -11,7 +11,7 @@ namespace AryTickets.Controllers
     {
         [HttpGet("poster")]
         [ResponseCache(Duration = 60 * 60 * 24 * 14, Location = ResponseCacheLocation.Any)]
-        public IActionResult Poster(string title = "Без заглавие", string? playwright = null, string? genre = null)
+        public IActionResult Poster(string title = "Untitled", string? playwright = null, string? genre = null)
         {
             var svg = BuildPosterSvg(title, playwright, genre);
             return Content(svg, "image/svg+xml");
@@ -19,7 +19,7 @@ namespace AryTickets.Controllers
 
         [HttpGet("backdrop")]
         [ResponseCache(Duration = 60 * 60 * 24 * 14, Location = ResponseCacheLocation.Any)]
-        public IActionResult Backdrop(string title = "Без заглавие", string? playwright = null)
+        public IActionResult Backdrop(string title = "Untitled", string? playwright = null)
         {
             var svg = BuildBackdropSvg(title, playwright);
             return Content(svg, "image/svg+xml");
@@ -65,7 +65,7 @@ namespace AryTickets.Controllers
             sb.Append("</g>");
 
             sb.Append("<line x1='180' y1='180' x2='420' y2='180' stroke='url(#goldFade)' stroke-width='1'/>");
-            sb.Append("<text x='300' y='208' text-anchor='middle' fill='#d4af37' font-family=\"Inter, sans-serif\" font-size='12' letter-spacing='6'>ARYTIX · СЦЕНА</text>");
+            sb.Append("<text x='300' y='208' text-anchor='middle' fill='#d4af37' font-family=\"Inter, sans-serif\" font-size='12' letter-spacing='6'>ARYTIX · STAGE</text>");
 
             // Title — wrapped, large serif.
             var startY = titleLines.Count switch { 1 => 470, 2 => 420, 3 => 380, _ => 350 };
