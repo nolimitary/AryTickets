@@ -151,6 +151,43 @@ using (var scope = app.Services.CreateScope())
         await userManager.AddToRoleAsync(adminUser, "Admin");
     }
 
+    // One-shot legacy cleanup: the seed was originally in Bulgarian; once it switched
+    // to English the old rows were never removed (the seed only adds new titles, never
+    // replaces). Wipe any production whose title matches the old Bulgarian list, plus
+    // its dependent performances, seat reservations, favourites and user reviews.
+    {
+        var legacyTitles = new[]
+        {
+            "Хамлет", "Ромео и Жулиета", "Чайка", "Вуйчо Ваньо", "Едип цар",
+            "Майстора и Маргарита", "Чичовци", "Албена", "Балкански синдром",
+            "Три сестри", "Макбет", "Крал Лир", "Отело", "Сън в лятна нощ",
+            "Тартюф", "Дом на куклата", "Чакайки Годо", "Антигона", "Медея",
+            "Стъкленият зверилник", "Майка Кураж и нейните деца", "Под игото",
+            "Криворазбраната цивилизация", "Калигула", "Изкуството"
+        };
+        var legacy = await db.Productions
+            .Where(p => legacyTitles.Contains(p.Title))
+            .ToListAsync();
+        if (legacy.Any())
+        {
+            var legacyIds = legacy.Select(p => p.Id).ToList();
+            var legacyPerfIds = await db.Performances
+                .Where(p => legacyIds.Contains(p.ProductionId))
+                .Select(p => p.Id).ToListAsync();
+
+            db.SeatReservations.RemoveRange(
+                db.SeatReservations.Where(r => legacyPerfIds.Contains(r.PerformanceId)));
+            db.UserFavorites.RemoveRange(
+                db.UserFavorites.Where(f => legacyIds.Contains(f.ProductionId)));
+            db.UserReviews.RemoveRange(
+                db.UserReviews.Where(r => legacyIds.Contains(r.ProductionId)));
+            db.Performances.RemoveRange(
+                db.Performances.Where(p => legacyIds.Contains(p.ProductionId)));
+            db.Productions.RemoveRange(legacy);
+            await db.SaveChangesAsync();
+        }
+    }
+
     // Seed theater repertoire — idempotent: adds any productions whose titles
     // aren't already in the database, and generates upcoming performances for
     // anything that doesn't have at least one future scheduled date.
