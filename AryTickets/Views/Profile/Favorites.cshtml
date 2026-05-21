@@ -1,12 +1,12 @@
 @model IEnumerable<UserFavorite>
 @{
-    ViewData["Title"] = "Любими постановки";
+    ViewData["Title"] = "Favorite productions";
     Layout = "_ProfileLayout";
 }
 
 <div class="p-8 panel">
-    <h3 class="font-serif text-2xl font-semibold mb-2 text-ivory-100">Любими постановки</h3>
-    <p class="font-garamond italic text-ivory-300/70 mb-8">Запазените от Вас пиеси за бъдещи прегледи</p>
+    <h3 class="font-serif text-2xl font-semibold mb-2 text-ivory-100">Favorite productions</h3>
+    <p class="font-garamond italic text-ivory-300/70 mb-8">Productions you've saved for later</p>
 
     @if (Model.Any())
     {
@@ -28,7 +28,7 @@
             <div class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style="background: rgba(212, 175, 55, 0.12); border: 1px solid rgba(212,175,55,0.3);">
                 <svg class="w-8 h-8" fill="none" stroke="#d4af37" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
             </div>
-            <p class="font-garamond italic text-ivory-300/70">Все още не сте запазили постановки.</p>
+            <p class="font-garamond italic text-ivory-300/70">You haven't saved any productions yet.</p>
         </div>
     }
 </div>

@@ -1,6 +1,6 @@
 @model AryTickets.Models.ProfileViewModel
 @{
-    ViewData["Title"] = "Моят профил";
+    ViewData["Title"] = "My profile";
     Layout = "_ProfileLayout";
 }
 
@@ -19,32 +19,32 @@
             <svg class="w-5 h-5 text-gold-400" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
             </svg>
-            <span class="font-serif text-gold-400 italic">Сертифициран критик</span>
+            <span class="font-serif text-gold-400 italic">Certified critic</span>
         </div>
     }
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <div class="panel p-6">
             <p class="stat-number font-serif text-4xl font-semibold text-gold-400" data-target="@Model.TicketCount">0</p>
-            <p class="font-garamond italic text-ivory-300/70 mt-2">Закупени билети</p>
+            <p class="font-garamond italic text-ivory-300/70 mt-2">Tickets booked</p>
         </div>
         <div class="panel p-6">
             <p class="stat-number font-serif text-4xl font-semibold text-gold-400" data-target="@Model.FavoritesCount">0</p>
-            <p class="font-garamond italic text-ivory-300/70 mt-2">Любими постановки</p>
+            <p class="font-garamond italic text-ivory-300/70 mt-2">Favorite productions</p>
         </div>
         <div class="panel p-6">
             <p class="stat-number font-serif text-4xl font-semibold text-gold-400" data-target="@Model.ReviewsCount">0</p>
-            <p class="font-garamond italic text-ivory-300/70 mt-2">Написани отзиви</p>
+            <p class="font-garamond italic text-ivory-300/70 mt-2">Reviews written</p>
         </div>
         <div class="panel p-6">
-            <p class="stat-number font-serif text-4xl font-semibold text-gold-400" data-target="@((int)Model.TotalSpent)" data-suffix=" лв." data-decimals="@Model.TotalSpent.ToString("F2").Split('.')[1]">0.00 лв.</p>
-            <p class="font-garamond italic text-ivory-300/70 mt-2">Общо изразходвани</p>
+            <p class="stat-number font-serif text-4xl font-semibold text-gold-400" data-target="@((int)Model.TotalSpent)" data-suffix=" BGN" data-decimals="@Model.TotalSpent.ToString("F2").Split('.')[1]">0.00 BGN</p>
+            <p class="font-garamond italic text-ivory-300/70 mt-2">Total spent</p>
         </div>
     </div>
 
     <div class="panel p-8">
-        <h3 class="font-serif text-2xl font-semibold text-ivory-100 mb-1">Скорошни резервации</h3>
-        <p class="font-garamond italic text-ivory-300/70 mb-6">Последните Ви посещения</p>
+        <h3 class="font-serif text-2xl font-semibold text-ivory-100 mb-1">Recent bookings</h3>
+        <p class="font-garamond italic text-ivory-300/70 mb-6">Your latest visits</p>
 
         @if (Model.RecentBookings != null && Model.RecentBookings.Count > 0)
         {
@@ -52,11 +52,11 @@
                 <table class="w-full text-left">
                     <thead>
                         <tr class="border-b border-gold-500/20">
-                            <th class="pb-3 text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400">Пиеса</th>
-                            <th class="pb-3 text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400">Представление</th>
-                            <th class="pb-3 text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400">Места</th>
-                            <th class="pb-3 text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400">Сума</th>
-                            <th class="pb-3 text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400">Дата</th>
+                            <th class="pb-3 text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400">Production</th>
+                            <th class="pb-3 text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400">Performance</th>
+                            <th class="pb-3 text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400">Seats</th>
+                            <th class="pb-3 text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400">Total</th>
+                            <th class="pb-3 text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400">Date</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -66,7 +66,7 @@
                                 <td class="py-4 font-serif text-ivory-100">@booking.ProductionTitle</td>
                                 <td class="py-4 font-garamond italic text-ivory-200/80">@booking.PerformanceDateTime</td>
                                 <td class="py-4 font-mono text-sm text-gold-300">@booking.Seats</td>
-                                <td class="py-4 font-serif text-gold-400">@booking.TotalPrice.ToString("F2") лв.</td>
+                                <td class="py-4 font-serif text-gold-400">@booking.TotalPrice.ToString("F2") BGN</td>
                                 <td class="py-4 text-xs text-gold-500/70">@booking.BookedAt.ToString("dd MMM yyyy")</td>
                             </tr>
                         }
@@ -81,19 +81,19 @@
                         <p class="font-serif text-ivory-100 mb-2">@booking.ProductionTitle</p>
                         <div class="grid grid-cols-2 gap-2 text-sm">
                             <div>
-                                <span class="text-[10px] font-sans uppercase tracking-widest text-gold-400">Представление</span>
+                                <span class="text-[10px] font-sans uppercase tracking-widest text-gold-400">Performance</span>
                                 <p class="font-garamond italic text-ivory-200/80">@booking.PerformanceDateTime</p>
                             </div>
                             <div>
-                                <span class="text-[10px] font-sans uppercase tracking-widest text-gold-400">Места</span>
+                                <span class="text-[10px] font-sans uppercase tracking-widest text-gold-400">Seats</span>
                                 <p class="font-mono text-sm text-gold-300">@booking.Seats</p>
                             </div>
                             <div>
-                                <span class="text-[10px] font-sans uppercase tracking-widest text-gold-400">Сума</span>
-                                <p class="font-serif text-gold-400">@booking.TotalPrice.ToString("F2") лв.</p>
+                                <span class="text-[10px] font-sans uppercase tracking-widest text-gold-400">Total</span>
+                                <p class="font-serif text-gold-400">@booking.TotalPrice.ToString("F2") BGN</p>
                             </div>
                             <div>
-                                <span class="text-[10px] font-sans uppercase tracking-widest text-gold-400">Дата</span>
+                                <span class="text-[10px] font-sans uppercase tracking-widest text-gold-400">Date</span>
                                 <p class="font-garamond text-ivory-200/80 text-sm">@booking.BookedAt.ToString("dd MMM yyyy")</p>
                             </div>
                         </div>
@@ -104,7 +104,7 @@
         else
         {
             <div class="text-center py-12">
-                <p class="font-garamond italic text-ivory-300/60">Все още няма резервации</p>
+                <p class="font-garamond italic text-ivory-300/60">No bookings yet</p>
             </div>
         }
     </div>
@@ -119,11 +119,11 @@
                     </svg>
                 </div>
                 <div class="flex-1">
-                    <h3 class="font-serif text-xl font-semibold text-ivory-100 mb-2">Кандидатствайте за критик</h3>
+                    <h3 class="font-serif text-xl font-semibold text-ivory-100 mb-2">Apply to become a critic</h3>
                     <p class="font-garamond text-ivory-200/80 mb-6 leading-relaxed">
-                        Споделете експертизата си с другите театрални почитатели. Като сертифициран критик, отзивите Ви ще бъдат отбелязани със специален знак и ще помогнат на зрителите да открият стойностните постановки на сезона.
+                        Share your expertise with fellow theatre lovers. As a certified critic, your reviews are marked with a special badge and help audiences discover the season's worthiest productions.
                     </p>
-                    <a asp-action="CriticApplication" asp-controller="Profile" class="btn-gold">Кандидатствай</a>
+                    <a asp-action="CriticApplication" asp-controller="Profile" class="btn-gold">Apply</a>
                 </div>
             </div>
         </div>
@@ -133,9 +133,9 @@
         <div class="panel p-8">
             <div class="flex items-center gap-3">
                 <svg class="w-5 h-5 text-gold-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.828a1 1 0 101.415-1.414L11 9.586V6z" clip-rule="evenodd"/></svg>
-                <span class="font-serif text-gold-400 italic">Заявката е в процес на разглеждане</span>
+                <span class="font-serif text-gold-400 italic">Your application is under review</span>
             </div>
-            <p class="font-garamond text-ivory-300/70 mt-2 ml-8">Ще Ви уведомим, когато решението е готово.</p>
+            <p class="font-garamond text-ivory-300/70 mt-2 ml-8">We'll let you know once a decision is made.</p>
         </div>
     }
 </div>

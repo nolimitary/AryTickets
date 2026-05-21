@@ -1,63 +1,63 @@
 @model AryTickets.Models.CriticApplicationViewModel
 @{
-    ViewData["Title"] = "Заявка за критик";
+    ViewData["Title"] = "Critic application";
     Layout = "_ProfileLayout";
 }
 
 <div class="space-y-10">
     <div class="panel p-8">
-        <h3 class="font-serif text-2xl font-semibold text-ivory-100 mb-1">Заявка за критик</h3>
-        <p class="font-garamond italic text-ivory-300/70 mb-8">Разкажете ни за опита си и мотивацията да станете сертифициран театрален критик.</p>
+        <h3 class="font-serif text-2xl font-semibold text-ivory-100 mb-1">Critic application</h3>
+        <p class="font-garamond italic text-ivory-300/70 mb-8">Tell us about your experience and your motivation to become a certified theatre critic.</p>
 
         <form asp-action="CriticApplication" method="post" class="space-y-5">
             @Html.AntiForgeryToken()
             <div asp-validation-summary="ModelOnly" class="text-burgundy-200 text-sm font-garamond italic"></div>
 
             <div>
-                <label class="block text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-2">Пълно име</label>
-                <input asp-for="FullName" class="w-full px-4 py-2.5 bg-burgundy-950 border border-gold-500/22 rounded-sm text-ivory-100 font-garamond focus:border-gold-400/60 focus:outline-none" placeholder="Иван Иванов" />
+                <label class="block text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-2">Full name</label>
+                <input asp-for="FullName" class="w-full px-4 py-2.5 bg-burgundy-950 border border-gold-500/22 rounded-sm text-ivory-100 font-garamond focus:border-gold-400/60 focus:outline-none" placeholder="Jane Doe" />
                 <span asp-validation-for="FullName" class="text-burgundy-200 text-xs font-garamond italic mt-1"></span>
             </div>
 
             <div>
-                <label class="block text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-2">Биография</label>
-                <textarea asp-for="Bio" rows="4" class="w-full px-4 py-2.5 bg-burgundy-950 border border-gold-500/22 rounded-sm text-ivory-100 font-garamond focus:border-gold-400/60 focus:outline-none resize-none" placeholder="Разкажете за себе си и опита си в театралната критика…"></textarea>
+                <label class="block text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-2">Bio</label>
+                <textarea asp-for="Bio" rows="4" class="w-full px-4 py-2.5 bg-burgundy-950 border border-gold-500/22 rounded-sm text-ivory-100 font-garamond focus:border-gold-400/60 focus:outline-none resize-none" placeholder="Tell us about yourself and your experience writing theatre criticism…"></textarea>
                 <span asp-validation-for="Bio" class="text-burgundy-200 text-xs font-garamond italic mt-1"></span>
             </div>
 
             <div>
-                <label class="block text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-2">Години опит</label>
+                <label class="block text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-2">Years of experience</label>
                 <input asp-for="YearsOfExperience" type="number" min="0" max="50" class="w-full px-4 py-2.5 bg-burgundy-950 border border-gold-500/22 rounded-sm text-ivory-100 font-garamond focus:border-gold-400/60 focus:outline-none" placeholder="0" />
                 <span asp-validation-for="YearsOfExperience" class="text-burgundy-200 text-xs font-garamond italic mt-1"></span>
             </div>
 
             <div>
-                <label class="block text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-2">Предишни работодатели</label>
-                <textarea asp-for="PastEmployers" rows="3" class="w-full px-4 py-2.5 bg-burgundy-950 border border-gold-500/22 rounded-sm text-ivory-100 font-garamond focus:border-gold-400/60 focus:outline-none resize-none" placeholder="Издания, сайтове или организации, за които сте писали…"></textarea>
+                <label class="block text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-2">Past employers</label>
+                <textarea asp-for="PastEmployers" rows="3" class="w-full px-4 py-2.5 bg-burgundy-950 border border-gold-500/22 rounded-sm text-ivory-100 font-garamond focus:border-gold-400/60 focus:outline-none resize-none" placeholder="Publications, sites or organisations you've written for…"></textarea>
                 <span asp-validation-for="PastEmployers" class="text-burgundy-200 text-xs font-garamond italic mt-1"></span>
             </div>
 
             <div>
-                <label class="block text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-2">Връзки към публикувани отзиви</label>
+                <label class="block text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-2">Links to published reviews</label>
                 <div id="review-links-container" class="space-y-3">
                     <div class="flex items-center gap-2">
-                        <input type="url" name="ReviewLinks[0]" class="w-full px-4 py-2.5 bg-burgundy-950 border border-gold-500/22 rounded-sm text-ivory-100 font-garamond focus:border-gold-400/60 focus:outline-none" placeholder="https://example.com/моят-отзив" />
+                        <input type="url" name="ReviewLinks[0]" class="w-full px-4 py-2.5 bg-burgundy-950 border border-gold-500/22 rounded-sm text-ivory-100 font-garamond focus:border-gold-400/60 focus:outline-none" placeholder="https://example.com/my-review" />
                     </div>
                 </div>
                 <button type="button" id="add-review-link" class="mt-3 flex items-center gap-2 text-gold-400 hover:text-gold-300 transition-colors text-sm font-garamond italic">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    <span>Добави още линк</span>
+                    <span>Add another link</span>
                 </button>
             </div>
 
             <div>
-                <label class="block text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-2">Мотивация</label>
-                <textarea asp-for="Motivation" rows="4" class="w-full px-4 py-2.5 bg-burgundy-950 border border-gold-500/22 rounded-sm text-ivory-100 font-garamond focus:border-gold-400/60 focus:outline-none resize-none" placeholder="Защо искате да станете сертифициран критик в AryTix?"></textarea>
+                <label class="block text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-2">Motivation</label>
+                <textarea asp-for="Motivation" rows="4" class="w-full px-4 py-2.5 bg-burgundy-950 border border-gold-500/22 rounded-sm text-ivory-100 font-garamond focus:border-gold-400/60 focus:outline-none resize-none" placeholder="Why do you want to be a certified critic on AryTix?"></textarea>
                 <span asp-validation-for="Motivation" class="text-burgundy-200 text-xs font-garamond italic mt-1"></span>
             </div>
 
             <div class="flex justify-end pt-2">
-                <button type="submit" class="btn-gold">Изпрати заявка</button>
+                <button type="submit" class="btn-gold">Submit application</button>
             </div>
         </form>
     </div>
@@ -76,7 +76,7 @@
                 input.type = 'url';
                 input.name = 'ReviewLinks[' + idx + ']';
                 input.className = 'w-full px-4 py-2.5 bg-burgundy-950 border border-gold-500/22 rounded-sm text-ivory-100 font-garamond focus:border-gold-400/60 focus:outline-none';
-                input.placeholder = 'https://example.com/моят-отзив';
+                input.placeholder = 'https://example.com/my-review';
                 const removeBtn = document.createElement('button');
                 removeBtn.type = 'button';
                 removeBtn.className = 'flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-sm bg-burgundy-500/15 text-burgundy-200 hover:bg-burgundy-500/30 transition-colors';

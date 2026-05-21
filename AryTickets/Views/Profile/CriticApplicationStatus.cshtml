@@ -1,7 +1,7 @@
 @model AryTickets.Models.CriticApplication
 @using AryTickets.Models
 @{
-    ViewData["Title"] = "Статус на заявката";
+    ViewData["Title"] = "Application status";
     Layout = "_ProfileLayout";
 }
 
@@ -12,56 +12,56 @@
             <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gold-400/12 border border-gold-400/35 flex items-center justify-center">
                 <svg class="w-8 h-8 text-gold-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.828a1 1 0 101.415-1.414L11 9.586V6z" clip-rule="evenodd"/></svg>
             </div>
-            <h3 class="font-serif text-2xl font-semibold text-gold-400 mb-2">Заявката е в процес на разглеждане</h3>
-            <p class="font-garamond italic text-ivory-300/70">Подадена на @Model.AppliedAt.ToString("dd MMMM yyyy")</p>
-            <p class="font-garamond text-ivory-300/80 mt-3">Ще Ви уведомим, когато решението е готово.</p>
+            <h3 class="font-serif text-2xl font-semibold text-gold-400 mb-2">Your application is under review</h3>
+            <p class="font-garamond italic text-ivory-300/70">Submitted on @Model.AppliedAt.ToString("dd MMMM yyyy")</p>
+            <p class="font-garamond text-ivory-300/80 mt-3">We'll let you know once a decision is made.</p>
         }
         else if (Model.Status == ApplicationStatus.Approved)
         {
             <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gold-400/15 border border-gold-400/45 flex items-center justify-center">
                 <svg class="w-8 h-8 text-gold-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
             </div>
-            <h3 class="font-serif text-2xl font-semibold text-gold-400 mb-2">Поздравления! Вие сте сертифициран критик</h3>
-            <p class="font-garamond italic text-ivory-300/70">Одобрена на @Model.ReviewedAt?.ToString("dd MMMM yyyy")</p>
-            <p class="font-garamond text-ivory-300/80 mt-3">Отзивите Ви носят сертификата на верифициран театрален критик.</p>
+            <h3 class="font-serif text-2xl font-semibold text-gold-400 mb-2">Congratulations — you are a certified critic</h3>
+            <p class="font-garamond italic text-ivory-300/70">Approved on @Model.ReviewedAt?.ToString("dd MMMM yyyy")</p>
+            <p class="font-garamond text-ivory-300/80 mt-3">Your reviews now carry the verified-critic mark.</p>
         }
         else if (Model.Status == ApplicationStatus.Denied)
         {
             <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-burgundy-500/15 border border-burgundy-400/40 flex items-center justify-center">
                 <svg class="w-8 h-8 text-burgundy-200" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
             </div>
-            <h3 class="font-serif text-2xl font-semibold text-burgundy-200 mb-2">Заявката не е одобрена</h3>
-            <p class="font-garamond italic text-ivory-300/70">Прегледана на @Model.ReviewedAt?.ToString("dd MMMM yyyy")</p>
-            <p class="font-garamond text-ivory-300/80 mt-3">За съжаление, заявката Ви не беше одобрена на този етап. Можете да кандидатствате отново в бъдеще.</p>
+            <h3 class="font-serif text-2xl font-semibold text-burgundy-200 mb-2">Application not approved</h3>
+            <p class="font-garamond italic text-ivory-300/70">Reviewed on @Model.ReviewedAt?.ToString("dd MMMM yyyy")</p>
+            <p class="font-garamond text-ivory-300/80 mt-3">Unfortunately your application wasn't approved this time. You're welcome to apply again in the future.</p>
         }
     </div>
 
     <div class="panel p-8">
-        <h3 class="font-serif text-xl font-semibold text-ivory-100 mb-6">Резюме на заявката</h3>
+        <h3 class="font-serif text-xl font-semibold text-ivory-100 mb-6">Application summary</h3>
         <div class="space-y-5">
             <div>
-                <p class="text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-1">Пълно име</p>
+                <p class="text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-1">Full name</p>
                 <p class="font-garamond text-ivory-100">@Model.FullName</p>
             </div>
             <div class="border-t border-gold-500/12 pt-5">
-                <p class="text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-1">Биография</p>
+                <p class="text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-1">Bio</p>
                 <p class="font-garamond text-ivory-100 leading-relaxed">@Model.Bio</p>
             </div>
             <div class="border-t border-gold-500/12 pt-5">
-                <p class="text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-1">Години опит</p>
+                <p class="text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-1">Years of experience</p>
                 <p class="font-garamond text-ivory-100">@Model.YearsOfExperience</p>
             </div>
             @if (!string.IsNullOrEmpty(Model.PastEmployers))
             {
                 <div class="border-t border-gold-500/12 pt-5">
-                    <p class="text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-1">Предишни работодатели / Издания</p>
+                    <p class="text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-1">Past employers / publications</p>
                     <p class="font-garamond text-ivory-100 leading-relaxed">@Model.PastEmployers</p>
                 </div>
             }
             @if (Model.ReviewLinks != null && Model.ReviewLinks.Count > 0)
             {
                 <div class="border-t border-gold-500/12 pt-5">
-                    <p class="text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-2">Връзки</p>
+                    <p class="text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-2">Links</p>
                     <ul class="space-y-1.5">
                         @foreach (var link in Model.ReviewLinks)
                         {
@@ -74,7 +74,7 @@
                 </div>
             }
             <div class="border-t border-gold-500/12 pt-5">
-                <p class="text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-1">Мотивация</p>
+                <p class="text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-1">Motivation</p>
                 <p class="font-garamond text-ivory-100 leading-relaxed">@Model.Motivation</p>
             </div>
         </div>
