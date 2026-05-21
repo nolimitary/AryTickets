@@ -1,6 +1,6 @@
 @model LoginViewModel
 @{
-    ViewData["Title"] = "Вход";
+    ViewData["Title"] = "Sign in";
     Layout = "_Layout";
 }
 
@@ -38,37 +38,37 @@
             <div class="font-serif text-3xl tracking-wider">
                 <span class="text-ivory-100 font-semibold">Ary</span><span class="text-gold-400 font-light italic">Tix</span>
             </div>
-            <p class="text-[10px] font-sans tracking-[0.3em] uppercase text-gold-500/70 mt-1">Т Е А Т Р А Л Н А &nbsp; С Ц Е Н А</p>
+            <p class="text-[10px] font-sans tracking-[0.3em] uppercase text-gold-500/70 mt-1">T H E A T R I C A L &nbsp; S T A G E</p>
         </div>
 
-        <h2 class="text-center font-serif text-2xl font-semibold text-ivory-100 mb-1.5">Добре дошли</h2>
-        <p class="text-center font-garamond italic text-ivory-300/70 mb-8">Влезте във Вашия профил</p>
+        <h2 class="text-center font-serif text-2xl font-semibold text-ivory-100 mb-1.5">Welcome back</h2>
+        <p class="text-center font-garamond italic text-ivory-300/70 mb-8">Sign in to your account</p>
 
         <form class="space-y-5" asp-action="Login" method="post">
             @Html.AntiForgeryToken()
             <div asp-validation-summary="ModelOnly" class="text-burgundy-200 text-sm font-garamond italic"></div>
 
             <div>
-                <label asp-for="Email" class="block text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-2">Електронна поща</label>
-                <input asp-for="Email" class="auth-input w-full px-4 py-3 rounded-sm text-base" placeholder="ваш@имейл.com">
+                <label asp-for="Email" class="block text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-2">Email</label>
+                <input asp-for="Email" class="auth-input w-full px-4 py-3 rounded-sm text-base" placeholder="you@example.com">
                 <span asp-validation-for="Email" class="text-burgundy-200 text-xs mt-1 block font-garamond italic"></span>
             </div>
 
             <div>
-                <label asp-for="Password" class="block text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-2">Парола</label>
-                <input asp-for="Password" class="auth-input w-full px-4 py-3 rounded-sm text-base" placeholder="Въведете парола">
+                <label asp-for="Password" class="block text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-2">Password</label>
+                <input asp-for="Password" class="auth-input w-full px-4 py-3 rounded-sm text-base" placeholder="Enter password">
                 <span asp-validation-for="Password" class="text-burgundy-200 text-xs mt-1 block font-garamond italic"></span>
             </div>
 
             <div class="flex items-center">
                 <input asp-for="RememberMe" class="h-4 w-4 rounded-sm border-gold-500" style="accent-color: #d4af37;">
-                <label asp-for="RememberMe" class="ml-2 font-garamond text-ivory-300/80">Запомни ме</label>
+                <label asp-for="RememberMe" class="ml-2 font-garamond text-ivory-300/80">Remember me</label>
             </div>
 
-            <button type="submit" class="btn-gold w-full justify-center">Вход</button>
+            <button type="submit" class="btn-gold w-full justify-center">Sign in</button>
 
             <div class="text-center pt-2">
-                <a asp-action="Register" class="font-garamond italic text-gold-400 hover:text-gold-300 transition-colors">Все още нямате профил? Регистрирайте се</a>
+                <a asp-action="Register" class="font-garamond italic text-gold-400 hover:text-gold-300 transition-colors">Don't have an account? Sign up</a>
             </div>
         </form>
     </div>

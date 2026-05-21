@@ -1,6 +1,6 @@
 @model ConfirmEmailViewModel
 @{
-    ViewData["Title"] = "Потвърждение на профил";
+    ViewData["Title"] = "Confirm account";
     Layout = "_Layout";
 }
 
@@ -38,13 +38,13 @@
             <div class="font-serif text-3xl tracking-wider">
                 <span class="text-ivory-100 font-semibold">Ary</span><span class="text-gold-400 font-light italic">Tix</span>
             </div>
-            <p class="text-[10px] font-sans tracking-[0.3em] uppercase text-gold-500/70 mt-1">Т Е А Т Р А Л Н А &nbsp; С Ц Е Н А</p>
+            <p class="text-[10px] font-sans tracking-[0.3em] uppercase text-gold-500/70 mt-1">T H E A T R I C A L &nbsp; S T A G E</p>
         </div>
 
         <div class="text-center fade-in fade-delay-2">
-            <h2 class="font-serif text-2xl font-semibold text-ivory-100">Потвърдете профила си</h2>
+            <h2 class="font-serif text-2xl font-semibold text-ivory-100">Verify your account</h2>
             <p class="mt-4 font-garamond italic text-ivory-300/70">
-                Изпратихме 4-цифрен код на<br>
+                We sent a 4-digit code to<br>
                 <span class="text-gold-400 not-italic font-medium">@Model.Email</span>
             </p>
         </div>
@@ -68,7 +68,7 @@
             <input type="hidden" asp-for="Email" />
 
             <div>
-                <label asp-for="Code" class="sr-only">Код за потвърждение</label>
+                <label asp-for="Code" class="sr-only">Verification code</label>
                 <input asp-for="Code"
                        class="code-input w-full px-4 py-4 rounded-sm text-center text-3xl tracking-[1rem]"
                        placeholder="----"
@@ -78,21 +78,21 @@
             </div>
 
             <div class="fade-in fade-delay-4">
-                <button type="submit" class="btn-gold w-full justify-center">Потвърди профила</button>
+                <button type="submit" class="btn-gold w-full justify-center">Verify account</button>
             </div>
         </form>
 
         <form class="fade-in fade-delay-4 text-center" asp-action="ResendCode" method="post">
             @Html.AntiForgeryToken()
             <button type="submit" class="font-garamond italic text-ivory-300/70 hover:text-gold-400 transition-colors">
-                Не получихте кода? <span class="text-gold-400 underline underline-offset-2">Изпратете отново</span>
+                Didn't get the code? <span class="text-gold-400 underline underline-offset-2">Resend</span>
             </button>
         </form>
 
         <form class="fade-in fade-delay-4 text-center" asp-action="SkipVerification" method="post">
             @Html.AntiForgeryToken()
             <button type="submit" class="text-[11px] font-sans tracking-widest uppercase text-gold-500/60 hover:text-gold-400 transition-colors">
-                Пропусни засега
+                Skip for now
             </button>
         </form>
     </div>
