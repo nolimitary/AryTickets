@@ -1,4 +1,5 @@
 using AryTickets.Data;
+using System;
 using System.Linq;
 using Xunit;
 
@@ -42,13 +43,15 @@ namespace AryTickets.Tests.Data
         }
 
         [Fact]
-        public void GetProductions_PosterUrlsAreSeededImages()
+        public void GetProductions_PosterUrlsPointAtPosterEndpoint()
         {
             var productions = TheaterSeedData.GetProductions();
             Assert.All(productions, p =>
             {
-                Assert.StartsWith("https://", p.PosterUrl);
-                Assert.StartsWith("https://", p.BackdropUrl);
+                Assert.StartsWith("/posters/poster?title=", p.PosterUrl);
+                Assert.StartsWith("/posters/backdrop?title=", p.BackdropUrl);
+                // The Bulgarian Title must be in the URL — not the English label.
+                Assert.Contains(Uri.EscapeDataString(p.Title), p.PosterUrl);
             });
         }
 

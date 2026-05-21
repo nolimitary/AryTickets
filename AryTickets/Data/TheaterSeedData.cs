@@ -27,14 +27,12 @@ namespace AryTickets.Data
         {
             var now = DateTime.UtcNow;
             var productions = BuildProductions(now);
-            // Auto-fill poster/backdrop URLs from the title/playwright/genre we already have,
-            // so each entry doesn't have to repeat the label. Manually-set values are kept.
+            // Always derive poster/backdrop URLs from each production's Bulgarian title,
+            // playwright and genre — ignoring any English label-based URL the entries set.
             foreach (var p in productions)
             {
-                if (string.IsNullOrWhiteSpace(p.PosterUrl) || p.PosterUrl.Contains("placehold.co") || p.PosterUrl.Contains("picsum.photos"))
-                    p.PosterUrl = Poster(p.Title, p.Playwright, p.Genre);
-                if (string.IsNullOrWhiteSpace(p.BackdropUrl) || p.BackdropUrl.Contains("placehold.co") || p.BackdropUrl.Contains("picsum.photos"))
-                    p.BackdropUrl = Backdrop(p.Title, p.Playwright);
+                p.PosterUrl = Poster(p.Title, p.Playwright, p.Genre);
+                p.BackdropUrl = Backdrop(p.Title, p.Playwright);
             }
             return productions;
         }
