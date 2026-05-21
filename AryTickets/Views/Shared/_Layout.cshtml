@@ -62,57 +62,105 @@
     </script>
     @await RenderSectionAsync("Styles", required: false)
     <style>
+        :root {
+            --bg-base: #160a0c;
+            --bg-elevated: #1f1013;
+            --bg-card: #25141a;
+            --bg-card-hover: #2c1820;
+            --ink-100: #f7eede;        /* primary text — slightly brighter ivory */
+            --ink-300: #ddc9ad;        /* secondary text */
+            --ink-500: #a89175;        /* muted text */
+            --gold-400: #d4af37;       /* high-emphasis gold for buttons/headings */
+            --gold-500: #c9a961;       /* default body gold — softer, less saturated */
+            --gold-700: #8b6914;
+            --line: rgba(212, 175, 55, 0.16);
+            --line-strong: rgba(212, 175, 55, 0.32);
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
         body {
             font-family: 'Cormorant Garamond', Georgia, serif;
-            background-color: #1a0606;
-            background-image:
-                radial-gradient(ellipse at 20% 0%, rgba(139, 26, 26, 0.25) 0%, transparent 55%),
-                radial-gradient(ellipse at 80% 100%, rgba(114, 47, 55, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.04) 0%, transparent 70%);
-            color: #f5e6d3;
+            color: var(--ink-100);
             overflow-x: hidden;
             min-height: 100vh;
+            line-height: 1.55;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+            background-color: var(--bg-base);
+            background-image:
+                radial-gradient(ellipse at 18% -10%, rgba(139, 26, 26, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 85% 8%, rgba(180, 130, 60, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 100%, rgba(43, 10, 10, 0.4) 0%, transparent 60%);
+            background-attachment: fixed;
+        }
+        /* Subtle film-grain overlay — invisible up close, gives the page a textured feel. */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.08 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
+            opacity: 0.5;
+            pointer-events: none;
+            mix-blend-mode: overlay;
+            z-index: 0;
         }
 
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #1a0606; }
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: var(--bg-base); }
         ::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #8b6914 0%, #d4af37 100%);
+            background: linear-gradient(180deg, rgba(139, 105, 20, 0.55) 0%, rgba(212, 175, 55, 0.65) 100%);
             border-radius: 10px;
+            border: 2px solid var(--bg-base);
         }
-        ::-webkit-scrollbar-thumb:hover { background: #d4af37; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--gold-400); }
 
-        ::selection { background: rgba(212, 175, 55, 0.35); color: #1a0606; }
-        html { scroll-behavior: smooth; }
+        ::selection { background: rgba(212, 175, 55, 0.3); color: #1a0606; }
+
+        /* ── Typography defaults — calmer body, dramatic headlines. ── */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Playfair Display', Georgia, serif;
+            letter-spacing: -0.005em;
+            line-height: 1.18;
+            color: var(--ink-100);
+        }
+        p { line-height: 1.7; color: var(--ink-300); }
+        a { text-decoration: none; color: inherit; }
+        a:focus-visible {
+            outline: 1px solid var(--gold-400);
+            outline-offset: 3px;
+            border-radius: 2px;
+        }
+        img { color: transparent; }   /* prevents broken-image text artefacts mid-load */
 
         /* Curtain band at the top of every page */
         .curtain-band {
             position: fixed;
             top: 0; left: 0; right: 0;
-            height: 3px;
+            height: 2px;
             background: linear-gradient(90deg,
                 transparent 0%,
-                #8b1a1a 8%,
-                #d4af37 25%,
-                #8b1a1a 50%,
-                #d4af37 75%,
-                #8b1a1a 92%,
+                rgba(139, 26, 26, 0.6) 8%,
+                rgba(212, 175, 55, 0.85) 25%,
+                rgba(139, 26, 26, 0.6) 50%,
+                rgba(212, 175, 55, 0.85) 75%,
+                rgba(139, 26, 26, 0.6) 92%,
                 transparent 100%);
             z-index: 60;
-            opacity: 0.7;
+            opacity: 0.55;
         }
 
         .nav-blur {
-            background: rgba(26, 6, 6, 0.55);
+            background: rgba(22, 10, 12, 0.42);
             backdrop-filter: blur(0px);
             transition: all 0.4s ease;
             border-bottom: 1px solid transparent;
         }
         .nav-blur.scrolled {
-            background: rgba(26, 6, 6, 0.92);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(212, 175, 55, 0.18);
+            background: rgba(22, 10, 12, 0.88);
+            backdrop-filter: blur(22px);
+            border-bottom: 1px solid var(--line);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
         }
 
         .dd-panel {
@@ -129,70 +177,91 @@
 
         .gold-divider {
             display: inline-block;
-            width: 64px;
+            width: 72px;
             height: 1px;
-            background: linear-gradient(90deg, transparent, #d4af37, transparent);
+            background: linear-gradient(90deg, transparent, var(--gold-400), transparent);
             vertical-align: middle;
         }
-
         .gold-line {
             height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.5), transparent);
+            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.45), transparent);
         }
 
-        h1, h2, h3, h4, h5, h6 { font-family: 'Playfair Display', Georgia, serif; }
-
         .ornament {
-            color: #d4af37;
+            color: var(--gold-400);
             font-family: 'Playfair Display', serif;
-            opacity: 0.5;
+            opacity: 0.45;
+        }
+
+        /* ── Reusable surface card — soft elevation, subtle inner light ── */
+        .surface {
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.012) 0%, transparent 60%),
+                var(--bg-card);
+            border: 1px solid var(--line);
+            border-radius: 4px;
+            box-shadow:
+                0 1px 0 rgba(255, 255, 255, 0.025) inset,
+                0 18px 40px -28px rgba(0, 0, 0, 0.7);
+        }
+        .surface-hover:hover {
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, transparent 60%),
+                var(--bg-card-hover);
+            border-color: var(--line-strong);
         }
 
         .btn-gold {
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
+            justify-content: center;
+            gap: 0.55rem;
             padding: 0.85rem 2rem;
-            background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%);
+            background: linear-gradient(135deg, #e3bf4e 0%, #c9a961 55%, #a8862e 100%);
             color: #1a0606;
             font-family: 'Inter', sans-serif;
             font-size: 0.78rem;
             font-weight: 600;
-            letter-spacing: 0.18em;
+            letter-spacing: 0.14em;
             text-transform: uppercase;
             border-radius: 2px;
             text-decoration: none;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(212, 175, 55, 0.4);
+            transition: transform 0.25s ease, box-shadow 0.3s ease, filter 0.25s ease;
+            border: 1px solid rgba(212, 175, 55, 0.55);
+            box-shadow: 0 8px 20px -10px rgba(212, 175, 55, 0.4);
         }
         .btn-gold:hover {
-            background: linear-gradient(135deg, #e6c45a 0%, #d4af37 100%);
-            box-shadow: 0 8px 28px rgba(212, 175, 55, 0.3);
+            filter: brightness(1.06);
+            box-shadow: 0 12px 30px -8px rgba(212, 175, 55, 0.45);
             transform: translateY(-1px);
         }
+        .btn-gold:active { transform: translateY(0); }
 
         .btn-ghost {
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
+            justify-content: center;
+            gap: 0.55rem;
             padding: 0.85rem 2rem;
-            background: transparent;
-            border: 1px solid rgba(212, 175, 55, 0.35);
-            color: #d4af37;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            color: var(--gold-500);
             font-family: 'Inter', sans-serif;
             font-size: 0.78rem;
             font-weight: 500;
-            letter-spacing: 0.18em;
+            letter-spacing: 0.14em;
             text-transform: uppercase;
             border-radius: 2px;
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: all 0.25s ease;
         }
         .btn-ghost:hover {
-            background: rgba(212, 175, 55, 0.08);
-            border-color: #d4af37;
+            background: rgba(212, 175, 55, 0.07);
+            border-color: rgba(212, 175, 55, 0.55);
             color: #e6c45a;
         }
+
+        main { position: relative; z-index: 1; }
     </style>
 </head>
 <body>
