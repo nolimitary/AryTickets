@@ -349,14 +349,14 @@
         <div class="relative z-10 w-full max-w-[1360px] mx-auto px-6 pb-24 pt-44 lg:pb-28">
             <div class="max-w-2xl">
                 <div class="h-anim hd1 mb-7">
-                    <span class="eyebrow left-only">В Репертоар · Тази Седмица</span>
+                    <span class="eyebrow left-only">In Repertoire · This Week</span>
                 </div>
                 <h1 class="h-anim hd2 font-serif text-5xl md:text-6xl lg:text-7xl font-semibold text-ivory-100 leading-[1.05] mb-4 tracking-tight">
                     @featured.Title
                 </h1>
                 @if (!string.IsNullOrEmpty(featured.Playwright))
                 {
-                    <p class="h-anim hd2 font-garamond text-xl text-gold-400 italic mb-6">от @featured.Playwright</p>
+                    <p class="h-anim hd2 font-garamond text-xl text-gold-400 italic mb-6">by @featured.Playwright</p>
                 }
                 <p class="h-anim hd3 font-garamond text-[17px] md:text-[18px] text-ivory-200/80 leading-relaxed mb-7 max-w-xl">
                     @(featured.Synopsis.Length > 220 ? featured.Synopsis.Substring(0, 220) + "…" : featured.Synopsis)
@@ -377,11 +377,11 @@
                 </div>
                 <div class="h-anim hd5 flex items-center gap-3">
                     <a asp-controller="Production" asp-action="Details" asp-route-id="@featured.Id" class="btn-gold">
-                        <span>Резервирай билет</span>
+                        <span>Book ticket</span>
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
                     </a>
                     <a asp-controller="Production" asp-action="Details" asp-route-id="@featured.Id" class="btn-ghost">
-                        Подробности
+                        Details
                     </a>
                 </div>
             </div>
@@ -409,7 +409,7 @@
     <section class="max-w-[1360px] mx-auto px-6 pt-24 pb-2">
         <div class="flex items-center gap-2.5 flex-wrap reveal justify-center">
             <a asp-controller="Home" asp-action="Index" class="genre-chip @(Model.SelectedGenre == null ? "active" : "")">
-                Всички
+                All
             </a>
             @foreach (var g in Model.AllGenres)
             {
@@ -424,14 +424,14 @@
 <!-- ═══ REPERTOAR ═══ -->
 <section id="repertoar" class="max-w-[1360px] mx-auto px-6 pt-14 pb-20">
     <div class="text-center reveal mb-14">
-        <span class="eyebrow mb-5">Афиш · В Сцена</span>
-        <h2 class="section-title mt-4">Текущ <em>Репертоар</em></h2>
-        <p class="font-garamond italic text-lg text-ivory-200/60 mt-3 max-w-xl mx-auto">Класиката и съвременният театър — събрани под един покрив, за една незабравима вечер.</p>
+        <span class="eyebrow mb-5">Playbill · On Stage</span>
+        <h2 class="section-title mt-4">Current <em>Repertoire</em></h2>
+        <p class="font-garamond italic text-lg text-ivory-200/60 mt-3 max-w-xl mx-auto">Classical and contemporary theatre, gathered under one roof for an unforgettable evening.</p>
     </div>
 
     @if (!Model.CurrentRepertoire.Skip(1).Any())
     {
-        <p class="text-center font-garamond italic text-ivory-300/60">Скоро в нашия афиш.</p>
+        <p class="text-center font-garamond italic text-ivory-300/60">New productions coming soon.</p>
     }
     else
     {
@@ -485,11 +485,11 @@
                     </div>
                 </a>
                 <div class="flex-1 text-center md:text-left">
-                    <span class="eyebrow @(true ? "left-only" : "") mb-5">Постановката на вечерта</span>
+                    <span class="eyebrow @(true ? "left-only" : "") mb-5">Production of the evening</span>
                     <h2 class="font-serif text-4xl md:text-5xl lg:text-6xl font-semibold text-ivory-100 mt-4 mb-3 leading-tight">@spot.Title</h2>
                     @if (!string.IsNullOrEmpty(spot.Playwright))
                     {
-                        <p class="font-garamond italic text-xl text-gold-400 mb-6">от @spot.Playwright</p>
+                        <p class="font-garamond italic text-xl text-gold-400 mb-6">by @spot.Playwright</p>
                     }
                     <div class="flex items-center gap-4 justify-center md:justify-start mb-6 text-ivory-200/80">
                         <span class="flex items-center gap-1.5">
@@ -501,7 +501,7 @@
                     </div>
                     <p class="font-garamond text-[18px] text-ivory-200/80 leading-relaxed mb-8 max-w-xl mx-auto md:mx-0">@spot.Synopsis</p>
                     <a asp-controller="Production" asp-action="Details" asp-route-id="@spot.Id" class="btn-gold">
-                        <span>Виж представленията</span>
+                        <span>See performances</span>
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
                     </a>
                 </div>
@@ -515,9 +515,9 @@
 {
     <section id="premieri" class="max-w-[1360px] mx-auto px-6 py-24">
         <div class="text-center reveal mb-14">
-            <span class="eyebrow mb-5">Скоро На Сцена</span>
-            <h2 class="section-title mt-4">Предстоящи <em>Премиери</em></h2>
-            <p class="font-garamond italic text-lg text-ivory-200/60 mt-3 max-w-xl mx-auto">Откриваме завесата за новите постановки на сезона.</p>
+            <span class="eyebrow mb-5">Soon On Stage</span>
+            <h2 class="section-title mt-4">Upcoming <em>Premieres</em></h2>
+            <p class="font-garamond italic text-lg text-ivory-200/60 mt-3 max-w-xl mx-auto">Lifting the curtain on the season's new productions.</p>
         </div>
         <div class="relative reveal">
             <div id="csTrack" class="scroll-x">
