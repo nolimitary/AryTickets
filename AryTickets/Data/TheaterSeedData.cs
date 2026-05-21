@@ -6,11 +6,13 @@ namespace AryTickets.Data
 {
     public static class TheaterSeedData
     {
+        // Picsum returns a real photo deterministically chosen by the seed string,
+        // so each production gets a stable but visually distinct poster/backdrop.
         private static string Poster(string label) =>
-            $"https://placehold.co/600x900/2b0a0a/d4af37/png?text={Uri.EscapeDataString(label)}&font=playfair";
+            $"https://picsum.photos/seed/{Uri.EscapeDataString(label)}-poster/600/900";
 
         private static string Backdrop(string label) =>
-            $"https://placehold.co/2400x1000/1a0606/8b6914/png?text={Uri.EscapeDataString(label)}&font=playfair";
+            $"https://picsum.photos/seed/{Uri.EscapeDataString(label)}-backdrop/2400/1000";
 
         public static List<Production> GetProductions()
         {

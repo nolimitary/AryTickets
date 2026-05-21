@@ -42,13 +42,13 @@ namespace AryTickets.Tests.Data
         }
 
         [Fact]
-        public void GetProductions_PosterUrlsArePlaceholder()
+        public void GetProductions_PosterUrlsAreSeededImages()
         {
             var productions = TheaterSeedData.GetProductions();
             Assert.All(productions, p =>
             {
-                Assert.Contains("placehold.co", p.PosterUrl);
-                Assert.Contains("placehold.co", p.BackdropUrl);
+                Assert.StartsWith("https://", p.PosterUrl);
+                Assert.StartsWith("https://", p.BackdropUrl);
             });
         }
 
