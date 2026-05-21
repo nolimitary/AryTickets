@@ -78,23 +78,6 @@ namespace AryTickets.Tests.Controllers
         }
 
         [Fact]
-        public async Task Login_EmailNotConfirmed_RedirectsToConfirmEmail()
-        {
-            var user = new ApplicationUser { Id = "id", Email = "test@test.com" };
-            _userManager.Setup(m => m.FindByEmailAsync("test@test.com")).ReturnsAsync(user);
-            _signInManager.Setup(m => m.PasswordSignInAsync(user, "Pass123!", false, false))
-                .ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.NotAllowed);
-
-            var controller = CreateController();
-            var model = new LoginViewModel { Email = "test@test.com", Password = "Pass123!" };
-
-            var result = await controller.Login(model);
-
-            var redirect = Assert.IsType<RedirectToActionResult>(result);
-            Assert.Equal("ConfirmEmail", redirect.ActionName);
-        }
-
-        [Fact]
         public async Task Login_InvalidModelState_ReturnsView()
         {
             var controller = CreateController();
@@ -135,7 +118,7 @@ namespace AryTickets.Tests.Controllers
             var result = await controller.Register(model);
 
             var redirect = Assert.IsType<RedirectToActionResult>(result);
-            Assert.Equal("ConfirmEmail", redirect.ActionName);
+            Assert.Equal("Index", redirect.ActionName);
         }
 
         [Fact]
@@ -177,111 +160,6 @@ namespace AryTickets.Tests.Controllers
             };
 
             var result = await controller.Register(model);
-
-            var viewResult = Assert.IsType<ViewResult>(result);
-            Assert.False(controller.ModelState.IsValid);
-        }
-
-        [Fact]
-        public async Task Register_EmailSendFails_StillRedirects()
-        {
-            _userManager.Setup(m => m.FindByEmailAsync("new@test.com"))
-                .ReturnsAsync((ApplicationUser)null);
-            _userManager.Setup(m => m.CreateAsync(It.IsAny<ApplicationUser>(), "Pass123!"))
-                .ReturnsAsync(IdentityResult.Success);
-            _emailSender.Setup(m => m.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-                .ThrowsAsync(new Exception("Email service down"));
-
-            var controller = CreateController();
-            var model = new RegisterViewModel
-            {
-                Username = "NewUser",
-                Email = "new@test.com",
-                Password = "Pass123!",
-                ConfirmPassword = "Pass123!"
-            };
-
-            var result = await controller.Register(model);
-
-            var redirect = Assert.IsType<RedirectToActionResult>(result);
-            Assert.Equal("ConfirmEmail", redirect.ActionName);
-            Assert.NotNull(controller.TempData["EmailError"]);
-        }
-
-        // ═══ ConfirmEmail Tests ═══
-
-        [Fact]
-        public void ConfirmEmail_Get_NoSession_RedirectsToLogin()
-        {
-            var controller = CreateController();
-
-            var result = controller.ConfirmEmail();
-
-            var redirect = Assert.IsType<RedirectToActionResult>(result);
-            Assert.Equal("Login", redirect.ActionName);
-        }
-
-        [Fact]
-        public async Task ConfirmEmail_ValidCode_ConfirmsAndSignsIn()
-        {
-            var user = new ApplicationUser
-            {
-                Id = "id",
-                Email = "test@test.com",
-                EmailVerificationCode = "1234",
-                VerificationCodeExpiry = DateTime.UtcNow.AddMinutes(10)
-            };
-            _userManager.Setup(m => m.FindByEmailAsync("test@test.com")).ReturnsAsync(user);
-            _userManager.Setup(m => m.UpdateAsync(user)).ReturnsAsync(IdentityResult.Success);
-
-            var controller = CreateController();
-            var model = new ConfirmEmailViewModel { Email = "test@test.com", Code = "1234" };
-
-            var result = await controller.ConfirmEmail(model);
-
-            var redirect = Assert.IsType<RedirectToActionResult>(result);
-            Assert.Equal("Index", redirect.ActionName);
-            Assert.True(user.EmailConfirmed);
-            Assert.Null(user.EmailVerificationCode);
-        }
-
-        [Fact]
-        public async Task ConfirmEmail_ExpiredCode_ReturnsError()
-        {
-            var user = new ApplicationUser
-            {
-                Id = "id",
-                Email = "test@test.com",
-                EmailVerificationCode = "1234",
-                VerificationCodeExpiry = DateTime.UtcNow.AddMinutes(-5)
-            };
-            _userManager.Setup(m => m.FindByEmailAsync("test@test.com")).ReturnsAsync(user);
-
-            var controller = CreateController();
-            var model = new ConfirmEmailViewModel { Email = "test@test.com", Code = "1234" };
-
-            var result = await controller.ConfirmEmail(model);
-
-            var viewResult = Assert.IsType<ViewResult>(result);
-            Assert.False(controller.ModelState.IsValid);
-        }
-
-        [Fact]
-        public async Task ConfirmEmail_WrongCode_ReturnsError()
-        {
-            var user = new ApplicationUser
-            {
-                Id = "id",
-                Email = "test@test.com",
-                EmailVerificationCode = "1234",
-                VerificationCodeExpiry = DateTime.UtcNow.AddMinutes(10)
-            };
-            _userManager.Setup(m => m.FindByEmailAsync("test@test.com")).ReturnsAsync(user);
-
-            var controller = CreateController();
-            var model = new ConfirmEmailViewModel { Email = "test@test.com", Code = "9999" };
-
-            var result = await controller.ConfirmEmail(model);
 
             var viewResult = Assert.IsType<ViewResult>(result);
             Assert.False(controller.ModelState.IsValid);
