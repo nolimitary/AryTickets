@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Globalization;
 using System.Text;
 
 namespace AryTickets.Controllers
@@ -89,7 +88,7 @@ namespace AryTickets.Controllers
             if (!string.IsNullOrWhiteSpace(genre))
             {
                 sb.Append("<rect x='220' y='760' width='160' height='40' fill='none' stroke='#d4af37' stroke-opacity='0.6' stroke-width='1'/>");
-                sb.Append($"<text x='300' y='787' text-anchor='middle' fill='#d4af37' font-family=\"Inter, sans-serif\" font-size='13' letter-spacing='5'>{Escape(genre.ToUpper(CultureInfo.GetCultureInfo("bg-BG")))}</text>");
+                sb.Append($"<text x='300' y='787' text-anchor='middle' fill='#d4af37' font-family=\"Inter, sans-serif\" font-size='13' letter-spacing='5'>{Escape(genre.ToUpperInvariant())}</text>");
             }
 
             // Footer ornament.

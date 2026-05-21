@@ -65,6 +65,28 @@ namespace AryTickets.Tests.Controllers
         }
 
         [Fact]
+        public void Poster_CyrillicGenre_DoesNotThrowOnInvariantCulture()
+        {
+            // Regression: bg-BG culture isn't installed in the production Alpine container,
+            // so we must rely on invariant uppercase. Run this test under invariant to mimic
+            // the production environment's culture set.
+            var prev = System.Threading.Thread.CurrentThread.CurrentCulture;
+            try
+            {
+                System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+                var controller = new PosterController();
+                var svg = GetSvg(controller.Poster("Хамлет", "Уилям Шекспир", "Трагедия"));
+                var doc = XDocument.Parse(svg);
+                Assert.Equal("svg", doc.Root!.Name.LocalName);
+                Assert.Contains("ТРАГЕДИЯ", svg);
+            }
+            finally
+            {
+                System.Threading.Thread.CurrentThread.CurrentCulture = prev;
+            }
+        }
+
+        [Fact]
         public void Backdrop_LongTitle_StillValid()
         {
             var controller = new PosterController();
