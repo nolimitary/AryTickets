@@ -181,7 +181,7 @@ using (var scope = app.Services.CreateScope())
         }
         if (urlsChanged) await db.SaveChangesAsync();
 
-        var stages = new[] { "Голяма сцена", "Камерна сцена", "Сцена на сатиричния салон" };
+        var stages = new[] { "Main Stage", "Chamber Stage", "Satirical Hall" };
         var prices = new[] { 28.00m, 32.00m, 38.00m, 45.00m };
         var timeSlots = new[]
         {
