@@ -61,7 +61,7 @@ namespace AryTickets.Models
 
         public string FormattedDuration =>
             DurationMinutes > 0
-                ? $"{DurationMinutes / 60}ч {DurationMinutes % 60:D2}мин"
+                ? $"{DurationMinutes / 60}h {DurationMinutes % 60:D2}min"
                 : "—";
 
         public string RatingPercentage => $"{Rating * 10:F0}%";

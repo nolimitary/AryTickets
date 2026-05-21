@@ -292,7 +292,7 @@ namespace AryTickets.Controllers
                     {
                         ProductionId = productionId,
                         ShowDateTime = showDateTime,
-                        Stage = string.IsNullOrWhiteSpace(stage) ? "Голяма сцена" : stage,
+                        Stage = string.IsNullOrWhiteSpace(stage) ? "Main Stage" : stage,
                         Price = price > 0 ? price : 35.00m
                     });
                 }
@@ -337,7 +337,7 @@ namespace AryTickets.Controllers
                 .Take(8)
                 .ToList();
 
-            var dayNames = new[] { "Пон", "Вто", "Сря", "Чет", "Пет", "Съб", "Нед" };
+            var dayNames = new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
             var bookingsByDay = bookings
                 .GroupBy(b => b.BookedAt.DayOfWeek)
                 .ToDictionary(g => g.Key, g => g.Count());

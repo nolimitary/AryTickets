@@ -11,14 +11,14 @@ namespace AryTickets.Models
         public decimal TotalPrice { get; set; }
         public int? PerformanceId { get; set; }
 
-        [Display(Name = "Име на картодържателя")]
+        [Display(Name = "Cardholder name")]
         public string? CardHolderName { get; set; }
 
         // Card fields are only populated for the simulated (no-Stripe) fallback flow.
-        [Display(Name = "Номер на карта")]
+        [Display(Name = "Card number")]
         public string? CardNumber { get; set; }
 
-        [Display(Name = "Срок (MM/ГГ)")]
+        [Display(Name = "Expiry (MM/YY)")]
         public string? ExpiryDate { get; set; }
 
         [Display(Name = "CVC")]

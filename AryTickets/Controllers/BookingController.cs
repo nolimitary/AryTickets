@@ -36,7 +36,7 @@ namespace AryTickets.Controllers
         public async Task<IActionResult> SelectSeats(int? performanceId)
         {
             if (!performanceId.HasValue)
-                return BadRequest("Изисква се валидно представление.");
+                return BadRequest("A valid performance is required.");
 
             var perf = await _db.Performances
                 .Include(p => p.Production)
@@ -45,7 +45,7 @@ namespace AryTickets.Controllers
                 return NotFound();
 
             if (perf.ShowDateTime <= System.DateTime.UtcNow)
-                return BadRequest("Това представление вече се е състояло.");
+                return BadRequest("This performance has already taken place.");
 
             var reservedSeatsList = await _db.SeatReservations
                 .Where(r => r.PerformanceId == performanceId.Value)
@@ -104,10 +104,10 @@ namespace AryTickets.Controllers
         public async Task<IActionResult> CreatePaymentIntent([FromForm] decimal amount, [FromForm] int? performanceId, [FromForm] string? selectedSeats)
         {
             if (!_stripeSettings.IsConfigured)
-                return BadRequest(new { message = "Stripe не е конфигуриран." });
+                return BadRequest(new { message = "Stripe is not configured." });
 
             if (amount <= 0)
-                return BadRequest(new { message = "Невалидна сума." });
+                return BadRequest(new { message = "Invalid amount." });
 
             // Re-check seat availability before charging the customer.
             if (performanceId.HasValue && !string.IsNullOrEmpty(selectedSeats))
@@ -123,7 +123,7 @@ namespace AryTickets.Controllers
                     .ToListAsync();
 
                 if (alreadyTaken.Any())
-                    return Conflict(new { message = $"Места вече са заети: {string.Join(", ", alreadyTaken)}", takenSeats = alreadyTaken });
+                    return Conflict(new { message = $"Seats already taken: {string.Join(", ", alreadyTaken)}", takenSeats = alreadyTaken });
             }
 
             try
@@ -171,15 +171,15 @@ namespace AryTickets.Controllers
                     var intent = await intentService.GetAsync(model.StripePaymentIntentId);
 
                     if (intent == null || intent.Status != "succeeded")
-                        return Json(new { success = false, message = "Плащането не е потвърдено от Stripe." });
+                        return Json(new { success = false, message = "Payment was not confirmed by Stripe." });
 
                     var expectedAmount = (long)(model.TotalPrice * 100m);
                     if (intent.Amount != expectedAmount)
-                        return Json(new { success = false, message = "Сумата не съответства на потвърденото плащане." });
+                        return Json(new { success = false, message = "The amount does not match the confirmed payment." });
                 }
                 catch (Stripe.StripeException ex)
                 {
-                    return Json(new { success = false, message = "Stripe грешка: " + ex.Message });
+                    return Json(new { success = false, message = "Stripe error: " + ex.Message });
                 }
             }
             else
@@ -189,14 +189,14 @@ namespace AryTickets.Controllers
                     || string.IsNullOrWhiteSpace(model.ExpiryDate)
                     || string.IsNullOrWhiteSpace(model.Cvc))
                 {
-                    return BadRequest("Невалидни данни за плащане.");
+                    return BadRequest("Invalid payment data.");
                 }
 
                 if (!System.Text.RegularExpressions.Regex.IsMatch(model.ExpiryDate, @"^(0[1-9]|1[0-2])\/?([0-9]{2})$"))
-                    return BadRequest("Невалиден срок на картата.");
+                    return BadRequest("Invalid card expiry.");
 
                 if (model.Cvc.Length < 3 || model.Cvc.Length > 4)
-                    return BadRequest("Невалиден CVC.");
+                    return BadRequest("Invalid CVC.");
 
                 // Simulated processing latency for the fallback flow.
                 await Task.Delay(2500);
@@ -204,7 +204,7 @@ namespace AryTickets.Controllers
 
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
-                return Json(new { success = false, message = "Потребителят не е намерен." });
+                return Json(new { success = false, message = "User not found." });
 
             var confirmCode = System.Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper();
 
@@ -226,7 +226,7 @@ namespace AryTickets.Controllers
                     if (alreadyTaken.Any())
                     {
                         if (transaction != null) await transaction.RollbackAsync();
-                        return Json(new { success = false, message = $"Места вече са заети: {string.Join(", ", alreadyTaken)}", takenSeats = alreadyTaken });
+                        return Json(new { success = false, message = $"Seats already taken: {string.Join(", ", alreadyTaken)}", takenSeats = alreadyTaken });
                     }
                 }
 
@@ -285,7 +285,7 @@ namespace AryTickets.Controllers
                     {
                         await _emailSender.SendEmailWithAttachmentAsync(
                             user.Email,
-                            "Вашите билети за " + model.ProductionTitle,
+                            "Your tickets for " + model.ProductionTitle,
                             emailBody,
                             pdfBytes,
                             $"AryTix-Bilet-{confirmCode}.pdf"
@@ -293,7 +293,7 @@ namespace AryTickets.Controllers
                     }
                     else
                     {
-                        await _emailSender.SendEmailAsync(user.Email, "Вашите билети за " + model.ProductionTitle, emailBody);
+                        await _emailSender.SendEmailAsync(user.Email, "Your tickets for " + model.ProductionTitle, emailBody);
                     }
                 }
                 catch
@@ -306,7 +306,7 @@ namespace AryTickets.Controllers
             catch (DbUpdateException)
             {
                 if (transaction != null) await transaction.RollbackAsync();
-                return Json(new { success = false, message = "Тези места току-що бяха резервирани от друг зрител. Моля изберете други." });
+                return Json(new { success = false, message = "These seats were just booked by another viewer. Please choose different ones." });
             }
             finally
             {
@@ -320,29 +320,29 @@ namespace AryTickets.Controllers
             sb.Append("<div style='font-family: Georgia, \"Times New Roman\", serif; background-color: #1a0606; color: #f5e6d3; padding: 40px 20px; text-align: center;'>");
             sb.Append("<div style='max-width: 520px; margin: 0 auto;'>");
             sb.Append("<h1 style='font-size: 30px; letter-spacing: 0.18em; margin-bottom: 4px;'><span style='color: #f5e6d3; font-weight: 400;'>ARY</span><span style='color: #d4af37; font-weight: 400;'>TIX</span></h1>");
-            sb.Append("<p style='color: #d4af37; font-size: 11px; letter-spacing: 0.28em; margin-bottom: 30px;'>Т Е А Т Р А Л Н А &nbsp; С Ц Е Н А</p>");
+            sb.Append("<p style='color: #d4af37; font-size: 11px; letter-spacing: 0.28em; margin-bottom: 30px;'>T H E A T R I C A L &nbsp; S T A G E</p>");
             sb.Append("<div style='background-color: #2b0a0a; border: 1px solid rgba(212,175,55,0.25); border-radius: 6px; padding: 36px 32px; text-align: left; box-shadow: 0 8px 32px rgba(0,0,0,0.4);'>");
-            sb.Append("<h2 style='color: #f5e6d3; font-size: 22px; margin: 0 0 6px 0; font-weight: 400;'>Резервацията е потвърдена</h2>");
-            sb.AppendFormat("<p style='color: #c9a961; font-size: 14px; margin: 0 0 24px 0; font-style: italic;'>Уважаеми {0}, очакваме Ви на представлението:</p>", username);
+            sb.Append("<h2 style='color: #f5e6d3; font-size: 22px; margin: 0 0 6px 0; font-weight: 400;'>Booking confirmed</h2>");
+            sb.AppendFormat("<p style='color: #c9a961; font-size: 14px; margin: 0 0 24px 0; font-style: italic;'>Dear {0}, we look forward to seeing you at the performance:</p>", username);
             sb.Append("<div style='background-color: #1a0606; border: 1px solid rgba(212,175,55,0.15); border-radius: 4px; padding: 22px; margin-bottom: 24px;'>");
             sb.Append("<table style='width: 100%; border-collapse: collapse;'>");
-            sb.AppendFormat("<tr><td style='padding: 8px 0; color: #c9a961; font-size: 12px; letter-spacing: 0.1em;'>ПИЕСА</td><td style='padding: 8px 0; color: #f5e6d3; font-size: 15px; font-weight: 600; text-align: right;'>{0}</td></tr>", model.ProductionTitle);
-            sb.AppendFormat("<tr><td style='padding: 8px 0; color: #c9a961; font-size: 12px; letter-spacing: 0.1em;'>ДАТА И ЧАС</td><td style='padding: 8px 0; color: #f5e6d3; font-size: 14px; text-align: right;'>{0}</td></tr>", model.PerformanceDateTime);
+            sb.AppendFormat("<tr><td style='padding: 8px 0; color: #c9a961; font-size: 12px; letter-spacing: 0.1em;'>PRODUCTION</td><td style='padding: 8px 0; color: #f5e6d3; font-size: 15px; font-weight: 600; text-align: right;'>{0}</td></tr>", model.ProductionTitle);
+            sb.AppendFormat("<tr><td style='padding: 8px 0; color: #c9a961; font-size: 12px; letter-spacing: 0.1em;'>DATE &amp; TIME</td><td style='padding: 8px 0; color: #f5e6d3; font-size: 14px; text-align: right;'>{0}</td></tr>", model.PerformanceDateTime);
             if (!string.IsNullOrEmpty(model.Stage))
-                sb.AppendFormat("<tr><td style='padding: 8px 0; color: #c9a961; font-size: 12px; letter-spacing: 0.1em;'>СЦЕНА</td><td style='padding: 8px 0; color: #f5e6d3; font-size: 14px; text-align: right;'>{0}</td></tr>", model.Stage);
-            sb.AppendFormat("<tr><td style='padding: 8px 0; color: #c9a961; font-size: 12px; letter-spacing: 0.1em;'>МЕСТА</td><td style='padding: 8px 0; color: #f5e6d3; font-size: 14px; text-align: right;'>{0}</td></tr>", model.SelectedSeats);
+                sb.AppendFormat("<tr><td style='padding: 8px 0; color: #c9a961; font-size: 12px; letter-spacing: 0.1em;'>STAGE</td><td style='padding: 8px 0; color: #f5e6d3; font-size: 14px; text-align: right;'>{0}</td></tr>", model.Stage);
+            sb.AppendFormat("<tr><td style='padding: 8px 0; color: #c9a961; font-size: 12px; letter-spacing: 0.1em;'>SEATS</td><td style='padding: 8px 0; color: #f5e6d3; font-size: 14px; text-align: right;'>{0}</td></tr>", model.SelectedSeats);
             sb.Append("<tr><td colspan='2' style='padding: 12px 0 0 0;'><div style='border-top: 1px solid rgba(212,175,55,0.15);'></div></td></tr>");
-            sb.AppendFormat("<tr><td style='padding: 12px 0 0 0; color: #c9a961; font-size: 12px; letter-spacing: 0.1em;'>ОБЩА СУМА</td><td style='padding: 12px 0 0 0; color: #d4af37; font-size: 20px; font-weight: 700; text-align: right;'>{0:F2} лв.</td></tr>", model.TotalPrice);
+            sb.AppendFormat("<tr><td style='padding: 12px 0 0 0; color: #c9a961; font-size: 12px; letter-spacing: 0.1em;'>TOTAL</td><td style='padding: 12px 0 0 0; color: #d4af37; font-size: 20px; font-weight: 700; text-align: right;'>{0:F2} BGN</td></tr>", model.TotalPrice);
             sb.Append("</table></div>");
             var qrUrl = $"https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=ARYTIX-{confirmCode}|{model.ProductionTitle}|{model.PerformanceDateTime}|{model.SelectedSeats}";
             sb.Append("<div style='text-align: center; margin: 24px 0 16px;'>");
             sb.AppendFormat("<img src='{0}' alt='QR Code' style='border-radius: 4px; background: #f5e6d3; padding: 8px;' width='180' height='180' />", qrUrl);
-            sb.AppendFormat("<p style='color: #c9a961; font-size: 11px; margin-top: 10px; letter-spacing: 0.2em;'>КОД: {0}</p>", confirmCode);
+            sb.AppendFormat("<p style='color: #c9a961; font-size: 11px; margin-top: 10px; letter-spacing: 0.2em;'>CODE: {0}</p>", confirmCode);
             sb.Append("</div>");
-            sb.Append("<p style='color: #8b6914; font-size: 12px; text-align: center; margin: 0; font-style: italic;'>Покажете този QR код или потвърждение на входа на театъра.</p>");
-            sb.Append("<p style='color: #8b6914; font-size: 12px; text-align: center; margin-top: 8px;'>Прикачен е PDF билет към този имейл.</p>");
+            sb.Append("<p style='color: #8b6914; font-size: 12px; text-align: center; margin: 0; font-style: italic;'>Show this QR code or confirmation at the theatre entrance.</p>");
+            sb.Append("<p style='color: #8b6914; font-size: 12px; text-align: center; margin-top: 8px;'>A PDF ticket is attached to this email.</p>");
             sb.Append("</div>");
-            sb.Append("<p style='color: #6b4f15; font-size: 11px; margin-top: 24px;'>&copy; 2026 AryTix · Всички права запазени</p>");
+            sb.Append("<p style='color: #6b4f15; font-size: 11px; margin-top: 24px;'>&copy; 2026 AryTix · All rights reserved</p>");
             sb.Append("</div></div>");
             return sb.ToString();
         }

@@ -19,7 +19,7 @@ namespace AryTickets.Models
 
         [Required]
         [MaxLength(100)]
-        public string Stage { get; set; } = "Голяма сцена";
+        public string Stage { get; set; } = "Main Stage";
 
         public decimal Price { get; set; } = 35.00m;
 

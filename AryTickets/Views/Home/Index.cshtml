@@ -1,6 +1,6 @@
 @model AryTickets.Models.HomeViewModel
 @{
-    ViewData["Title"] = "Начало";
+    ViewData["Title"] = "Home";
     var featured = Model.CurrentRepertoire.FirstOrDefault();
     var secondaryHero = Model.CurrentRepertoire.Skip(1).Take(3).ToList();
 }

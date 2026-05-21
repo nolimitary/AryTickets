@@ -81,7 +81,7 @@ namespace AryTickets.Controllers
             if (!string.IsNullOrWhiteSpace(playwright))
             {
                 sb.Append($"<line x1='240' y1='620' x2='360' y2='620' stroke='#d4af37' stroke-opacity='0.55' stroke-width='1'/>");
-                sb.Append($"<text x='300' y='660' text-anchor='middle' fill='#c9a961' font-family=\"Cormorant Garamond, Georgia, serif\" font-style='italic' font-size='26'>от {Escape(playwright)}</text>");
+                sb.Append($"<text x='300' y='660' text-anchor='middle' fill='#c9a961' font-family=\"Cormorant Garamond, Georgia, serif\" font-style='italic' font-size='26'>by {Escape(playwright)}</text>");
             }
 
             // Genre badge near the bottom.
@@ -131,7 +131,7 @@ namespace AryTickets.Controllers
 
             if (!string.IsNullOrWhiteSpace(playwright))
             {
-                sb.Append($"<text x='1200' y='640' text-anchor='middle' fill='#c9a961' font-family=\"Cormorant Garamond, Georgia, serif\" font-style='italic' font-size='42' opacity='0.85'>от {Escape(playwright)}</text>");
+                sb.Append($"<text x='1200' y='640' text-anchor='middle' fill='#c9a961' font-family=\"Cormorant Garamond, Georgia, serif\" font-style='italic' font-size='42' opacity='0.85'>by {Escape(playwright)}</text>");
             }
 
             sb.Append("</svg>");
