@@ -206,13 +206,12 @@ namespace AryTickets.Data
 
         private static List<string> AvailableSeats(ApplicationDbContext db, int perfId, int want, Random rng)
         {
-            // Pool of seat labels matches BookingController.GenerateSeatingChart.
+            // Pool of seat labels matches BookingController.GenerateArenaPlan.
             var pool = new List<string>();
-            var rows = "ABCDEFGH";
-            foreach (var r in rows)
+            (string Prefix, int Count)[] tiers = { ("R", 8), ("P", 14), ("S", 20), ("B", 28), ("LB", 4), ("RB", 4) };
+            foreach (var (prefix, count) in tiers)
             {
-                var maxSeat = r == 'H' ? 8 : 12; // approximates the chart's row sizes
-                for (var n = 1; n <= maxSeat; n++) pool.Add($"{r}{n}");
+                for (var n = 1; n <= count; n++) pool.Add($"{prefix}{n}");
             }
             var taken = db.SeatReservations
                 .Where(sr => sr.PerformanceId == perfId)

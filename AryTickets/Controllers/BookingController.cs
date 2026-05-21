@@ -61,7 +61,7 @@ namespace AryTickets.Controllers
                 PerformanceId = perf.Id,
                 Stage = perf.Stage,
                 TicketPrice = perf.Price,
-                SeatingChart = GenerateSeatingChart(reservedSeats, perf.Price)
+                Seats = GenerateArenaPlan(reservedSeats, perf.Price)
             };
 
             return View(viewModel);
@@ -347,28 +347,64 @@ namespace AryTickets.Controllers
             return sb.ToString();
         }
 
-        private List<List<Seat>> GenerateSeatingChart(HashSet<string> reservedSeats, decimal price)
+        // Builds a tiered arena seating plan: a horseshoe of concentric arcs in
+        // front of the stage, plus a pair of royal boxes on either side.
+        // Coordinates are in the SVG viewBox (0..900, 0..620) the view uses.
+        private static List<Seat> GenerateArenaPlan(HashSet<string> reservedSeats, decimal basePrice)
         {
-            var chart = new List<List<Seat>>();
-            var rows = "ABCDEFGH".ToCharArray();
-            for (int i = 0; i < rows.Length; i++)
+            const double cx = 450;
+            const double cy = 80;
+
+            var tiers = new (SeatTier Tier, string Prefix, double Radius, double HalfSpanDeg, int Count, decimal Multiplier)[]
             {
-                var row = new List<Seat>();
-                int seatCounter = 1;
-                for (int j = 1; j <= 14; j++)
+                (SeatTier.Royal,    "R", 145, 28, 8,  2.5m),
+                (SeatTier.Premium,  "P", 215, 48, 14, 1.5m),
+                (SeatTier.Standard, "S", 295, 63, 20, 1.0m),
+                (SeatTier.Balcony,  "B", 380, 76, 28, 0.7m),
+            };
+
+            var seats = new List<Seat>();
+            foreach (var t in tiers)
+            {
+                for (var i = 0; i < t.Count; i++)
                 {
-                    if (j == 7 || j == 8) { row.Add(null); }
-                    else if (rows[i] == 'H' && (j <= 2 || j >= 13)) { row.Add(null); }
-                    else
+                    var angleDeg = -t.HalfSpanDeg + (i + 0.5) * (2 * t.HalfSpanDeg / t.Count);
+                    var angleRad = angleDeg * System.Math.PI / 180.0;
+                    var seatNumber = $"{t.Prefix}{i + 1}";
+                    seats.Add(new Seat
                     {
-                        var seatNum = $"{rows[i]}{seatCounter++}";
-                        var status = reservedSeats.Contains(seatNum) ? SeatStatus.Taken : SeatStatus.Available;
-                        row.Add(new Seat { SeatNumber = seatNum, Status = status, Price = price });
-                    }
+                        SeatNumber = seatNumber,
+                        Status = reservedSeats.Contains(seatNumber) ? SeatStatus.Taken : SeatStatus.Available,
+                        Price = System.Math.Round(basePrice * t.Multiplier, 2),
+                        Tier = t.Tier,
+                        X = cx + t.Radius * System.Math.Sin(angleRad),
+                        Y = cy + t.Radius * System.Math.Cos(angleRad),
+                        Rotation = angleDeg
+                    });
                 }
-                chart.Add(row);
             }
-            return chart;
+
+            // Royal boxes — vertical columns on each flank, slightly elevated.
+            (string Prefix, double X)[] boxes = { ("LB", 70), ("RB", 830) };
+            foreach (var box in boxes)
+            {
+                for (var i = 0; i < 4; i++)
+                {
+                    var seatNumber = $"{box.Prefix}{i + 1}";
+                    seats.Add(new Seat
+                    {
+                        SeatNumber = seatNumber,
+                        Status = reservedSeats.Contains(seatNumber) ? SeatStatus.Taken : SeatStatus.Available,
+                        Price = System.Math.Round(basePrice * 3.0m, 2),
+                        Tier = SeatTier.RoyalBox,
+                        X = box.X,
+                        Y = 180 + i * 30,
+                        Rotation = box.Prefix == "LB" ? 90 : -90
+                    });
+                }
+            }
+
+            return seats;
         }
     }
 }
