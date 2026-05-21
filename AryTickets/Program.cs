@@ -258,6 +258,10 @@ using (var scope = app.Services.CreateScope())
 
         await db.SaveChangesAsync();
     }
+
+    // Populate a realistic demo dataset (users, bookings, reviews, favourites,
+    // critic applications). No-op once any non-admin user exists.
+    await AryTickets.Data.DemoDataSeeder.SeedAsync(db, userManager);
 }
 
 if (!app.Environment.IsDevelopment())
