@@ -2,7 +2,7 @@
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<AryTickets.Models.ApplicationUser> UserManager
 @{
-    ViewData["Title"] = "Потребители";
+    ViewData["Title"] = "Users";
     Layout = "_Layout";
     var currentUser = await UserManager.GetUserAsync(User);
 }
@@ -16,11 +16,11 @@
 <div class="admin-main">
     <div class="flex items-end justify-between mb-10 flex-wrap gap-3">
         <div>
-            <span class="text-[11px] font-sans tracking-[0.3em] uppercase text-gold-400">Аудитория</span>
-            <h1 class="font-serif text-4xl font-semibold text-ivory-100 mt-1">Потребители</h1>
-            <p class="font-garamond italic text-ivory-300/70 mt-1">Регистрирани зрители на театъра</p>
+            <span class="text-[11px] font-sans tracking-[0.3em] uppercase text-gold-400">Audience</span>
+            <h1 class="font-serif text-4xl font-semibold text-ivory-100 mt-1">Users</h1>
+            <p class="font-garamond italic text-ivory-300/70 mt-1">Registered theatregoers</p>
         </div>
-        <span class="inline-flex items-center px-3 py-1 rounded-sm bg-gold-400/12 text-gold-400 border border-gold-400/30 font-sans text-[12px] tracking-widest uppercase">@Model.Count потребители</span>
+        <span class="inline-flex items-center px-3 py-1 rounded-sm bg-gold-400/12 text-gold-400 border border-gold-400/30 font-sans text-[12px] tracking-widest uppercase">@Model.Count users</span>
     </div>
 
     <div class="panel overflow-hidden">
@@ -28,11 +28,11 @@
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th>Потребител</th>
-                        <th>Роля</th>
-                        <th>Имейл</th>
-                        <th>Резервации</th>
-                        <th class="text-right">Действия</th>
+                        <th>User</th>
+                        <th>Role</th>
+                        <th>Email</th>
+                        <th>Bookings</th>
+                        <th class="text-right">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -46,21 +46,21 @@
                             <td>
                                 @if (u.Roles.Contains("Admin"))
                                 {
-                                    <span class="badge-confirmed">Администратор</span>
+                                    <span class="badge-confirmed">Administrator</span>
                                 }
                                 else
                                 {
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-sm font-sans text-[10px] tracking-widest uppercase bg-burgundy-800/50 text-ivory-300/70 border border-gold-500/15">Зрител</span>
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-sm font-sans text-[10px] tracking-widest uppercase bg-burgundy-800/50 text-ivory-300/70 border border-gold-500/15">Viewer</span>
                                 }
                             </td>
                             <td>
                                 @if (u.EmailConfirmed)
                                 {
-                                    <span class="badge-confirmed">Потвърден</span>
+                                    <span class="badge-confirmed">Confirmed</span>
                                 }
                                 else
                                 {
-                                    <span class="badge-pending">Чакащ</span>
+                                    <span class="badge-pending">Pending</span>
                                 }
                             </td>
                             <td><span class="font-serif text-ivory-100">@u.BookingCount</span></td>
@@ -70,15 +70,15 @@
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="userId" value="@u.Id" />
                                         <button type="submit" class="admin-btn-primary" style="padding:0.4rem 0.85rem; font-size:10px;">
-                                            @(u.Roles.Contains("Admin") ? "Премахни админ" : "Направи админ")
+                                            @(u.Roles.Contains("Admin") ? "Revoke admin" : "Make admin")
                                         </button>
                                     </form>
                                     @if (currentUser != null && u.Id != currentUser.Id)
                                     {
-                                        <form asp-action="DeleteUser" asp-controller="Admin" method="post" class="inline" onsubmit="return confirm('Сигурни ли сте? Действието е необратимо.');">
+                                        <form asp-action="DeleteUser" asp-controller="Admin" method="post" class="inline" onsubmit="return confirm('Are you sure? This action cannot be undone.');">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="userId" value="@u.Id" />
-                                            <button type="submit" class="admin-btn-danger">Изтрий</button>
+                                            <button type="submit" class="admin-btn-danger">Delete</button>
                                         </form>
                                     }
                                 </div>
@@ -90,7 +90,7 @@
         </div>
         @if (!Model.Any())
         {
-            <div class="py-16 text-center font-garamond italic text-ivory-300/60">Няма потребители.</div>
+            <div class="py-16 text-center font-garamond italic text-ivory-300/60">No users.</div>
         }
     </div>
 </div>

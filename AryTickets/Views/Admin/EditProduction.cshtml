@@ -1,6 +1,6 @@
 @model AryTickets.Models.Production
 @{
-    ViewData["Title"] = "Редактиране на постановка";
+    ViewData["Title"] = "Edit production";
     Layout = "_Layout";
 }
 
@@ -12,8 +12,8 @@
 
 <div class="admin-main">
     <div class="mb-10">
-        <a href="/Admin/Productions" class="text-[11px] font-sans tracking-wider uppercase text-gold-500/70 hover:text-gold-400">← Назад към постановките</a>
-        <h1 class="font-serif text-4xl font-semibold text-ivory-100 mt-3">Редактиране</h1>
+        <a href="/Admin/Productions" class="text-[11px] font-sans tracking-wider uppercase text-gold-500/70 hover:text-gold-400">← Back to productions</a>
+        <h1 class="font-serif text-4xl font-semibold text-ivory-100 mt-3">Edit</h1>
         <p class="font-garamond italic text-ivory-300/70 mt-1">@Model.Title</p>
     </div>
 
@@ -25,62 +25,62 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-                <label asp-for="Title" class="admin-label">Заглавие</label>
+                <label asp-for="Title" class="admin-label">Title</label>
                 <input asp-for="Title" class="admin-input" required>
             </div>
             <div>
-                <label asp-for="TitleOriginal" class="admin-label">Оригинално заглавие</label>
+                <label asp-for="TitleOriginal" class="admin-label">Original title</label>
                 <input asp-for="TitleOriginal" class="admin-input">
             </div>
             <div>
-                <label asp-for="Playwright" class="admin-label">Автор / Драматург</label>
+                <label asp-for="Playwright" class="admin-label">Playwright</label>
                 <input asp-for="Playwright" class="admin-input">
             </div>
             <div>
-                <label asp-for="Director" class="admin-label">Режисьор</label>
+                <label asp-for="Director" class="admin-label">Director</label>
                 <input asp-for="Director" class="admin-input">
             </div>
             <div class="md:col-span-2">
-                <label asp-for="Cast" class="admin-label">Актьорски състав</label>
+                <label asp-for="Cast" class="admin-label">Cast</label>
                 <input asp-for="Cast" class="admin-input">
             </div>
             <div>
-                <label asp-for="Genre" class="admin-label">Жанр</label>
+                <label asp-for="Genre" class="admin-label">Genre</label>
                 <input asp-for="Genre" class="admin-input">
             </div>
             <div>
-                <label asp-for="DurationMinutes" class="admin-label">Продължителност (мин)</label>
+                <label asp-for="DurationMinutes" class="admin-label">Duration (min)</label>
                 <input asp-for="DurationMinutes" type="number" class="admin-input" min="0">
             </div>
             <div class="md:col-span-2">
-                <label asp-for="Synopsis" class="admin-label">Синопсис</label>
+                <label asp-for="Synopsis" class="admin-label">Synopsis</label>
                 <textarea asp-for="Synopsis" class="admin-input" rows="5" required></textarea>
             </div>
             <div class="md:col-span-2">
-                <label asp-for="PosterUrl" class="admin-label">URL на постер</label>
+                <label asp-for="PosterUrl" class="admin-label">Poster URL</label>
                 <input asp-for="PosterUrl" class="admin-input">
             </div>
             <div class="md:col-span-2">
-                <label asp-for="BackdropUrl" class="admin-label">URL на фон</label>
+                <label asp-for="BackdropUrl" class="admin-label">Backdrop URL</label>
                 <input asp-for="BackdropUrl" class="admin-input">
             </div>
             <div>
-                <label asp-for="TrailerUrl" class="admin-label">Трейлър URL</label>
+                <label asp-for="TrailerUrl" class="admin-label">Trailer URL</label>
                 <input asp-for="TrailerUrl" class="admin-input">
             </div>
             <div>
-                <label asp-for="PremiereDate" class="admin-label">Премиера</label>
+                <label asp-for="PremiereDate" class="admin-label">Premiere</label>
                 <input asp-for="PremiereDate" type="date" class="admin-input" value="@Model.PremiereDate.ToString("yyyy-MM-dd")">
             </div>
             <div>
-                <label asp-for="Rating" class="admin-label">Оценка</label>
+                <label asp-for="Rating" class="admin-label">Rating</label>
                 <input asp-for="Rating" type="number" step="0.1" min="0" max="10" class="admin-input">
             </div>
         </div>
 
         <div class="flex items-center gap-3 mt-8 pt-6 border-t border-gold-500/15">
-            <button type="submit" class="admin-btn-primary">Запази промените</button>
-            <a href="/Admin/Productions" class="text-[11px] font-sans tracking-wider uppercase text-ivory-300/70 hover:text-gold-400">Отказ</a>
+            <button type="submit" class="admin-btn-primary">Save changes</button>
+            <a href="/Admin/Productions" class="text-[11px] font-sans tracking-wider uppercase text-ivory-300/70 hover:text-gold-400">Cancel</a>
         </div>
     </form>
 </div>

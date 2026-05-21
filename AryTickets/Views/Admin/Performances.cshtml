@@ -1,6 +1,6 @@
 @model List<AryTickets.Models.Performance>
 @{
-    ViewData["Title"] = "Представления";
+    ViewData["Title"] = "Performances";
     Layout = "_Layout";
     var productions = ViewData["Productions"] as List<AryTickets.Models.Production> ?? new List<AryTickets.Models.Production>();
     var grouped = Model
@@ -51,19 +51,19 @@
 
 <div class="admin-main">
     <div class="mb-10">
-        <span class="text-[11px] font-sans tracking-[0.3em] uppercase text-gold-400">Афиш</span>
-        <h1 class="font-serif text-4xl font-semibold text-ivory-100 mt-1">Представления</h1>
-        <p class="font-garamond italic text-ivory-300/70 mt-1">Планиране на дати и часове по постановки</p>
+        <span class="text-[11px] font-sans tracking-[0.3em] uppercase text-gold-400">Playbill</span>
+        <h1 class="font-serif text-4xl font-semibold text-ivory-100 mt-1">Performances</h1>
+        <p class="font-garamond italic text-ivory-300/70 mt-1">Schedule dates and times for each production</p>
     </div>
 
     <div class="panel p-6 mb-10 max-w-3xl">
-        <h3 class="font-serif text-xl text-ivory-100 mb-4">Добави представление</h3>
+        <h3 class="font-serif text-xl text-ivory-100 mb-4">Add performance</h3>
         <form asp-action="CreatePerformance" method="post" class="space-y-4">
             @Html.AntiForgeryToken()
             <div>
-                <label class="admin-label">Постановка</label>
+                <label class="admin-label">Production</label>
                 <select name="productionId" class="admin-input" required>
-                    <option value="">— Изберете постановка —</option>
+                    <option value="">— Choose a production —</option>
                     @foreach (var p in productions)
                     {
                         <option value="@p.Id">@p.Title @(string.IsNullOrEmpty(p.Playwright) ? "" : "· " + p.Playwright)</option>
@@ -71,28 +71,28 @@
                 </select>
             </div>
             <div>
-                <label class="admin-label">Дати и часове (ISO формат, разделени със запетая)</label>
+                <label class="admin-label">Dates and times (ISO format, comma-separated)</label>
                 <textarea name="performances" class="admin-input" rows="3" placeholder="2026-05-20 19:30, 2026-05-22 19:30, 2026-05-25 20:00" required></textarea>
-                <p class="text-[11px] font-sans text-gold-500/60 mt-1 italic">Пример: 2026-05-20 19:30</p>
+                <p class="text-[11px] font-sans text-gold-500/60 mt-1 italic">Example: 2026-05-20 19:30</p>
             </div>
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="admin-label">Сцена</label>
-                    <input name="stage" class="admin-input" placeholder="Голяма сцена" value="Голяма сцена">
+                    <label class="admin-label">Stage</label>
+                    <input name="stage" class="admin-input" placeholder="Main Stage" value="Main Stage">
                 </div>
                 <div>
-                    <label class="admin-label">Цена (лв.)</label>
+                    <label class="admin-label">Price (BGN)</label>
                     <input name="price" type="number" step="0.01" min="0" class="admin-input" placeholder="35.00" value="35.00">
                 </div>
             </div>
-            <button type="submit" class="admin-btn-primary">Запази представленията</button>
+            <button type="submit" class="admin-btn-primary">Save performances</button>
         </form>
     </div>
 
     @if (!grouped.Any())
     {
         <div class="panel p-12 text-center">
-            <p class="font-garamond italic text-xl text-ivory-300/70">Все още няма обявени представления</p>
+            <p class="font-garamond italic text-xl text-ivory-300/70">No performances scheduled yet</p>
         </div>
     }
     else
@@ -108,12 +108,12 @@
                             <div class="flex flex-wrap gap-2">
                                 @foreach (var perf in group.OrderBy(p => p.ShowDateTime))
                                 {
-                                    <form asp-action="DeletePerformance" asp-route-id="@perf.Id" method="post" onsubmit="return confirm('Премахни това представление?')" class="inline-block">
+                                    <form asp-action="DeletePerformance" asp-route-id="@perf.Id" method="post" onsubmit="return confirm('Remove this performance?')" class="inline-block">
                                         @Html.AntiForgeryToken()
                                         <button type="submit" class="perf-pill">
                                             <span>@perf.FormattedDateTime</span>
                                             <span class="text-gold-500 italic font-garamond">· @perf.Stage</span>
-                                            <span class="text-gold-400">· @perf.Price.ToString("F2") лв.</span>
+                                            <span class="text-gold-400">· @perf.Price.ToString("F2") BGN</span>
                                             <span class="delete">×</span>
                                         </button>
                                     </form>

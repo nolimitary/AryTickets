@@ -1,6 +1,6 @@
 @using AryTickets.Models
 @{
-    ViewData["Title"] = "Табло";
+    ViewData["Title"] = "Dashboard";
     Layout = "_Layout";
 
     var totalUsers = (int)(ViewData["TotalUsers"] ?? 0);
@@ -19,52 +19,52 @@
 
 <div class="admin-main">
     <div class="mb-10">
-        <span class="text-[11px] font-sans tracking-[0.3em] uppercase text-gold-400">Преглед</span>
-        <h1 class="font-serif text-4xl font-semibold text-ivory-100 mt-1">Контролно табло</h1>
-        <p class="font-garamond italic text-ivory-300/70 mt-1">Резюме на дейността в театъра</p>
+        <span class="text-[11px] font-sans tracking-[0.3em] uppercase text-gold-400">Overview</span>
+        <h1 class="font-serif text-4xl font-semibold text-ivory-100 mt-1">Dashboard</h1>
+        <p class="font-garamond italic text-ivory-300/70 mt-1">Summary of theatre activity</p>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-12">
         <div class="stat-card">
-            <p class="text-[10px] font-sans tracking-[0.2em] uppercase text-gold-400">Потребители</p>
+            <p class="text-[10px] font-sans tracking-[0.2em] uppercase text-gold-400">Users</p>
             <p class="font-serif text-4xl font-semibold text-ivory-100 mt-2">@totalUsers.ToString("N0")</p>
-            <p class="text-[12px] font-garamond italic text-gold-500/60 mt-3">Регистрирани зрители</p>
+            <p class="text-[12px] font-garamond italic text-gold-500/60 mt-3">Registered viewers</p>
         </div>
         <div class="stat-card">
-            <p class="text-[10px] font-sans tracking-[0.2em] uppercase text-gold-400">Резервации</p>
+            <p class="text-[10px] font-sans tracking-[0.2em] uppercase text-gold-400">Bookings</p>
             <p class="font-serif text-4xl font-semibold text-ivory-100 mt-2">@totalBookings.ToString("N0")</p>
-            <p class="text-[12px] font-garamond italic text-gold-500/60 mt-3">Издадени билети</p>
+            <p class="text-[12px] font-garamond italic text-gold-500/60 mt-3">Tickets issued</p>
         </div>
         <div class="stat-card">
-            <p class="text-[10px] font-sans tracking-[0.2em] uppercase text-gold-400">Приходи</p>
-            <p class="font-serif text-4xl font-semibold text-gold-400 mt-2">@totalRevenue.ToString("N2") лв.</p>
-            <p class="text-[12px] font-garamond italic text-gold-500/60 mt-3">Общи приходи</p>
+            <p class="text-[10px] font-sans tracking-[0.2em] uppercase text-gold-400">Revenue</p>
+            <p class="font-serif text-4xl font-semibold text-gold-400 mt-2">@totalRevenue.ToString("N2") BGN</p>
+            <p class="text-[12px] font-garamond italic text-gold-500/60 mt-3">Total revenue</p>
         </div>
         <div class="stat-card">
-            <p class="text-[10px] font-sans tracking-[0.2em] uppercase text-gold-400">Любими</p>
+            <p class="text-[10px] font-sans tracking-[0.2em] uppercase text-gold-400">Favorites</p>
             <p class="font-serif text-4xl font-semibold text-ivory-100 mt-2">@totalFavorites.ToString("N0")</p>
-            <p class="text-[12px] font-garamond italic text-gold-500/60 mt-3">Запазени постановки</p>
+            <p class="text-[12px] font-garamond italic text-gold-500/60 mt-3">Saved productions</p>
         </div>
     </div>
 
     <div class="panel mb-10 overflow-hidden">
         <div class="px-6 py-5 border-b border-gold-500/15 flex items-center justify-between">
             <div>
-                <h2 class="font-serif text-xl text-ivory-100">Последни резервации</h2>
-                <p class="text-[11px] font-sans tracking-wider uppercase text-gold-500/70 mt-0.5">Скорошни покупки</p>
+                <h2 class="font-serif text-xl text-ivory-100">Latest bookings</h2>
+                <p class="text-[11px] font-sans tracking-wider uppercase text-gold-500/70 mt-0.5">Recent purchases</p>
             </div>
-            <a href="/Admin/Bookings" class="text-[11px] font-sans tracking-wider uppercase text-gold-400 hover:text-gold-300">Виж всички</a>
+            <a href="/Admin/Bookings" class="text-[11px] font-sans tracking-wider uppercase text-gold-400 hover:text-gold-300">View all</a>
         </div>
         <div class="overflow-x-auto">
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th>Зрител</th>
-                        <th>Пиеса</th>
-                        <th>Представление</th>
-                        <th>Места</th>
-                        <th>Сума</th>
-                        <th>Дата</th>
+                        <th>Viewer</th>
+                        <th>Production</th>
+                        <th>Performance</th>
+                        <th>Seats</th>
+                        <th>Total</th>
+                        <th>Date</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -87,14 +87,14 @@
                                 <td class="font-serif text-ivory-100">@b.ProductionTitle</td>
                                 <td class="font-garamond italic">@b.PerformanceDateTime</td>
                                 <td><span class="inline-flex px-2 py-0.5 rounded-sm bg-burgundy-800/40 text-[12px] font-mono text-gold-300">@b.Seats</span></td>
-                                <td class="font-serif text-gold-400">@b.TotalPrice.ToString("N2") лв.</td>
+                                <td class="font-serif text-gold-400">@b.TotalPrice.ToString("N2") BGN</td>
                                 <td class="text-[12px] text-gold-500/70">@b.BookedAt.ToString("dd MMM yyyy")</td>
                             </tr>
                         }
                     }
                     else
                     {
-                        <tr><td colspan="6" class="text-center py-10 font-garamond italic text-ivory-300/50">Все още няма резервации</td></tr>
+                        <tr><td colspan="6" class="text-center py-10 font-garamond italic text-ivory-300/50">No bookings yet</td></tr>
                     }
                 </tbody>
             </table>
@@ -104,10 +104,10 @@
     <div>
         <div class="flex items-center justify-between mb-5">
             <div>
-                <h2 class="font-serif text-xl text-ivory-100">Нови зрители</h2>
-                <p class="text-[11px] font-sans tracking-wider uppercase text-gold-500/70 mt-0.5">Регистрирали се скоро</p>
+                <h2 class="font-serif text-xl text-ivory-100">New viewers</h2>
+                <p class="text-[11px] font-sans tracking-wider uppercase text-gold-500/70 mt-0.5">Recently registered</p>
             </div>
-            <a href="/Admin/Users" class="text-[11px] font-sans tracking-wider uppercase text-gold-400 hover:text-gold-300">Виж всички</a>
+            <a href="/Admin/Users" class="text-[11px] font-sans tracking-wider uppercase text-gold-400 hover:text-gold-300">View all</a>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             @if (recentUsers.Any())
@@ -125,11 +125,11 @@
                             </div>
                             @if (u.EmailConfirmed)
                             {
-                                <span class="badge-confirmed">Потвърден</span>
+                                <span class="badge-confirmed">Confirmed</span>
                             }
                             else
                             {
-                                <span class="badge-pending">Чакащ</span>
+                                <span class="badge-pending">Pending</span>
                             }
                         </div>
                     </div>
@@ -137,7 +137,7 @@
             }
             else
             {
-                <div class="col-span-full text-center py-10 font-garamond italic text-ivory-300/50">Няма потребители</div>
+                <div class="col-span-full text-center py-10 font-garamond italic text-ivory-300/50">No users yet</div>
             }
         </div>
     </div>

@@ -1,7 +1,7 @@
 @using AryTickets.Models
 @model List<AryTickets.Models.CriticApplication>
 @{
-    ViewData["Title"] = "Заявки за критик";
+    ViewData["Title"] = "Critic applications";
     Layout = "_Layout";
     var currentFilter = ViewData["CurrentFilter"] as string ?? "pending";
     var pendingCount = (int)(ViewData["PendingCount"] ?? 0);
@@ -68,18 +68,18 @@
 
 <div class="admin-main">
     <div class="mb-10">
-        <span class="text-[11px] font-sans tracking-[0.3em] uppercase text-gold-400">Аудитория</span>
-        <h1 class="font-serif text-4xl font-semibold text-ivory-100 mt-1">Заявки за критик</h1>
-        <p class="font-garamond italic text-ivory-300/70 mt-1">Преглед на кандидатурите за критически статут</p>
+        <span class="text-[11px] font-sans tracking-[0.3em] uppercase text-gold-400">Audience</span>
+        <h1 class="font-serif text-4xl font-semibold text-ivory-100 mt-1">Critic applications</h1>
+        <p class="font-garamond italic text-ivory-300/70 mt-1">Review applications for critic status</p>
     </div>
 
     <div class="flex items-center gap-3 mb-8 flex-wrap">
         <a href="/Admin/Applications?filter=pending" class="filter-tab @(currentFilter == "pending" ? "active" : "")">
-            Чакащи <span class="count-badge">@pendingCount</span>
+            Pending <span class="count-badge">@pendingCount</span>
         </a>
-        <a href="/Admin/Applications?filter=approved" class="filter-tab @(currentFilter == "approved" ? "active" : "")">Одобрени</a>
-        <a href="/Admin/Applications?filter=denied" class="filter-tab @(currentFilter == "denied" ? "active" : "")">Отхвърлени</a>
-        <a href="/Admin/Applications?filter=all" class="filter-tab @(currentFilter == "all" ? "active" : "")">Всички</a>
+        <a href="/Admin/Applications?filter=approved" class="filter-tab @(currentFilter == "approved" ? "active" : "")">Approved</a>
+        <a href="/Admin/Applications?filter=denied" class="filter-tab @(currentFilter == "denied" ? "active" : "")">Denied</a>
+        <a href="/Admin/Applications?filter=all" class="filter-tab @(currentFilter == "all" ? "active" : "")">All</a>
     </div>
 
     @if (Model != null && Model.Any())
@@ -100,29 +100,29 @@
                                     <span class="text-gold-500/30">•</span>
                                     <span class="text-[12px] font-sans text-gold-500/70">@app.User?.Email</span>
                                     <span class="text-gold-500/30">•</span>
-                                    <span class="text-[12px] font-sans text-gold-500/60 italic">подаде на @app.AppliedAt.ToString("dd MMM yyyy")</span>
+                                    <span class="text-[12px] font-sans text-gold-500/60 italic">submitted on @app.AppliedAt.ToString("dd MMM yyyy")</span>
                                 </div>
                             </div>
                         </div>
                         <div>
-                            @if (app.Status == ApplicationStatus.Pending) { <span class="badge-pending">Чакаща</span> }
-                            else if (app.Status == ApplicationStatus.Approved) { <span class="badge-approved">Одобрена</span> }
-                            else { <span class="badge-denied">Отхвърлена</span> }
+                            @if (app.Status == ApplicationStatus.Pending) { <span class="badge-pending">Pending</span> }
+                            else if (app.Status == ApplicationStatus.Approved) { <span class="badge-approved">Approved</span> }
+                            else { <span class="badge-denied">Denied</span> }
                         </div>
                     </div>
 
                     <div class="mb-4">
-                        <p class="text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-1.5">Биография</p>
+                        <p class="text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-1.5">Bio</p>
                         <p class="font-garamond text-ivory-200/85 text-[15px] leading-relaxed">@app.Bio</p>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                         <div>
-                            <p class="text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-1.5">Опит</p>
-                            <p class="font-garamond text-ivory-200/85">@app.YearsOfExperience години</p>
+                            <p class="text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-1.5">Experience</p>
+                            <p class="font-garamond text-ivory-200/85">@app.YearsOfExperience year@(app.YearsOfExperience == 1 ? "" : "s")</p>
                         </div>
                         <div>
-                            <p class="text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-1.5">Предишни работодатели</p>
+                            <p class="text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-1.5">Past employers</p>
                             <p class="font-garamond text-ivory-200/85">@app.PastEmployers</p>
                         </div>
                     </div>
@@ -130,18 +130,18 @@
                     @if (app.ReviewLinks != null && app.ReviewLinks.Any())
                     {
                         <div class="mb-4">
-                            <p class="text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-1.5">Връзки към публикации</p>
+                            <p class="text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-1.5">Published links</p>
                             <div class="flex flex-wrap gap-3">
                                 @for (var i = 0; i < app.ReviewLinks.Count; i++)
                                 {
-                                    <a href="@app.ReviewLinks[i]" target="_blank" rel="noopener noreferrer" class="text-[13px] font-garamond italic text-gold-400 hover:text-gold-300 underline-offset-2 hover:underline">Отзив @(i + 1) ↗</a>
+                                    <a href="@app.ReviewLinks[i]" target="_blank" rel="noopener noreferrer" class="text-[13px] font-garamond italic text-gold-400 hover:text-gold-300 underline-offset-2 hover:underline">Review @(i + 1) ↗</a>
                                 }
                             </div>
                         </div>
                     }
 
                     <div class="mb-5">
-                        <p class="text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-1.5">Мотивация</p>
+                        <p class="text-[10px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-1.5">Motivation</p>
                         <p class="font-garamond text-ivory-200/85 text-[15px] leading-relaxed">@app.Motivation</p>
                     </div>
 
@@ -151,12 +151,12 @@
                             <form asp-action="ApproveApplication" method="post" class="inline">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="id" value="@app.Id" />
-                                <button type="submit" class="admin-btn-primary" onclick="return confirm('Одобряване на заявката?');">Одобри</button>
+                                <button type="submit" class="admin-btn-primary" onclick="return confirm('Approve this application?');">Approve</button>
                             </form>
                             <form asp-action="DenyApplication" method="post" class="inline">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="id" value="@app.Id" />
-                                <button type="submit" class="admin-btn-danger" onclick="return confirm('Отхвърляне на заявката?');">Откажи</button>
+                                <button type="submit" class="admin-btn-danger" onclick="return confirm('Deny this application?');">Deny</button>
                             </form>
                         </div>
                     }
@@ -164,7 +164,7 @@
                     @if (app.ReviewedAt.HasValue)
                     {
                         <div class="pt-3 mt-3 border-t border-gold-500/15">
-                            <p class="text-[11px] font-sans text-gold-500/60 italic">Прегледана на @app.ReviewedAt.Value.ToString("dd MMM yyyy 'в' HH:mm")</p>
+                            <p class="text-[11px] font-sans text-gold-500/60 italic">Reviewed on @app.ReviewedAt.Value.ToString("dd MMM yyyy 'at' HH:mm")</p>
                         </div>
                     }
                 </div>
@@ -174,14 +174,14 @@
     else
     {
         <div class="panel p-16 text-center">
-            <p class="font-serif text-xl text-ivory-100 mb-2">Няма заявки</p>
+            <p class="font-serif text-xl text-ivory-100 mb-2">No applications</p>
             @{
                 var emptyMsg = currentFilter switch
                 {
-                    "pending" => "Все още няма заявки за преглед.",
-                    "approved" => "Все още няма одобрени заявки.",
-                    "denied" => "Няма отхвърлени заявки.",
-                    _ => "Все още няма подадени заявки за критик."
+                    "pending" => "There are no applications to review.",
+                    "approved" => "No applications have been approved yet.",
+                    "denied" => "No applications have been denied.",
+                    _ => "No critic applications submitted yet."
                 };
             }
             <p class="font-garamond italic text-ivory-300/60">@emptyMsg</p>

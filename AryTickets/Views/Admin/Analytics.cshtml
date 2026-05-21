@@ -1,6 +1,6 @@
 @model AryTickets.Models.AnalyticsViewModel
 @{
-    ViewData["Title"] = "Анализи";
+    ViewData["Title"] = "Analytics";
     Layout = "_Layout";
 }
 
@@ -34,53 +34,53 @@
 
 <div class="admin-main">
     <div class="mb-10">
-        <span class="text-[11px] font-sans tracking-[0.3em] uppercase text-gold-400">Преглед</span>
-        <h1 class="font-serif text-4xl font-semibold text-ivory-100 mt-1">Анализи</h1>
-        <p class="font-garamond italic text-ivory-300/70 mt-1">Приходи, посещаемост и закономерности</p>
+        <span class="text-[11px] font-sans tracking-[0.3em] uppercase text-gold-400">Overview</span>
+        <h1 class="font-serif text-4xl font-semibold text-ivory-100 mt-1">Analytics</h1>
+        <p class="font-garamond italic text-ivory-300/70 mt-1">Revenue, attendance and patterns</p>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
         <div class="stat-card">
-            <p class="text-[10px] font-sans tracking-[0.2em] uppercase text-gold-400">Общи приходи</p>
-            <p class="font-serif text-3xl font-semibold text-ivory-100 mt-2">@Model.TotalRevenue.ToString("N2") лв.</p>
-            <p class="text-[11px] font-garamond italic text-gold-500/60 mt-3">За цялото време</p>
+            <p class="text-[10px] font-sans tracking-[0.2em] uppercase text-gold-400">Total revenue</p>
+            <p class="font-serif text-3xl font-semibold text-ivory-100 mt-2">@Model.TotalRevenue.ToString("N2") BGN</p>
+            <p class="text-[11px] font-garamond italic text-gold-500/60 mt-3">All time</p>
         </div>
         <div class="stat-card">
-            <p class="text-[10px] font-sans tracking-[0.2em] uppercase text-gold-400">Резервации</p>
+            <p class="text-[10px] font-sans tracking-[0.2em] uppercase text-gold-400">Bookings</p>
             <p class="font-serif text-3xl font-semibold text-ivory-100 mt-2">@Model.TotalBookings.ToString("N0")</p>
-            <p class="text-[11px] font-garamond italic text-gold-500/60 mt-3">Общо</p>
+            <p class="text-[11px] font-garamond italic text-gold-500/60 mt-3">Total</p>
         </div>
         <div class="stat-card">
-            <p class="text-[10px] font-sans tracking-[0.2em] uppercase text-gold-400">Средна стойност</p>
-            <p class="font-serif text-3xl font-semibold text-ivory-100 mt-2">@Model.AverageOrderValue.ToString("N2") лв.</p>
-            <p class="text-[11px] font-garamond italic text-gold-500/60 mt-3">На резервация</p>
+            <p class="text-[10px] font-sans tracking-[0.2em] uppercase text-gold-400">Average value</p>
+            <p class="font-serif text-3xl font-semibold text-ivory-100 mt-2">@Model.AverageOrderValue.ToString("N2") BGN</p>
+            <p class="text-[11px] font-garamond italic text-gold-500/60 mt-3">Per booking</p>
         </div>
         <div class="stat-card">
-            <p class="text-[10px] font-sans tracking-[0.2em] uppercase text-gold-400">Дневни приходи</p>
-            <p class="font-serif text-3xl font-semibold text-gold-400 mt-2">@Model.TodayRevenue.ToString("N2") лв.</p>
-            <p class="text-[11px] font-garamond italic text-gold-500/60 mt-3">Днес</p>
+            <p class="text-[10px] font-sans tracking-[0.2em] uppercase text-gold-400">Today's revenue</p>
+            <p class="font-serif text-3xl font-semibold text-gold-400 mt-2">@Model.TodayRevenue.ToString("N2") BGN</p>
+            <p class="text-[11px] font-garamond italic text-gold-500/60 mt-3">Today</p>
         </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-10">
         <div class="chart-card">
-            <h3>Приходи във времето</h3>
-            <p>Последните 30 дни</p>
+            <h3>Revenue over time</h3>
+            <p>Last 30 days</p>
             <canvas id="revenueChart" height="200"></canvas>
         </div>
         <div class="chart-card">
-            <h3>Резервации по постановки</h3>
-            <p>Най-посещавани пиеси</p>
+            <h3>Bookings by production</h3>
+            <p>Most-watched productions</p>
             <canvas id="productionsChart" height="200"></canvas>
         </div>
         <div class="chart-card">
-            <h3>Пикови дни</h3>
-            <p>Резервации по дни от седмицата</p>
+            <h3>Peak days</h3>
+            <p>Bookings by day of the week</p>
             <canvas id="daysChart" height="200"></canvas>
         </div>
         <div class="chart-card">
-            <h3>Приходи по постановки</h3>
-            <p>Топ касови пиеси</p>
+            <h3>Revenue by production</h3>
+            <p>Top earners</p>
             <canvas id="revenueProductionsChart" height="200"></canvas>
         </div>
     </div>
@@ -102,7 +102,7 @@
             data: {
                 labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.RevenueDates)),
                 datasets: [{
-                    label: 'Приходи (лв.)',
+                    label: 'Revenue (BGN)',
                     data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.RevenueValues)),
                     borderColor: goldColor,
                     backgroundColor: 'rgba(212,175,55,0.12)',
@@ -119,7 +119,7 @@
                 plugins: { legend: { display: false } },
                 scales: {
                     x: { grid: { display: false }, ticks: { maxTicksLimit: 8, font: { size: 11 } } },
-                    y: { grid: { color: 'rgba(212,175,55,0.05)' }, ticks: { font: { size: 11 }, callback: v => v + ' лв.' } }
+                    y: { grid: { color: 'rgba(212,175,55,0.05)' }, ticks: { font: { size: 11 }, callback: v => v + ' BGN' } }
                 }
             }
         });
@@ -129,7 +129,7 @@
             data: {
                 labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TopProductionNames)),
                 datasets: [{
-                    label: 'Резервации',
+                    label: 'Bookings',
                     data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TopProductionBookings)),
                     backgroundColor: goldColor,
                     borderRadius: 2,
@@ -152,7 +152,7 @@
             data: {
                 labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DayNames)),
                 datasets: [{
-                    label: 'Резервации',
+                    label: 'Bookings',
                     data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DayCounts)),
                     backgroundColor: chartColors.slice(0, 7),
                     borderRadius: 4,

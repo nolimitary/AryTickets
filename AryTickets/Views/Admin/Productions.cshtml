@@ -1,6 +1,6 @@
 @model List<AryTickets.Models.Production>
 @{
-    ViewData["Title"] = "Постановки";
+    ViewData["Title"] = "Productions";
     Layout = "_Layout";
 }
 
@@ -13,21 +13,21 @@
 <div class="admin-main">
     <div class="flex items-end justify-between mb-10 flex-wrap gap-4">
         <div>
-            <span class="text-[11px] font-sans tracking-[0.3em] uppercase text-gold-400">Репертоар</span>
-            <h1 class="font-serif text-4xl font-semibold text-ivory-100 mt-1">Постановки</h1>
-            <p class="font-garamond italic text-ivory-300/70 mt-1">Управление на пиесите в афиша на театъра</p>
+            <span class="text-[11px] font-sans tracking-[0.3em] uppercase text-gold-400">Repertoire</span>
+            <h1 class="font-serif text-4xl font-semibold text-ivory-100 mt-1">Productions</h1>
+            <p class="font-garamond italic text-ivory-300/70 mt-1">Manage productions in the theatre playbill</p>
         </div>
         <a asp-action="CreateProduction" class="admin-btn-primary">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-            Нова постановка
+            New production
         </a>
     </div>
 
     @if (!Model.Any())
     {
         <div class="panel p-12 text-center">
-            <p class="font-garamond italic text-xl text-ivory-300/70 mb-4">Все още няма добавени постановки</p>
-            <a asp-action="CreateProduction" class="admin-btn-primary">Добави първата</a>
+            <p class="font-garamond italic text-xl text-ivory-300/70 mb-4">No productions added yet</p>
+            <a asp-action="CreateProduction" class="admin-btn-primary">Add the first one</a>
         </div>
     }
     else
@@ -43,7 +43,7 @@
                         <h3 class="font-serif text-lg text-ivory-100 leading-tight">@production.Title</h3>
                         @if (!string.IsNullOrEmpty(production.Playwright))
                         {
-                            <p class="font-garamond italic text-sm text-gold-400 mt-0.5">от @production.Playwright</p>
+                            <p class="font-garamond italic text-sm text-gold-400 mt-0.5">by @production.Playwright</p>
                         }
                         <div class="flex items-center gap-3 mt-2 text-[11px] font-sans tracking-wider uppercase text-gold-500/70">
                             @if (!string.IsNullOrEmpty(production.Genre))
@@ -54,10 +54,10 @@
                             <span class="text-gold-400">★ @production.Rating.ToString("F1")</span>
                         </div>
                         <div class="mt-auto pt-3 flex gap-2">
-                            <a asp-action="EditProduction" asp-route-id="@production.Id" class="admin-btn-primary" style="padding:0.4rem 0.8rem; font-size:10px;">Редактирай</a>
-                            <form asp-action="DeleteProduction" asp-route-id="@production.Id" method="post" onsubmit="return confirm('Сигурни ли сте, че искате да премахнете тази постановка?')">
+                            <a asp-action="EditProduction" asp-route-id="@production.Id" class="admin-btn-primary" style="padding:0.4rem 0.8rem; font-size:10px;">Edit</a>
+                            <form asp-action="DeleteProduction" asp-route-id="@production.Id" method="post" onsubmit="return confirm('Are you sure you want to remove this production?')">
                                 @Html.AntiForgeryToken()
-                                <button type="submit" class="admin-btn-danger">Премахни</button>
+                                <button type="submit" class="admin-btn-danger">Remove</button>
                             </form>
                         </div>
                     </div>
