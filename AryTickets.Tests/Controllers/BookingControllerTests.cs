@@ -42,7 +42,7 @@ namespace AryTickets.Tests.Controllers
                 It.IsAny<string>(),
                 It.IsAny<decimal>(),
                 It.IsAny<string>(),
-                It.IsAny<string>()
+                It.IsAny<byte[]>()
             )).Returns(new byte[] { 0x25, 0x50, 0x44, 0x46 });
 
             _stripeSettings = new StripeSettings();
@@ -218,13 +218,23 @@ namespace AryTickets.Tests.Controllers
         }
 
         [Fact]
-        public async Task CreatePaymentIntent_ZeroAmount_ReturnsBadRequest()
+        public async Task CreatePaymentIntent_MissingPerformanceId_ReturnsBadRequest()
         {
             _stripeSettings.SecretKey = "sk_test_x";
             _stripeSettings.PublishableKey = "pk_test_x";
             var controller = CreateController();
-            var result = await controller.CreatePaymentIntent(0m, 1, "A1");
+            var result = await controller.CreatePaymentIntent(0m, null, "A1");
             Assert.IsType<BadRequestObjectResult>(result);
+        }
+
+        [Fact]
+        public async Task CreatePaymentIntent_UnknownPerformance_ReturnsNotFound()
+        {
+            _stripeSettings.SecretKey = "sk_test_x";
+            _stripeSettings.PublishableKey = "pk_test_x";
+            var controller = CreateController();
+            var result = await controller.CreatePaymentIntent(0m, 9999, "A1");
+            Assert.IsType<NotFoundObjectResult>(result);
         }
 
         [Fact]

@@ -224,6 +224,8 @@ namespace AryTickets.Controllers
 
             model.IsActive = true;
             model.CreatedAt = DateTime.UtcNow;
+            if (model.PremiereDate.Kind != DateTimeKind.Utc)
+                model.PremiereDate = DateTime.SpecifyKind(model.PremiereDate, DateTimeKind.Utc);
             _db.Productions.Add(model);
             await _db.SaveChangesAsync();
             return RedirectToAction(nameof(Productions));
@@ -258,7 +260,10 @@ namespace AryTickets.Controllers
             existing.PosterUrl = model.PosterUrl;
             existing.BackdropUrl = model.BackdropUrl;
             existing.TrailerUrl = model.TrailerUrl;
-            existing.PremiereDate = model.PremiereDate;
+            // Npgsql requires DateTimeKind.Utc; model binding yields Unspecified.
+            existing.PremiereDate = model.PremiereDate.Kind == DateTimeKind.Utc
+                ? model.PremiereDate
+                : DateTime.SpecifyKind(model.PremiereDate, DateTimeKind.Utc);
             existing.Rating = model.Rating;
 
             await _db.SaveChangesAsync();
@@ -311,6 +316,11 @@ namespace AryTickets.Controllers
             {
                 if (DateTime.TryParse(dtStr.Trim(), out var showDateTime))
                 {
+                    // Npgsql 8 requires DateTimeKind.Utc for "timestamp with time zone".
+                    // TryParse yields Unspecified — pin it before saving.
+                    if (showDateTime.Kind != DateTimeKind.Utc)
+                        showDateTime = DateTime.SpecifyKind(showDateTime, DateTimeKind.Utc);
+
                     _db.Performances.Add(new Performance
                     {
                         ProductionId = productionId,

@@ -92,6 +92,7 @@ namespace AryTickets.Controllers
         {
             await SetUserViewData();
             var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Challenge();
 
             if (user.IsCritic)
                 return RedirectToAction("Index");

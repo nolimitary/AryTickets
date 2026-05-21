@@ -6,16 +6,8 @@ namespace AryTickets.Services
 {
     public class TicketPdfGenerator
     {
-        public virtual byte[] Generate(string movieTitle, string showtime, string seats, decimal totalPrice, string confirmationCode, string qrCodeUrl)
+        public virtual byte[] Generate(string movieTitle, string showtime, string seats, decimal totalPrice, string confirmationCode, byte[] qrImageBytes)
         {
-            byte[] qrImageBytes = null;
-            try
-            {
-                using var httpClient = new HttpClient();
-                qrImageBytes = httpClient.GetByteArrayAsync(qrCodeUrl).GetAwaiter().GetResult();
-            }
-            catch { }
-
             var document = Document.Create(container =>
             {
                 container.Page(page =>

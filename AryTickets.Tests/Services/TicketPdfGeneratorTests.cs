@@ -12,14 +12,14 @@ namespace AryTickets.Tests.Services
             QuestPDF.Settings.License = LicenseType.Community;
             var generator = new TicketPdfGenerator();
 
-            // Use a non-existent QR URL to test the fallback (no QR image)
+            // Null QR bytes — generator should still produce a valid PDF without the image.
             var result = generator.Generate(
                 "Test Movie",
                 "Mar 20, 2026 - 7:00 PM",
                 "A1, A2",
                 25.00m,
                 "CODE1234",
-                "https://invalid-url-that-will-fail.test/qr.png"
+                (byte[])null
             );
 
             Assert.NotNull(result);

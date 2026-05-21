@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -106,33 +107,42 @@ namespace AryTickets.Controllers
             if (!_stripeSettings.IsConfigured)
                 return BadRequest(new { message = "Stripe is not configured." });
 
-            if (amount <= 0)
-                return BadRequest(new { message = "Invalid amount." });
+            if (!performanceId.HasValue || string.IsNullOrWhiteSpace(selectedSeats))
+                return BadRequest(new { message = "Performance and seat selection are required." });
+
+            var performance = await _db.Performances.FirstOrDefaultAsync(p => p.Id == performanceId.Value);
+            if (performance == null || !performance.IsActive)
+                return NotFound(new { message = "Performance not found." });
+
+            var seatNumbers = selectedSeats
+                .Split(',', System.StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => s.Trim())
+                .Where(s => s.Length > 0)
+                .Distinct()
+                .ToArray();
+
+            if (seatNumbers.Length == 0)
+                return BadRequest(new { message = "No seats selected." });
 
             // Re-check seat availability before charging the customer.
-            if (performanceId.HasValue && !string.IsNullOrEmpty(selectedSeats))
-            {
-                var seatNumbers = selectedSeats
-                    .Split(',', System.StringSplitOptions.RemoveEmptyEntries)
-                    .Select(s => s.Trim())
-                    .ToArray();
+            var alreadyTaken = await _db.SeatReservations
+                .Where(r => r.PerformanceId == performanceId.Value && seatNumbers.Contains(r.SeatNumber))
+                .Select(r => r.SeatNumber)
+                .ToListAsync();
 
-                var alreadyTaken = await _db.SeatReservations
-                    .Where(r => r.PerformanceId == performanceId.Value && seatNumbers.Contains(r.SeatNumber))
-                    .Select(r => r.SeatNumber)
-                    .ToListAsync();
+            if (alreadyTaken.Any())
+                return Conflict(new { message = $"Seats already taken: {string.Join(", ", alreadyTaken)}", takenSeats = alreadyTaken });
 
-                if (alreadyTaken.Any())
-                    return Conflict(new { message = $"Seats already taken: {string.Join(", ", alreadyTaken)}", takenSeats = alreadyTaken });
-            }
+            // Authoritative server-side price — never trust the client-posted amount.
+            var serverAmount = performance.Price * seatNumbers.Length;
 
             try
             {
                 var service = new Stripe.PaymentIntentService();
                 var intent = await service.CreateAsync(new Stripe.PaymentIntentCreateOptions
                 {
-                    // Stripe wants the amount in the smallest currency unit (stotinki for EUR).
-                    Amount = (long)(amount * 100m),
+                    // Stripe wants the amount in the smallest currency unit (cents for EUR).
+                    Amount = (long)(serverAmount * 100m),
                     Currency = "eur",
                     AutomaticPaymentMethods = new Stripe.PaymentIntentAutomaticPaymentMethodsOptions
                     {
@@ -141,12 +151,13 @@ namespace AryTickets.Controllers
                     },
                     Metadata = new Dictionary<string, string>
                     {
-                        ["performanceId"] = performanceId?.ToString() ?? string.Empty,
-                        ["seats"] = selectedSeats ?? string.Empty
+                        ["performanceId"] = performanceId.Value.ToString(),
+                        ["seats"] = selectedSeats,
+                        ["seatCount"] = seatNumbers.Length.ToString()
                     }
                 });
 
-                return Json(new { clientSecret = intent.ClientSecret, paymentIntentId = intent.Id });
+                return Json(new { clientSecret = intent.ClientSecret, paymentIntentId = intent.Id, amount = serverAmount });
             }
             catch (Stripe.StripeException ex)
             {
@@ -165,6 +176,27 @@ namespace AryTickets.Controllers
             if (string.IsNullOrWhiteSpace(model.StripePaymentIntentId))
                 return Json(new { success = false, message = "Missing Stripe payment confirmation." });
 
+            if (!model.PerformanceId.HasValue || string.IsNullOrWhiteSpace(model.SelectedSeats))
+                return Json(new { success = false, message = "Performance and seat selection are required." });
+
+            // Recompute the authoritative total from the performance + seat count.
+            // Never trust model.TotalPrice — it comes from the browser.
+            var performance = await _db.Performances.FirstOrDefaultAsync(p => p.Id == model.PerformanceId.Value);
+            if (performance == null || !performance.IsActive)
+                return Json(new { success = false, message = "Performance not found." });
+
+            var seatNumbers = model.SelectedSeats
+                .Split(',', System.StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => s.Trim())
+                .Where(s => s.Length > 0)
+                .Distinct()
+                .ToArray();
+
+            if (seatNumbers.Length == 0)
+                return Json(new { success = false, message = "No seats selected." });
+
+            var serverTotal = performance.Price * seatNumbers.Length;
+
             try
             {
                 var intentService = new Stripe.PaymentIntentService();
@@ -173,7 +205,7 @@ namespace AryTickets.Controllers
                 if (intent == null || intent.Status != "succeeded")
                     return Json(new { success = false, message = "Payment was not confirmed by Stripe." });
 
-                var expectedAmount = (long)(model.TotalPrice * 100m);
+                var expectedAmount = (long)(serverTotal * 100m);
                 if (intent.Amount != expectedAmount)
                     return Json(new { success = false, message = "The amount does not match the confirmed payment." });
             }
@@ -192,22 +224,15 @@ namespace AryTickets.Controllers
             var transaction = supportsTransactions ? await _db.Database.BeginTransactionAsync() : null;
             try
             {
-                var seatNumbers = System.Array.Empty<string>();
-                if (model.PerformanceId.HasValue && !string.IsNullOrEmpty(model.SelectedSeats))
+                var alreadyTaken = await _db.SeatReservations
+                    .Where(r => r.PerformanceId == model.PerformanceId.Value && seatNumbers.Contains(r.SeatNumber))
+                    .Select(r => r.SeatNumber)
+                    .ToListAsync();
+
+                if (alreadyTaken.Any())
                 {
-                    seatNumbers = model.SelectedSeats.Split(',', System.StringSplitOptions.RemoveEmptyEntries)
-                        .Select(s => s.Trim()).ToArray();
-
-                    var alreadyTaken = await _db.SeatReservations
-                        .Where(r => r.PerformanceId == model.PerformanceId.Value && seatNumbers.Contains(r.SeatNumber))
-                        .Select(r => r.SeatNumber)
-                        .ToListAsync();
-
-                    if (alreadyTaken.Any())
-                    {
-                        if (transaction != null) await transaction.RollbackAsync();
-                        return Json(new { success = false, message = $"Seats already taken: {string.Join(", ", alreadyTaken)}", takenSeats = alreadyTaken });
-                    }
+                    if (transaction != null) await transaction.RollbackAsync();
+                    return Json(new { success = false, message = $"Seats already taken: {string.Join(", ", alreadyTaken)}", takenSeats = alreadyTaken });
                 }
 
                 var booking = new Booking
@@ -219,7 +244,7 @@ namespace AryTickets.Controllers
                     PerformanceDateTime = model.PerformanceDateTime,
                     Stage = model.Stage,
                     Seats = model.SelectedSeats,
-                    TotalPrice = model.TotalPrice,
+                    TotalPrice = serverTotal,
                     BookedAt = System.DateTime.UtcNow,
                     ConfirmationCode = confirmCode,
                     PerformanceId = model.PerformanceId
@@ -227,37 +252,39 @@ namespace AryTickets.Controllers
                 _db.Bookings.Add(booking);
                 await _db.SaveChangesAsync();
 
-                if (model.PerformanceId.HasValue && seatNumbers.Length > 0)
+                foreach (var seat in seatNumbers)
                 {
-                    foreach (var seat in seatNumbers)
+                    _db.SeatReservations.Add(new SeatReservation
                     {
-                        _db.SeatReservations.Add(new SeatReservation
-                        {
-                            PerformanceId = model.PerformanceId.Value,
-                            BookingId = booking.Id,
-                            SeatNumber = seat
-                        });
-                    }
-                    await _db.SaveChangesAsync();
+                        PerformanceId = model.PerformanceId.Value,
+                        BookingId = booking.Id,
+                        SeatNumber = seat
+                    });
                 }
+                await _db.SaveChangesAsync();
 
                 if (transaction != null) await transaction.CommitAsync();
 
-                if (model.PerformanceId.HasValue && seatNumbers.Length > 0)
-                {
-                    await _seatHub.Clients.Group($"performance-{model.PerformanceId.Value}")
-                        .SendAsync("SeatsBooked", seatNumbers);
-                }
+                await _seatHub.Clients.Group($"performance-{model.PerformanceId.Value}")
+                    .SendAsync("SeatsBooked", seatNumbers);
 
                 try
                 {
                     var qrUrl = $"https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=ARYTIX-{confirmCode}|{model.ProductionTitle}|{model.PerformanceDateTime}|{model.SelectedSeats}";
-                    var emailBody = BuildTicketEmail(model, user.UserName, confirmCode);
+                    var emailBody = BuildTicketEmail(model, user.UserName, confirmCode, serverTotal);
+
+                    byte[] qrBytes = null;
+                    try
+                    {
+                        using var httpClient = new HttpClient();
+                        qrBytes = await httpClient.GetByteArrayAsync(qrUrl);
+                    }
+                    catch { }
 
                     byte[] pdfBytes = null;
                     try
                     {
-                        pdfBytes = _pdfGenerator.Generate(model.ProductionTitle, model.PerformanceDateTime, model.SelectedSeats, model.TotalPrice, confirmCode, qrUrl);
+                        pdfBytes = _pdfGenerator.Generate(model.ProductionTitle, model.PerformanceDateTime, model.SelectedSeats, serverTotal, confirmCode, qrBytes);
                     }
                     catch { }
 
@@ -287,6 +314,11 @@ namespace AryTickets.Controllers
             {
                 if (transaction != null) await transaction.RollbackAsync();
                 return Json(new { success = false, message = "These seats were just booked by another viewer. Please choose different ones." });
+            }
+            catch
+            {
+                if (transaction != null) await transaction.RollbackAsync();
+                throw;
             }
             finally
             {
@@ -339,7 +371,7 @@ namespace AryTickets.Controllers
             return RedirectToAction("BookingHistory", "Profile");
         }
 
-        private string BuildTicketEmail(CheckoutViewModel model, string username, string confirmCode)
+        private string BuildTicketEmail(CheckoutViewModel model, string username, string confirmCode, decimal totalPrice)
         {
             var sb = new StringBuilder();
             sb.Append("<div style='font-family: Georgia, \"Times New Roman\", serif; background-color: #1a0606; color: #f5e6d3; padding: 40px 20px; text-align: center;'>");
@@ -357,7 +389,7 @@ namespace AryTickets.Controllers
                 sb.AppendFormat("<tr><td style='padding: 8px 0; color: #c9a961; font-size: 12px; letter-spacing: 0.1em;'>STAGE</td><td style='padding: 8px 0; color: #f5e6d3; font-size: 14px; text-align: right;'>{0}</td></tr>", model.Stage);
             sb.AppendFormat("<tr><td style='padding: 8px 0; color: #c9a961; font-size: 12px; letter-spacing: 0.1em;'>SEATS</td><td style='padding: 8px 0; color: #f5e6d3; font-size: 14px; text-align: right;'>{0}</td></tr>", model.SelectedSeats);
             sb.Append("<tr><td colspan='2' style='padding: 12px 0 0 0;'><div style='border-top: 1px solid rgba(212,175,55,0.15);'></div></td></tr>");
-            sb.AppendFormat("<tr><td style='padding: 12px 0 0 0; color: #c9a961; font-size: 12px; letter-spacing: 0.1em;'>TOTAL</td><td style='padding: 12px 0 0 0; color: #d4af37; font-size: 20px; font-weight: 700; text-align: right;'>{0:F2} EUR</td></tr>", model.TotalPrice);
+            sb.AppendFormat("<tr><td style='padding: 12px 0 0 0; color: #c9a961; font-size: 12px; letter-spacing: 0.1em;'>TOTAL</td><td style='padding: 12px 0 0 0; color: #d4af37; font-size: 20px; font-weight: 700; text-align: right;'>{0:F2} EUR</td></tr>", totalPrice);
             sb.Append("</table></div>");
             var qrUrl = $"https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=ARYTIX-{confirmCode}|{model.ProductionTitle}|{model.PerformanceDateTime}|{model.SelectedSeats}";
             sb.Append("<div style='text-align: center; margin: 24px 0 16px;'>");
