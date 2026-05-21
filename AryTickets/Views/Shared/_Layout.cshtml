@@ -294,7 +294,7 @@
                 </form>
             </div>
 
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-3">
                 @if (SignInManager.IsSignedIn(User))
                 {
                     <div class="relative" id="userDropdownContainer">
@@ -319,12 +319,46 @@
                 }
                 else
                 {
-                    <a asp-controller="Account" asp-action="Login" class="btn-gold">
+                    <a asp-controller="Account" asp-action="Login" class="btn-gold hidden sm:inline-flex">
                         Sign in
                     </a>
                 }
+
+                <!-- Mobile hamburger -->
+                <button id="mobileMenuButton" type="button"
+                        class="md:hidden w-10 h-10 inline-flex items-center justify-center rounded-sm border border-gold-500/25 text-gold-400 hover:bg-gold-400/10 transition"
+                        aria-label="Toggle navigation">
+                    <svg id="iconHamburger" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
+                    <svg id="iconClose" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
             </div>
         </nav>
+
+        <!-- Mobile menu panel -->
+        <div id="mobileMenu" class="md:hidden hidden border-t border-gold-500/15 bg-burgundy-950/95 backdrop-blur-xl">
+            <div class="px-6 py-5 flex flex-col gap-1">
+                <a asp-area="" asp-controller="Home" asp-action="Index" class="py-2.5 font-sans text-[13px] tracking-wider uppercase text-ivory-200/80 hover:text-gold-400">Home</a>
+                <a href="/#repertoar" class="py-2.5 font-sans text-[13px] tracking-wider uppercase text-ivory-200/80 hover:text-gold-400">Repertoire</a>
+                <a href="/#premieri" class="py-2.5 font-sans text-[13px] tracking-wider uppercase text-ivory-200/80 hover:text-gold-400">Premieres</a>
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    <a asp-controller="Tickets" asp-action="Index" class="py-2.5 font-sans text-[13px] tracking-wider uppercase text-ivory-200/80 hover:text-gold-400">My tickets</a>
+                }
+                @if (User.IsInRole("Worker") || User.IsInRole("Admin"))
+                {
+                    <a asp-controller="Validator" asp-action="Index" class="py-2.5 font-sans text-[13px] tracking-wider uppercase text-gold-400 hover:text-gold-300">Validator</a>
+                }
+                <form asp-controller="Production" asp-action="Search" method="get" class="relative mt-2">
+                    <input type="text" name="query" placeholder="Search productions…"
+                           class="bg-burgundy-900/60 border border-gold-500/20 text-ivory-200 text-[14px] font-sans rounded-sm pl-9 pr-4 py-2.5 w-full focus:border-gold-400/60 focus:outline-none placeholder-ivory-400/40" />
+                    <svg class="w-4 h-4 text-gold-500/60 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+                </form>
+                @if (!SignInManager.IsSignedIn(User))
+                {
+                    <a asp-controller="Account" asp-action="Login" class="btn-gold mt-3">Sign in</a>
+                }
+            </div>
+        </div>
     </header>
 
     <main role="main">
@@ -374,6 +408,24 @@
             window.addEventListener('click', e => { if (!c.contains(e.target)) m.classList.remove('open'); });
         }
         setupDropdown('userDropdownContainer', 'userDropdownButton', 'userDropdownMenu');
+
+        // Mobile menu toggle
+        (function () {
+            const btn  = document.getElementById('mobileMenuButton');
+            const menu = document.getElementById('mobileMenu');
+            const ih   = document.getElementById('iconHamburger');
+            const ic   = document.getElementById('iconClose');
+            if (!btn || !menu) return;
+            btn.addEventListener('click', () => {
+                const open = menu.classList.toggle('hidden') === false;
+                ih.classList.toggle('hidden', open);
+                ic.classList.toggle('hidden', !open);
+            });
+            // Auto-close after navigating
+            menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+                menu.classList.add('hidden'); ih.classList.remove('hidden'); ic.classList.add('hidden');
+            }));
+        })();
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
