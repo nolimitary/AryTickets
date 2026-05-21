@@ -66,13 +66,20 @@
                             <td><span class="font-serif text-ivory-100">@u.BookingCount</span></td>
                             <td class="text-right">
                                 <div class="inline-flex items-center gap-2">
-                                    <form asp-action="ToggleAdmin" asp-controller="Admin" method="post" class="inline">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="userId" value="@u.Id" />
-                                        <button type="submit" class="admin-btn-primary" style="padding:0.4rem 0.85rem; font-size:10px;">
-                                            @(u.Roles.Contains("Admin") ? "Revoke admin" : "Make admin")
-                                        </button>
-                                    </form>
+                                    @if (currentUser == null || u.Id != currentUser.Id)
+                                    {
+                                        <form asp-action="ToggleAdmin" asp-controller="Admin" method="post" class="inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="userId" value="@u.Id" />
+                                            <button type="submit" class="admin-btn-primary" style="padding:0.4rem 0.85rem; font-size:10px;">
+                                                @(u.Roles.Contains("Admin") ? "Revoke admin" : "Make admin")
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-[10px] font-sans tracking-widest uppercase text-gold-500/50 italic">You</span>
+                                    }
                                     <form asp-action="ToggleWorker" asp-controller="Admin" method="post" class="inline">
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="userId" value="@u.Id" />

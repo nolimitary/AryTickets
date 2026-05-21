@@ -75,6 +75,14 @@ namespace AryTickets.Controllers
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return NotFound();
 
+            // Block self-demotion — an admin must never lock themselves out.
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser != null && currentUser.Id == userId)
+            {
+                TempData["ErrorMessage"] = "You can't revoke admin from yourself.";
+                return RedirectToAction(nameof(Users));
+            }
+
             if (await _userManager.IsInRoleAsync(user, "Admin"))
                 await _userManager.RemoveFromRoleAsync(user, "Admin");
             else
