@@ -247,13 +247,14 @@ namespace AryTickets.Tests.Controllers
             Assert.IsType<ConflictObjectResult>(result);
         }
 
-        // ═══ ProcessPayment (simulated path) ═══
+        // ═══ ProcessPayment (Stripe-required) ═══
 
         [Fact]
-        public async Task ProcessPayment_MissingCardFields_ReturnsBadRequest()
+        public async Task ProcessPayment_NoStripeConfig_ReturnsFailureJson()
         {
             var perf = await SeedUpcomingPerformanceAsync();
             var controller = CreateController();
+            // _stripeSettings.IsConfigured is false in this fixture.
             var model = new CheckoutViewModel
             {
                 ProductionTitle = "Хамлет",
@@ -261,94 +262,32 @@ namespace AryTickets.Tests.Controllers
                 SelectedSeats = "A1",
                 TotalPrice = 35m,
                 PerformanceId = perf.Id,
-                CardHolderName = "",
-                CardNumber = "",
-                ExpiryDate = "",
-                Cvc = ""
+                StripePaymentIntentId = "pi_test_anything"
             };
             var result = await controller.ProcessPayment(model);
-            Assert.IsType<BadRequestObjectResult>(result);
-        }
-
-        [Fact]
-        public async Task ProcessPayment_InvalidExpiryFormat_ReturnsBadRequest()
-        {
-            var perf = await SeedUpcomingPerformanceAsync();
-            var controller = CreateController();
-            var model = new CheckoutViewModel
-            {
-                ProductionTitle = "Хамлет",
-                PerformanceDateTime = "now",
-                SelectedSeats = "A1",
-                TotalPrice = 35m,
-                PerformanceId = perf.Id,
-                CardHolderName = "Test User",
-                CardNumber = "4242424242424242",
-                ExpiryDate = "99/99",
-                Cvc = "123"
-            };
-            var result = await controller.ProcessPayment(model);
-            Assert.IsType<BadRequestObjectResult>(result);
-        }
-
-        [Fact]
-        public async Task ProcessPayment_ValidSimulatedFlow_CreatesBooking()
-        {
-            var perf = await SeedUpcomingPerformanceAsync();
-            var controller = CreateController();
-
-            var model = new CheckoutViewModel
-            {
-                ProductionTitle = "Хамлет",
-                PerformanceDateTime = "12 May · 19:00",
-                Stage = "Голяма сцена",
-                SelectedSeats = "A1,A2",
-                TotalPrice = 70m,
-                PerformanceId = perf.Id,
-                CardHolderName = "Test User",
-                CardNumber = "4242 4242 4242 4242",
-                ExpiryDate = "12/30",
-                Cvc = "123"
-            };
-            var result = await controller.ProcessPayment(model);
-
             var json = Assert.IsType<JsonResult>(result);
             var prop = json.Value!.GetType().GetProperty("success");
-            Assert.True((bool)prop!.GetValue(json.Value)!);
-
-            Assert.Single(_db.Bookings);
-            var booking = _db.Bookings.First();
-            Assert.Equal("Хамлет", booking.ProductionTitle);
-            Assert.Equal(2, _db.SeatReservations.Count());
+            Assert.False((bool)prop!.GetValue(json.Value)!);
+            Assert.Empty(_db.Bookings);
         }
 
         [Fact]
-        public async Task ProcessPayment_DoubleBookedSeats_ReturnsFailureJson()
+        public async Task ProcessPayment_StripeConfiguredButMissingIntent_ReturnsFailureJson()
         {
+            _stripeSettings.SecretKey = "sk_test_x";
+            _stripeSettings.PublishableKey = "pk_test_x";
             var perf = await SeedUpcomingPerformanceAsync();
-            _db.SeatReservations.Add(new SeatReservation
-            {
-                PerformanceId = perf.Id,
-                SeatNumber = "A1"
-            });
-            await _db.SaveChangesAsync();
-
             var controller = CreateController();
             var model = new CheckoutViewModel
             {
                 ProductionTitle = "Хамлет",
                 PerformanceDateTime = "now",
-                Stage = "Голяма сцена",
                 SelectedSeats = "A1",
                 TotalPrice = 35m,
                 PerformanceId = perf.Id,
-                CardHolderName = "Test",
-                CardNumber = "4242424242424242",
-                ExpiryDate = "12/30",
-                Cvc = "123"
+                StripePaymentIntentId = null
             };
             var result = await controller.ProcessPayment(model);
-
             var json = Assert.IsType<JsonResult>(result);
             var prop = json.Value!.GetType().GetProperty("success");
             Assert.False((bool)prop!.GetValue(json.Value)!);

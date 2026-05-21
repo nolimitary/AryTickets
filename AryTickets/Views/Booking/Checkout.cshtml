@@ -197,34 +197,22 @@
                                 Stripe test card: <span class="font-mono text-gold-400">4242 4242 4242 4242</span> · any future date · any CVC.
                             </p>
                         </div>
+
+                        <div class="pt-3">
+                            <button type="submit" class="pay-btn">Pay @Model.TotalPrice.ToString("F2") EUR</button>
+                        </div>
+                        <p class="text-center text-[11px] font-sans tracking-wider uppercase text-gold-500/60 mt-3">
+                            <svg class="w-3 h-3 inline-block mr-0.5 -mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+                            Secured by Stripe
+                        </p>
                     }
                     else
                     {
-                        <div class="relative">
-                            <label class="field-label">Card number</label>
-                            <input id="CardNumber" name="CardNumber" class="field-input mono" placeholder="1234 5678 9012 3456" maxlength="19" inputmode="numeric" autocomplete="cc-number">
-                            <span id="cardType" class="card-type"></span>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="field-label">Expiry (MM/YY)</label>
-                                <input id="ExpiryDate" name="ExpiryDate" class="field-input mono" placeholder="MM/YY" maxlength="5" inputmode="numeric" autocomplete="cc-exp">
-                            </div>
-                            <div>
-                                <label class="field-label">CVC</label>
-                                <input id="Cvc" name="Cvc" class="field-input mono" placeholder="123" maxlength="3" inputmode="numeric" autocomplete="cc-csc">
-                            </div>
+                        <div class="mt-4 p-5 border border-burgundy-400/45 rounded-sm bg-burgundy-500/10">
+                            <p class="font-serif text-ivory-100 text-base mb-1">Payments are temporarily unavailable</p>
+                            <p class="font-garamond italic text-ivory-300/70 text-sm">The Stripe integration is not configured on this deployment. Please contact support to complete your booking.</p>
                         </div>
                     }
-
-                    <div class="pt-3">
-                        <button type="submit" class="pay-btn">Pay @Model.TotalPrice.ToString("F2") EUR</button>
-                    </div>
-                    <p class="text-center text-[11px] font-sans tracking-wider uppercase text-gold-500/60 mt-3">
-                        <svg class="w-3 h-3 inline-block mr-0.5 -mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
-                        @(stripeEnabled ? "Secured by Stripe" : "Secure payment")
-                    </p>
                 </form>
             </div>
         </div>
@@ -361,50 +349,8 @@
                     alert(err.message || "An error occurred while processing the payment.");
                 }
             });
-        } else {
-            // Simulated card form — keeps offline / no-Stripe-keys deployments working.
-            document.getElementById('CardNumber').addEventListener('input', function (e) {
-                let v = e.target.value.replace(/\D/g, '').substring(0, 16);
-                e.target.value = v.replace(/(.{4})/g, '$1 ').trim();
-                const type = document.getElementById('cardType');
-                if (v.startsWith('4')) type.textContent = 'Visa';
-                else if (v.startsWith('5') || v.startsWith('2')) type.textContent = 'Mastercard';
-                else if (v.startsWith('3')) type.textContent = 'Amex';
-                else type.textContent = '';
-            });
-            document.getElementById('ExpiryDate').addEventListener('input', function (e) {
-                let v = e.target.value.replace(/\D/g, '').substring(0, 4);
-                if (v.length >= 2) v = v.substring(0, 2) + '/' + v.substring(2);
-                e.target.value = v;
-            });
-            document.getElementById('Cvc').addEventListener('input', function (e) {
-                e.target.value = e.target.value.replace(/\D/g, '').substring(0, 3);
-            });
-
-            form.addEventListener('submit', async function (e) {
-                e.preventDefault();
-                const cardName = form.querySelector("#CardHolderName").value.trim();
-                const cardNumber = form.querySelector("#CardNumber").value.replace(/\s/g, '');
-                const expiry = form.querySelector("#ExpiryDate").value;
-                const cvc = form.querySelector("#Cvc").value;
-
-                if (!cardName || cardNumber.length < 16 || expiry.length < 5 || cvc.length < 3) {
-                    alert("Please fill in all fields correctly.");
-                    return;
-                }
-                showOverlay();
-                try {
-                    const formData = new FormData(form);
-                    formData.set('CardNumber', cardNumber);
-                    const result = await finalizeBooking(formData);
-                    if (result.success) showSuccess(result);
-                    else { hideOverlay(); alert(result.message || "Payment failed. Please try again."); }
-                } catch (error) {
-                    console.error('Payment Error:', error);
-                    hideOverlay();
-                    alert('An error occurred while processing the payment. Please try again.');
-                }
-            });
         }
+        // No fallback — Stripe is required. The view shows a "payments unavailable"
+        // notice and no form when stripeEnabled === false, so we never get here.
     </script>
 }

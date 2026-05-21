@@ -158,48 +158,28 @@ namespace AryTickets.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ProcessPayment(CheckoutViewModel model)
         {
-            if (model.CardNumber != null)
-                model.CardNumber = model.CardNumber.Replace(" ", "");
+            // Stripe is mandatory — every booking must reference a real, succeeded PaymentIntent.
+            if (!_stripeSettings.IsConfigured)
+                return Json(new { success = false, message = "Payments are not configured. Please contact support." });
 
-            // Stripe path: trust the PaymentIntent status, ignore card-form fields.
-            // Simulated path: validate the dummy card form like before.
-            if (_stripeSettings.IsConfigured && !string.IsNullOrWhiteSpace(model.StripePaymentIntentId))
+            if (string.IsNullOrWhiteSpace(model.StripePaymentIntentId))
+                return Json(new { success = false, message = "Missing Stripe payment confirmation." });
+
+            try
             {
-                try
-                {
-                    var intentService = new Stripe.PaymentIntentService();
-                    var intent = await intentService.GetAsync(model.StripePaymentIntentId);
+                var intentService = new Stripe.PaymentIntentService();
+                var intent = await intentService.GetAsync(model.StripePaymentIntentId);
 
-                    if (intent == null || intent.Status != "succeeded")
-                        return Json(new { success = false, message = "Payment was not confirmed by Stripe." });
+                if (intent == null || intent.Status != "succeeded")
+                    return Json(new { success = false, message = "Payment was not confirmed by Stripe." });
 
-                    var expectedAmount = (long)(model.TotalPrice * 100m);
-                    if (intent.Amount != expectedAmount)
-                        return Json(new { success = false, message = "The amount does not match the confirmed payment." });
-                }
-                catch (Stripe.StripeException ex)
-                {
-                    return Json(new { success = false, message = "Stripe error: " + ex.Message });
-                }
+                var expectedAmount = (long)(model.TotalPrice * 100m);
+                if (intent.Amount != expectedAmount)
+                    return Json(new { success = false, message = "The amount does not match the confirmed payment." });
             }
-            else
+            catch (Stripe.StripeException ex)
             {
-                if (string.IsNullOrWhiteSpace(model.CardHolderName)
-                    || string.IsNullOrWhiteSpace(model.CardNumber)
-                    || string.IsNullOrWhiteSpace(model.ExpiryDate)
-                    || string.IsNullOrWhiteSpace(model.Cvc))
-                {
-                    return BadRequest("Invalid payment data.");
-                }
-
-                if (!System.Text.RegularExpressions.Regex.IsMatch(model.ExpiryDate, @"^(0[1-9]|1[0-2])\/?([0-9]{2})$"))
-                    return BadRequest("Invalid card expiry.");
-
-                if (model.Cvc.Length < 3 || model.Cvc.Length > 4)
-                    return BadRequest("Invalid CVC.");
-
-                // Simulated processing latency for the fallback flow.
-                await Task.Delay(2500);
+                return Json(new { success = false, message = "Stripe error: " + ex.Message });
             }
 
             var user = await _userManager.GetUserAsync(User);
