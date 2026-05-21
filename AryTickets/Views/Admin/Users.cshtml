@@ -30,7 +30,6 @@
                     <tr>
                         <th>User</th>
                         <th>Role</th>
-                        <th>Email</th>
                         <th>Bookings</th>
                         <th class="text-right">Actions</th>
                     </tr>
@@ -51,16 +50,6 @@
                                 else
                                 {
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-sm font-sans text-[10px] tracking-widest uppercase bg-burgundy-800/50 text-ivory-300/70 border border-gold-500/15">Viewer</span>
-                                }
-                            </td>
-                            <td>
-                                @if (u.EmailConfirmed)
-                                {
-                                    <span class="badge-confirmed">Confirmed</span>
-                                }
-                                else
-                                {
-                                    <span class="badge-pending">Pending</span>
                                 }
                             </td>
                             <td><span class="font-serif text-ivory-100">@u.BookingCount</span></td>

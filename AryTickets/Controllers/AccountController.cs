@@ -77,32 +77,20 @@ namespace AryTickets.Controllers
                     return View(model);
                 }
 
-                var code = new Random().Next(1000, 9999).ToString();
                 var user = new ApplicationUser
                 {
                     UserName = model.Username,
                     Email = model.Email,
-                    EmailConfirmed = false,
-                    EmailVerificationCode = code,
-                    VerificationCodeExpiry = DateTime.UtcNow.AddMinutes(15)
+                    EmailConfirmed = true  // Email verification removed — accounts are usable immediately.
                 };
 
                 var result = await _userManager.CreateAsync(user, model.Password);
 
                 if (result.Succeeded)
                 {
-                    HttpContext.Session.SetString("EmailForConfirmation", model.Email);
-
-                    try
-                    {
-                        await SendVerificationCodeEmail(model.Email, code);
-                    }
-                    catch (Exception ex)
-                    {
-                        TempData["EmailError"] = $"Verification email could not be sent: {ex.Message}";
-                    }
-
-                    return RedirectToAction("ConfirmEmail");
+                    await _userManager.AddToRoleAsync(user, "User");
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    return RedirectToAction("Index", "Home");
                 }
 
                 foreach (var error in result.Errors)
