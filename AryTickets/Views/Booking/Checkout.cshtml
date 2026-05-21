@@ -1,6 +1,6 @@
 @model CheckoutViewModel
 @{
-    ViewData["Title"] = "Плащане";
+    ViewData["Title"] = "Payment";
     Layout = "_Layout";
     var stripeEnabled = ViewData["StripeEnabled"] is bool b && b;
     var stripePublishableKey = ViewData["StripePublishableKey"] as string ?? string.Empty;
@@ -137,41 +137,41 @@
 
 <div class="min-h-screen pt-32 pb-16 px-6">
     <div class="max-w-4xl mx-auto">
-        <p class="text-center text-[11px] font-sans tracking-[0.35em] uppercase text-gold-400 mb-4">Финално потвърждение</p>
-        <h1 class="text-center font-serif font-semibold text-ivory-100 text-4xl md:text-5xl mb-2">Плащане</h1>
-        <p class="text-center font-garamond italic text-ivory-300/70 mb-12">за <span class="text-gold-400">@Model.ProductionTitle</span></p>
+        <p class="text-center text-[11px] font-sans tracking-[0.35em] uppercase text-gold-400 mb-4">Final confirmation</p>
+        <h1 class="text-center font-serif font-semibold text-ivory-100 text-4xl md:text-5xl mb-2">Payment</h1>
+        <p class="text-center font-garamond italic text-ivory-300/70 mb-12">for <span class="text-gold-400">@Model.ProductionTitle</span></p>
 
         <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
             <div class="md:col-span-2 checkout-panel h-fit">
-                <h3 class="font-serif text-xl text-ivory-100 mb-5">Поръчка</h3>
+                <h3 class="font-serif text-xl text-ivory-100 mb-5">Order</h3>
                 <div class="summary-row">
-                    <span class="label">Пиеса</span>
+                    <span class="label">Production</span>
                     <span class="value">@Model.ProductionTitle</span>
                 </div>
                 <div class="summary-row">
-                    <span class="label">Дата / Час</span>
+                    <span class="label">Date / Time</span>
                     <span class="value text-gold-400">@Model.PerformanceDateTime</span>
                 </div>
                 @if (!string.IsNullOrEmpty(Model.Stage))
                 {
                     <div class="summary-row">
-                        <span class="label">Сцена</span>
+                        <span class="label">Stage</span>
                         <span class="value italic font-garamond">@Model.Stage</span>
                     </div>
                 }
                 <div class="summary-row">
-                    <span class="label">Места</span>
+                    <span class="label">Seats</span>
                     <span class="value">@Model.SelectedSeats</span>
                 </div>
                 <div class="gold-line"></div>
                 <div class="summary-row">
-                    <span class="label" style="font-size: 12px;">Общо</span>
-                    <span class="text-2xl font-serif font-semibold text-gold-400">@Model.TotalPrice.ToString("F2") лв.</span>
+                    <span class="label" style="font-size: 12px;">Total</span>
+                    <span class="text-2xl font-serif font-semibold text-gold-400">@Model.TotalPrice.ToString("F2") BGN</span>
                 </div>
             </div>
 
             <div class="md:col-span-3 checkout-panel">
-                <h3 class="font-serif text-xl text-ivory-100 mb-5">Данни за плащане</h3>
+                <h3 class="font-serif text-xl text-ivory-100 mb-5">Payment details</h3>
                 <form id="payment-form" class="space-y-4" data-stripe-enabled="@(stripeEnabled ? "true" : "false")" data-stripe-pk="@stripePublishableKey">
                     @Html.AntiForgeryToken()
                     <input type="hidden" asp-for="ProductionTitle" />
@@ -183,33 +183,33 @@
                     <input type="hidden" asp-for="StripePaymentIntentId" id="StripePaymentIntentId" />
 
                     <div>
-                        <label class="field-label">Име на картодържателя</label>
-                        <input asp-for="CardHolderName" class="field-input" placeholder="Иван Иванов" autocomplete="cc-name">
+                        <label class="field-label">Cardholder name</label>
+                        <input asp-for="CardHolderName" class="field-input" placeholder="Jane Doe" autocomplete="cc-name">
                     </div>
 
                     @if (stripeEnabled)
                     {
                         <div>
-                            <label class="field-label">Карта</label>
+                            <label class="field-label">Card</label>
                             <div id="stripe-card-element" class="field-input" style="padding: 1rem 1rem; min-height: 50px;"></div>
                             <p id="stripe-card-errors" class="mt-2 text-[12px] font-sans text-red-300" role="alert"></p>
                             <p class="mt-3 text-[11px] font-sans tracking-wider text-gold-500/70">
-                                Тестова карта Stripe: <span class="font-mono text-gold-400">4242 4242 4242 4242</span> · всяка бъдеща дата · произволен CVC.
+                                Stripe test card: <span class="font-mono text-gold-400">4242 4242 4242 4242</span> · any future date · any CVC.
                             </p>
                         </div>
                     }
                     else
                     {
                         <div class="relative">
-                            <label class="field-label">Номер на карта</label>
+                            <label class="field-label">Card number</label>
                             <input id="CardNumber" name="CardNumber" class="field-input mono" placeholder="1234 5678 9012 3456" maxlength="19" inputmode="numeric" autocomplete="cc-number">
                             <span id="cardType" class="card-type"></span>
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="field-label">Срок (MM/ГГ)</label>
-                                <input id="ExpiryDate" name="ExpiryDate" class="field-input mono" placeholder="MM/ГГ" maxlength="5" inputmode="numeric" autocomplete="cc-exp">
+                                <label class="field-label">Expiry (MM/YY)</label>
+                                <input id="ExpiryDate" name="ExpiryDate" class="field-input mono" placeholder="MM/YY" maxlength="5" inputmode="numeric" autocomplete="cc-exp">
                             </div>
                             <div>
                                 <label class="field-label">CVC</label>
@@ -219,11 +219,11 @@
                     }
 
                     <div class="pt-3">
-                        <button type="submit" class="pay-btn">Плати @Model.TotalPrice.ToString("F2") лв.</button>
+                        <button type="submit" class="pay-btn">Pay @Model.TotalPrice.ToString("F2") BGN</button>
                     </div>
                     <p class="text-center text-[11px] font-sans tracking-wider uppercase text-gold-500/60 mt-3">
                         <svg class="w-3 h-3 inline-block mr-0.5 -mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
-                        @(stripeEnabled ? "Защитено плащане през Stripe" : "Сигурно плащане")
+                        @(stripeEnabled ? "Secured by Stripe" : "Secure payment")
                     </p>
                 </form>
             </div>
@@ -234,21 +234,21 @@
 <div id="payment-overlay" class="pay-overlay fixed inset-0 z-50 flex flex-col items-center justify-center opacity-0 pointer-events-none">
     <div id="spinner-container" class="text-center">
         <div class="spinner"></div>
-        <p class="mt-6 font-serif text-xl text-ivory-100">Обработваме плащането</p>
-        <p class="mt-1 font-garamond italic text-sm text-gold-500/70">Моля, не затваряйте страницата</p>
+        <p class="mt-6 font-serif text-xl text-ivory-100">Processing payment</p>
+        <p class="mt-1 font-garamond italic text-sm text-gold-500/70">Please don't close this page</p>
     </div>
     <div id="success-container" class="text-center hidden">
         <svg class="mx-auto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52" width="84" height="84">
             <circle class="checkmark-circle" cx="26" cy="26" r="24" fill="none" stroke="#d4af37" stroke-width="3" />
             <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" stroke="#e6c45a" stroke-width="4" />
         </svg>
-        <h2 class="mt-6 font-serif text-2xl text-ivory-100">Резервацията е потвърдена</h2>
-        <p class="mt-2 font-garamond italic text-sm text-gold-500/80">Изпратихме билетите Ви на електронната поща.</p>
+        <h2 class="mt-6 font-serif text-2xl text-ivory-100">Booking confirmed</h2>
+        <p class="mt-2 font-garamond italic text-sm text-gold-500/80">We've sent the tickets to your email.</p>
         <div id="qr-section" class="mt-6 hidden">
-            <img id="qr-img" src="" alt="QR код" class="mx-auto rounded-sm" width="160" height="160">
+            <img id="qr-img" src="" alt="QR code" class="mx-auto rounded-sm" width="160" height="160">
             <p id="confirm-code" class="text-[11px] font-sans tracking-[0.25em] text-gold-400 mt-3"></p>
         </div>
-        <a asp-controller="Home" asp-action="Index" class="mt-7 inline-block btn-gold">Към начална страница</a>
+        <a asp-controller="Home" asp-action="Index" class="mt-7 inline-block btn-gold">Back to home</a>
     </div>
 </div>
 
@@ -283,7 +283,7 @@
             if (result.qrCodeUrl) {
                 document.getElementById('qr-section').classList.remove('hidden');
                 document.getElementById('qr-img').src = result.qrCodeUrl;
-                document.getElementById('confirm-code').textContent = 'КОД: ' + result.confirmationCode;
+                document.getElementById('confirm-code').textContent = 'CODE: ' + result.confirmationCode;
             }
         }
 
@@ -293,7 +293,7 @@
                 body: formData,
             });
             if (!response.ok) {
-                throw new Error("Грешка при обработка на плащането.");
+                throw new Error("Payment processing error.");
             }
             return response.json();
         }
@@ -321,7 +321,7 @@
                 e.preventDefault();
                 const cardName = form.querySelector("#CardHolderName").value.trim();
                 if (!cardName) {
-                    alert("Въведете името на картодържателя.");
+                    alert("Please enter the cardholder name.");
                     return;
                 }
                 showOverlay();
@@ -336,7 +336,7 @@
                     const intentResp = await fetch("@Url.Action("CreatePaymentIntent", "Booking")", { method: 'POST', body: intentForm });
                     if (!intentResp.ok) {
                         const err = await intentResp.json().catch(() => ({}));
-                        throw new Error(err.message || "Stripe не върна PaymentIntent.");
+                        throw new Error(err.message || "Stripe did not return a PaymentIntent.");
                     }
                     const { clientSecret, paymentIntentId } = await intentResp.json();
 
@@ -346,7 +346,7 @@
                     });
                     if (confirm.error) throw new Error(confirm.error.message);
                     if (!confirm.paymentIntent || confirm.paymentIntent.status !== 'succeeded') {
-                        throw new Error("Stripe не потвърди плащането.");
+                        throw new Error("Stripe did not confirm the payment.");
                     }
 
                     // 3. Finalize the booking on our backend.
@@ -354,11 +354,11 @@
                     const formData = new FormData(form);
                     const result = await finalizeBooking(formData);
                     if (result.success) showSuccess(result);
-                    else { hideOverlay(); alert(result.message || "Плащането не бе успешно."); }
+                    else { hideOverlay(); alert(result.message || "Payment failed."); }
                 } catch (err) {
                     console.error('Stripe payment error:', err);
                     hideOverlay();
-                    alert(err.message || "Възникна грешка при плащането.");
+                    alert(err.message || "An error occurred while processing the payment.");
                 }
             });
         } else {
@@ -389,7 +389,7 @@
                 const cvc = form.querySelector("#Cvc").value;
 
                 if (!cardName || cardNumber.length < 16 || expiry.length < 5 || cvc.length < 3) {
-                    alert("Моля, попълнете всички полета коректно.");
+                    alert("Please fill in all fields correctly.");
                     return;
                 }
                 showOverlay();
@@ -398,11 +398,11 @@
                     formData.set('CardNumber', cardNumber);
                     const result = await finalizeBooking(formData);
                     if (result.success) showSuccess(result);
-                    else { hideOverlay(); alert(result.message || "Плащането не бе успешно. Опитайте отново."); }
+                    else { hideOverlay(); alert(result.message || "Payment failed. Please try again."); }
                 } catch (error) {
                     console.error('Payment Error:', error);
                     hideOverlay();
-                    alert('Възникна грешка при плащането. Опитайте отново.');
+                    alert('An error occurred while processing the payment. Please try again.');
                 }
             });
         }

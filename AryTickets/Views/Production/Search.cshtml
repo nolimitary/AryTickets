@@ -1,24 +1,24 @@
 @model List<AryTickets.Models.Production>
 @{
-    ViewData["Title"] = "Търсене";
+    ViewData["Title"] = "Search";
     var query = ViewData["SearchQuery"] as string ?? "";
 }
 
 <section class="pt-32 pb-16 max-w-[1360px] mx-auto px-6">
     <div class="text-center mb-12">
-        <p class="text-[11px] font-sans tracking-[0.3em] uppercase text-gold-400 mb-4">Архив на сцената</p>
-        <h1 class="font-serif font-semibold text-ivory-100 text-4xl md:text-5xl mb-3">Резултати от търсене</h1>
+        <p class="text-[11px] font-sans tracking-[0.3em] uppercase text-gold-400 mb-4">Stage archive</p>
+        <h1 class="font-serif font-semibold text-ivory-100 text-4xl md:text-5xl mb-3">Search results</h1>
         @if (!string.IsNullOrWhiteSpace(query))
         {
-            <p class="font-garamond italic text-lg text-ivory-300/70">за „<span class="text-gold-400">@query</span>“</p>
+            <p class="font-garamond italic text-lg text-ivory-300/70">for "<span class="text-gold-400">@query</span>"</p>
         }
     </div>
 
     @if (!Model.Any())
     {
         <div class="text-center py-20 max-w-md mx-auto border border-dashed border-gold-500/20 rounded-sm">
-            <p class="font-garamond italic text-xl text-ivory-200/70 mb-2">Няма намерени постановки</p>
-            <p class="text-sm font-sans tracking-wider uppercase text-gold-500/60">Опитайте с друга дума</p>
+            <p class="font-garamond italic text-xl text-ivory-200/70 mb-2">No productions found</p>
+            <p class="text-sm font-sans tracking-wider uppercase text-gold-500/60">Try a different term</p>
         </div>
     }
     else

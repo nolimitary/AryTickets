@@ -1,6 +1,6 @@
 @model SeatSelectionViewModel
 @{
-    ViewData["Title"] = "Избор на места";
+    ViewData["Title"] = "Choose seats";
     Layout = "_Layout";
 }
 
@@ -137,19 +137,19 @@
 
 <div class="max-w-6xl mx-auto px-6 pt-32 pb-40">
     <div class="text-center mb-12">
-        <p class="text-[11px] font-sans tracking-[0.35em] uppercase text-gold-400 mb-4">Резервация на места</p>
+        <p class="text-[11px] font-sans tracking-[0.35em] uppercase text-gold-400 mb-4">Seat reservation</p>
         <h1 class="font-serif font-semibold text-ivory-100 text-4xl md:text-5xl mb-2">@Model.ProductionTitle</h1>
         <p class="font-garamond italic text-gold-400 text-xl">@Model.PerformanceDateTime</p>
         @if (!string.IsNullOrEmpty(Model.Stage))
         {
-            <p class="mt-2 font-garamond italic text-ivory-300/70">@Model.Stage · <span class="text-gold-500">@Model.TicketPrice.ToString("F2") лв. за място</span></p>
+            <p class="mt-2 font-garamond italic text-ivory-300/70">@Model.Stage · <span class="text-gold-500">@Model.TicketPrice.ToString("F2") BGN per seat</span></p>
         }
     </div>
 
     <div class="py-10">
         <div class="stage-platform">
             <div class="stage-bar"></div>
-            <div class="stage-label">Сцена</div>
+            <div class="stage-label">Stage</div>
         </div>
 
         <div class="seat-grid max-w-4xl mx-auto mt-12">
@@ -177,15 +177,15 @@
         <div class="flex justify-center gap-8 mt-10 flex-wrap">
             <div class="flex items-center gap-2">
                 <div class="legend-dot" style="background-color: #3d1414; border: 1px solid #722f37;"></div>
-                <span class="text-sm font-garamond text-ivory-300/70">Свободно</span>
+                <span class="text-sm font-garamond text-ivory-300/70">Available</span>
             </div>
             <div class="flex items-center gap-2">
                 <div class="legend-dot" style="background-color: #d4af37;"></div>
-                <span class="text-sm font-garamond text-ivory-300/70">Избрано</span>
+                <span class="text-sm font-garamond text-ivory-300/70">Selected</span>
             </div>
             <div class="flex items-center gap-2">
                 <div class="legend-dot" style="background-color: #2b0a0a; opacity: 0.4;"></div>
-                <span class="text-sm font-garamond text-ivory-300/70">Заето</span>
+                <span class="text-sm font-garamond text-ivory-300/70">Taken</span>
             </div>
         </div>
     </div>
@@ -208,15 +208,15 @@
             }
 
             <div>
-                <p class="text-[10px] font-sans tracking-[0.3em] uppercase text-gold-400 mb-1">Избрани места</p>
-                <p id="selected-seats" class="font-serif text-ivory-100 text-lg">Няма</p>
+                <p class="text-[10px] font-sans tracking-[0.3em] uppercase text-gold-400 mb-1">Selected seats</p>
+                <p id="selected-seats" class="font-serif text-ivory-100 text-lg">None</p>
             </div>
             <div class="text-right">
-                <p class="text-[10px] font-sans tracking-[0.3em] uppercase text-gold-400 mb-1">Обща сума</p>
-                <p id="total-price" class="font-serif text-2xl font-semibold text-gold-400">0.00 лв.</p>
+                <p class="text-[10px] font-sans tracking-[0.3em] uppercase text-gold-400 mb-1">Total</p>
+                <p id="total-price" class="font-serif text-2xl font-semibold text-gold-400">0.00 BGN</p>
             </div>
             <button id="checkout-button" type="submit" class="btn-gold opacity-40 cursor-not-allowed" disabled>
-                <span>Към плащане</span>
+                <span>Proceed to payment</span>
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"/></svg>
             </button>
         </div>
@@ -257,7 +257,7 @@
 
                     if (deselectedAny) {
                         updateSummary();
-                        showToast(`Места ${seats.join(', ')} току-що бяха заети от друг зрител.`);
+                        showToast(`Seats ${seats.join(', ')} were just taken by another viewer.`);
                     }
                 });
 
@@ -299,14 +299,14 @@
                     hiddenSeatsInput.value = seatsText;
                     hiddenPriceInput.value = totalPrice;
                 } else {
-                    selectedSeatsEl.innerText = 'Няма';
+                    selectedSeatsEl.innerText = 'None';
                     checkoutButton.disabled = true;
                     checkoutButton.classList.add('opacity-40', 'cursor-not-allowed');
                     hiddenSeatsInput.value = "";
                     hiddenPriceInput.value = 0;
                 }
 
-                totalPriceEl.innerText = `${totalPrice.toFixed(2)} лв.`;
+                totalPriceEl.innerText = `${totalPrice.toFixed(2)} BGN`;
             }
         });
     </script>

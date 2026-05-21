@@ -277,7 +277,7 @@
         <div class="max-w-7xl mx-auto">
             <div class="grid md:grid-cols-12 gap-10 items-end">
                 <div class="md:col-span-3 reveal-up">
-                    <img src="@Model.FullPosterUrl" alt="Постер: @Model.Title" class="prod-poster w-full max-w-[280px] mx-auto md:mx-0" />
+                    <img src="@Model.FullPosterUrl" alt="Poster: @Model.Title" class="prod-poster w-full max-w-[280px] mx-auto md:mx-0" />
                 </div>
 
                 <div class="md:col-span-9 reveal-up">
@@ -292,7 +292,7 @@
                         }
                         @if (!string.IsNullOrEmpty(Model.Playwright))
                         {
-                            <p class="font-garamond italic text-gold-400 text-xl mb-5">от @Model.Playwright</p>
+                            <p class="font-garamond italic text-gold-400 text-xl mb-5">by @Model.Playwright</p>
                         }
 
                         <div class="flex items-center flex-wrap gap-4 text-[15px] font-garamond text-ivory-200/80 mb-7">
@@ -300,14 +300,14 @@
                             @if (!string.IsNullOrEmpty(Model.Director))
                             {
                                 <span class="text-gold-500/30">•</span>
-                                <span class="italic">Режисьор: <span class="text-ivory-100">@Model.Director</span></span>
+                                <span class="italic">Directed by <span class="text-ivory-100">@Model.Director</span></span>
                             }
                             <span class="text-gold-500/30">•</span>
-                            <span>Премиера: @Model.FormattedPremiere</span>
+                            <span>Premiered @Model.FormattedPremiere</span>
                         </div>
 
                         <div class="flex items-center gap-6 mb-9">
-                            <div class="rating-ring" title="@Model.RatingPercentage оценка">
+                            <div class="rating-ring" title="@Model.RatingPercentage rating">
                                 <div class="rating-ring-inner">
                                     <span class="text-ivory-100 font-serif font-semibold text-base">@Model.Rating.ToString("F1")</span>
                                 </div>
@@ -319,14 +319,14 @@
                                     <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path>
                                     </svg>
-                                    <span>Гледай трейлър</span>
+                                    <span>Watch trailer</span>
                                 </button>
                             }
                         </div>
 
                         <div class="mb-9">
                             <span class="gold-rule"></span>
-                            <span class="label-gold mb-3 block">Синопсис</span>
+                            <span class="label-gold mb-3 block">Synopsis</span>
                             <p class="font-garamond text-ivory-200/85 text-[17px] leading-relaxed max-w-3xl">@Model.Synopsis</p>
                         </div>
 
@@ -340,7 +340,7 @@
                                     <input type="hidden" name="posterUrl" value="@Model.PosterUrl" />
                                     @if ((bool)ViewData["IsFavorite"])
                                     {
-                                        <button type="submit" class="action-circle action-circle-active" title="Премахни от любими">
+                                        <button type="submit" class="action-circle action-circle-active" title="Remove from favorites">
                                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                                                 <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
                                             </svg>
@@ -348,7 +348,7 @@
                                     }
                                     else
                                     {
-                                        <button type="submit" class="action-circle" title="Добави към любими">
+                                        <button type="submit" class="action-circle" title="Add to favorites">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
                                             </svg>
@@ -358,24 +358,24 @@
                             }
                             else
                             {
-                                <a asp-controller="Account" asp-action="Register" class="action-circle" title="Добави към любими">
+                                <a asp-controller="Account" asp-action="Register" class="action-circle" title="Add to favorites">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
                                     </svg>
                                 </a>
                             }
 
-                            <button id="share-btn" class="action-circle" title="Сподели">
+                            <button id="share-btn" class="action-circle" title="Share">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
                                 </svg>
                             </button>
-                            <span id="share-toast" class="text-xs text-gold-400 opacity-0 transition-opacity duration-300 ml-1 font-garamond italic">Линкът е копиран!</span>
+                            <span id="share-toast" class="text-xs text-gold-400 opacity-0 transition-opacity duration-300 ml-1 font-garamond italic">Link copied!</span>
                         </div>
 
                         <div>
                             <span class="gold-rule"></span>
-                            <span class="label-gold mb-4 block">Изберете представление</span>
+                            <span class="label-gold mb-4 block">Choose a performance</span>
                             @{
                                 var performances = ViewData["Performances"] as List<AryTickets.Models.Performance>;
                             }
@@ -399,7 +399,7 @@
                                                         <a asp-controller="Booking" asp-action="SelectSeats" asp-route-performanceId="@p.Id" class="performance-pill">
                                                             <span class="time">@p.FormattedTime</span>
                                                             <span class="stage">· @p.Stage</span>
-                                                            <span class="price">· @p.Price.ToString("F2") лв</span>
+                                                            <span class="price">· @p.Price.ToString("F2") BGN</span>
                                                         </a>
                                                     }
                                                     else
@@ -417,15 +417,15 @@
                                 @if (hasMore)
                                 {
                                     <button id="show-more-performances" class="mt-4 w-full text-center text-[11px] tracking-[0.25em] uppercase font-sans text-gold-400 hover:text-gold-300 transition-colors py-2.5 border border-gold-500/20 hover:border-gold-400/50 hover:bg-gold-400/5 rounded-sm">
-                                        Покажи още @(groupedByDate.Count - visibleCount) дни
+                                        Show @(groupedByDate.Count - visibleCount) more day@(groupedByDate.Count - visibleCount == 1 ? "" : "s")
                                     </button>
                                 }
                             }
                             else
                             {
                                 <div class="text-center py-7 border border-dashed border-gold-500/15 rounded-sm">
-                                    <p class="font-garamond italic text-ivory-300/60">В момента няма обявени представления.</p>
-                                    <p class="text-[12px] font-sans tracking-widest uppercase text-gold-500/60 mt-2">Очаквайте нови дати</p>
+                                    <p class="font-garamond italic text-ivory-300/60">No performances scheduled at the moment.</p>
+                                    <p class="text-[12px] font-sans tracking-widest uppercase text-gold-500/60 mt-2">New dates coming soon</p>
                                 </div>
                             }
                         </div>
@@ -442,8 +442,8 @@
     <section class="py-20 px-6 lg:px-16">
         <div class="max-w-7xl mx-auto">
             <span class="gold-rule"></span>
-            <span class="label-gold">Артистичен състав</span>
-            <h2 class="font-serif font-semibold text-ivory-100 text-3xl md:text-4xl mt-2 mb-10">В ролите</h2>
+            <span class="label-gold">Ensemble</span>
+            <h2 class="font-serif font-semibold text-ivory-100 text-3xl md:text-4xl mt-2 mb-10">Cast</h2>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 @foreach (var actor in castList.Take(9))
@@ -453,7 +453,7 @@
                         <div class="cast-initial">@initials</div>
                         <div>
                             <p class="font-serif text-ivory-100 text-[17px]">@actor</p>
-                            <p class="text-[11px] font-sans uppercase tracking-[0.2em] text-gold-500/70 mt-0.5">Актьор</p>
+                            <p class="text-[11px] font-sans uppercase tracking-[0.2em] text-gold-500/70 mt-0.5">Actor</p>
                         </div>
                     </div>
                 }
@@ -468,16 +468,16 @@
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 mb-12">
             <div>
                 <span class="gold-rule"></span>
-                <span class="label-gold">Публика и критика</span>
-                <h2 class="font-serif font-semibold text-ivory-100 text-3xl md:text-4xl mt-2">Отзиви</h2>
+                <span class="label-gold">Audience & critics</span>
+                <h2 class="font-serif font-semibold text-ivory-100 text-3xl md:text-4xl mt-2">Reviews</h2>
             </div>
             @if (SignInManager.IsSignedIn(User))
             {
-                <a href="#write-review" class="btn-gold">Напиши отзив</a>
+                <a href="#write-review" class="btn-gold">Write a review</a>
             }
             else
             {
-                <a asp-controller="Account" asp-action="Register" class="btn-gold">Напиши отзив</a>
+                <a asp-controller="Account" asp-action="Register" class="btn-gold">Write a review</a>
             }
         </div>
 
@@ -494,7 +494,7 @@
                             <h4 class="font-serif font-semibold text-ivory-100 text-lg">@r.UserName</h4>
                             @if (r.IsCritic)
                             {
-                                <span class="text-[10px] font-sans font-medium tracking-widest uppercase px-2.5 py-0.5 rounded-sm bg-gold-400/15 text-gold-400 border border-gold-400/30">Критик</span>
+                                <span class="text-[10px] font-sans font-medium tracking-widest uppercase px-2.5 py-0.5 rounded-sm bg-gold-400/15 text-gold-400 border border-gold-400/30">Critic</span>
                             }
                             <span class="text-xs font-serif px-2.5 py-0.5 rounded-sm bg-burgundy-700/40 text-gold-300 border border-gold-500/25">
                                 @r.Rating / 10
@@ -509,8 +509,8 @@
         else
         {
             <div class="reviews-placeholder mb-10">
-                <h3 class="font-serif text-ivory-100 text-2xl mb-2">Все още няма отзиви</h3>
-                <p class="font-garamond italic text-ivory-300/60">Бъдете първият, споделил впечатления от представлението.</p>
+                <h3 class="font-serif text-ivory-100 text-2xl mb-2">No reviews yet</h3>
+                <p class="font-garamond italic text-ivory-300/60">Be the first to share your impressions of this production.</p>
             </div>
         }
 
@@ -518,7 +518,7 @@
         {
             <div id="write-review">
                 <span class="gold-rule"></span>
-                <span class="label-gold mb-4 block">Споделете впечатленията си</span>
+                <span class="label-gold mb-4 block">Share your impressions</span>
                 <div class="review-card">
                     <form asp-controller="Production" asp-action="SubmitReview" method="post">
                         @Html.AntiForgeryToken()
@@ -526,9 +526,9 @@
                         <input type="hidden" name="productionTitle" value="@Model.Title" />
 
                         <div class="mb-5">
-                            <label class="block text-[13px] font-sans tracking-wider uppercase text-gold-400 mb-2.5">Оценка</label>
+                            <label class="block text-[13px] font-sans tracking-wider uppercase text-gold-400 mb-2.5">Rating</label>
                             <select name="rating" required class="bg-burgundy-950 border border-gold-500/25 text-ivory-100 font-garamond text-base rounded-sm px-4 py-2.5 focus:border-gold-400/60 focus:outline-none w-full max-w-[220px] appearance-none">
-                                <option value="" disabled selected>Изберете оценка</option>
+                                <option value="" disabled selected>Select a rating</option>
                                 @for (int i = 1; i <= 10; i++)
                                 {
                                     <option value="@i">@i / 10</option>
@@ -537,13 +537,13 @@
                         </div>
 
                         <div class="mb-5">
-                            <label class="block text-[13px] font-sans tracking-wider uppercase text-gold-400 mb-2.5">Вашият отзив</label>
-                            <textarea name="content" required rows="5" placeholder="Какви бяха Вашите впечатления от представлението?"
+                            <label class="block text-[13px] font-sans tracking-wider uppercase text-gold-400 mb-2.5">Your review</label>
+                            <textarea name="content" required rows="5" placeholder="What did you think of the production?"
                                       class="w-full bg-burgundy-950 border border-gold-500/25 text-ivory-100 font-garamond text-base rounded-sm px-4 py-3 focus:border-gold-400/60 focus:outline-none placeholder-ivory-300/40 resize-none"></textarea>
                         </div>
 
                         <button type="submit" class="btn-gold">
-                            Изпрати отзив
+                            Submit review
                         </button>
                     </form>
                 </div>
@@ -560,7 +560,7 @@
             <iframe id="youtube-player"
                     class="w-full h-full rounded-sm"
                     src=""
-                    title="Трейлър"
+                    title="Trailer"
                     frameborder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowfullscreen></iframe>
@@ -629,7 +629,7 @@
                 document.querySelectorAll('.performance-extra').forEach(el => {
                     el.classList.toggle('hidden', !expanded);
                 });
-                showMoreBtn.textContent = expanded ? 'Скрий' : originalText;
+                showMoreBtn.textContent = expanded ? 'Hide' : originalText;
             });
         }
     </script>
