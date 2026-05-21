@@ -1,0 +1,60 @@
+Summary
+  Generated on: 21.05.2026 - 17:03:47
+  Coverage date: 21.05.2026 - 17:03:47
+  Parser: Cobertura
+  Assemblies: 1
+  Classes: 38
+  Files: 37
+  Line coverage: 77.5%
+  Covered lines: 1534
+  Uncovered lines: 445
+  Coverable lines: 1979
+  Total lines: 3042
+  Branch coverage: 59.2% (231 of 390)
+  Covered branches: 231
+  Total branches: 390
+  Method coverage: 83.3% (216 of 259)
+  Full method coverage: 80.3% (208 of 259)
+  Covered methods: 216
+  Fully covered methods: 208
+  Total methods: 259
+
+AryTickets                                         77.5%
+  AryTickets.Controllers.AccountController         72.4%
+  AryTickets.Controllers.AdminController           77.8%
+  AryTickets.Controllers.AdminUserViewModel           0%
+  AryTickets.Controllers.BookingController         81.5%
+  AryTickets.Controllers.HomeController            94.2%
+  AryTickets.Controllers.ProductionController       100%
+  AryTickets.Controllers.ProfileController         96.5%
+  AryTickets.Controllers.UserFavoritesController    100%
+  AryTickets.Data.ApplicationDbContext              100%
+  AryTickets.Data.TheaterSeedData                   100%
+  AryTickets.Hubs.SeatHub                             0%
+  AryTickets.Models.AnalyticsViewModel              100%
+  AryTickets.Models.ApplicationUser                 100%
+  AryTickets.Models.Badge                             0%
+  AryTickets.Models.Booking                         100%
+  AryTickets.Models.CheckoutViewModel               100%
+  AryTickets.Models.ConfirmEmailViewModel           100%
+  AryTickets.Models.CriticApplication              85.7%
+  AryTickets.Models.CriticApplicationViewModel      100%
+  AryTickets.Models.ErrorViewModel                   50%
+  AryTickets.Models.HomeViewModel                   100%
+  AryTickets.Models.LoginViewModel                  100%
+  AryTickets.Models.Performance                    83.3%
+  AryTickets.Models.Production                     59.2%
+  AryTickets.Models.ProfileViewModel                100%
+  AryTickets.Models.RegisterViewModel               100%
+  AryTickets.Models.Seat                            100%
+  AryTickets.Models.SeatReservation                  50%
+  AryTickets.Models.SeatSelectionViewModel          100%
+  AryTickets.Models.SettingsViewModel                80%
+  AryTickets.Models.UserFavorite                   44.4%
+  AryTickets.Models.UserReview                       80%
+  AryTickets.Services.FileEmailSender              78.9%
+  AryTickets.Services.ResendEmailSender             100%
+  AryTickets.Services.SendGridEmailSender             0%
+  AryTickets.Services.StripeSettings                100%
+  AryTickets.Services.TicketPdfGenerator           95.4%
+  Program                                             0%

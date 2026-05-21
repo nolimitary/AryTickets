@@ -3,6 +3,13 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Generated coverage report — keep Summary.txt + Cobertura.xml as committed evidence,
+# discard everything else (HTML/JS/CSS noise).
+AryTickets.Tests/CoverageReport/*
+!AryTickets.Tests/CoverageReport/Summary.txt
+!AryTickets.Tests/CoverageReport/Cobertura.xml
+
+
 # User-specific files
 *.rsuser
 *.suo
