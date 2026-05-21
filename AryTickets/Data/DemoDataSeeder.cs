@@ -85,6 +85,9 @@ namespace AryTickets.Data
                 var result = await userManager.CreateAsync(user, "Pass123!");
                 if (!result.Succeeded) continue;
                 await userManager.AddToRoleAsync(user, "User");
+                // Promote Noah Taylor to box-office staff so the validator nav link is demoable.
+                if (demo.UserName == "noahtaylor")
+                    await userManager.AddToRoleAsync(user, "Worker");
                 createdUsers.Add(user);
 
                 // Favourites

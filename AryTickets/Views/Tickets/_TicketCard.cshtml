@@ -1,0 +1,45 @@
+@model AryTickets.Models.BookingHistoryItem
+@{
+    var b = Model.Booking;
+    var cls = Model.IsPast ? "ticket past" : "ticket";
+}
+<article class="@cls">
+    <div class="ticket-stub">
+        <img src="@b.QrCodeUrl" alt="QR for @b.ConfirmationCode" width="170" height="170" loading="lazy" />
+    </div>
+    <div class="ticket-body">
+        <div class="ticket-eyebrow">@(Model.IsPast ? "Used" : "Admit one")</div>
+        <h3>@b.ProductionTitle</h3>
+        <div class="row">
+            <div>
+                <div class="field-label">Performance</div>
+                <div class="field-value">@b.PerformanceDateTime</div>
+            </div>
+            @if (!string.IsNullOrEmpty(b.Stage))
+            {
+                <div>
+                    <div class="field-label">Stage</div>
+                    <div class="field-value">@b.Stage</div>
+                </div>
+            }
+            <div>
+                <div class="field-label">Seats</div>
+                <div class="field-value">@b.Seats</div>
+            </div>
+            <div>
+                <div class="field-label">Code</div>
+                <div class="field-value code">@b.ConfirmationCode</div>
+            </div>
+        </div>
+        <div class="row">
+            <div>
+                <div class="field-label">Total</div>
+                <div class="field-value text-gold-400">@b.TotalPrice.ToString("F2") EUR</div>
+            </div>
+            <div>
+                <div class="field-label">Booked</div>
+                <div class="field-value">@b.BookedAt.ToString("dd MMM yyyy")</div>
+            </div>
+        </div>
+    </div>
+</article>

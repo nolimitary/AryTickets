@@ -279,6 +279,14 @@
                 <a asp-area="" asp-controller="Home" asp-action="Index" class="text-[13px] font-sans tracking-wider uppercase text-ivory-200/70 hover:text-gold-400 transition-colors">Home</a>
                 <a href="/#repertoar" class="text-[13px] font-sans tracking-wider uppercase text-ivory-200/70 hover:text-gold-400 transition-colors">Repertoire</a>
                 <a href="/#premieri" class="text-[13px] font-sans tracking-wider uppercase text-ivory-200/70 hover:text-gold-400 transition-colors">Premieres</a>
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    <a asp-controller="Tickets" asp-action="Index" class="text-[13px] font-sans tracking-wider uppercase text-ivory-200/70 hover:text-gold-400 transition-colors">My tickets</a>
+                }
+                @if (User.IsInRole("Worker") || User.IsInRole("Admin"))
+                {
+                    <a asp-controller="Validator" asp-action="Index" class="text-[13px] font-sans tracking-wider uppercase text-gold-400 hover:text-gold-300 transition-colors">Validator</a>
+                }
                 <form asp-controller="Production" asp-action="Search" method="get" class="relative hidden md:block">
                     <input type="text" name="query" placeholder="Search productions…"
                            class="bg-burgundy-900/60 border border-gold-500/20 text-ivory-200 text-[13px] font-sans rounded-sm pl-9 pr-4 py-2 w-48 focus:w-64 transition-all focus:border-gold-400/60 focus:outline-none placeholder-ivory-400/40" />

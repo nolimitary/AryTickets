@@ -85,6 +85,21 @@ namespace AryTickets.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleWorker(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return NotFound();
+
+            if (await _userManager.IsInRoleAsync(user, "Worker"))
+                await _userManager.RemoveFromRoleAsync(user, "Worker");
+            else
+                await _userManager.AddToRoleAsync(user, "Worker");
+
+            return RedirectToAction(nameof(Users));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteUser(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);

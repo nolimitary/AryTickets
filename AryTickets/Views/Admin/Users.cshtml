@@ -73,6 +73,13 @@
                                             @(u.Roles.Contains("Admin") ? "Revoke admin" : "Make admin")
                                         </button>
                                     </form>
+                                    <form asp-action="ToggleWorker" asp-controller="Admin" method="post" class="inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="userId" value="@u.Id" />
+                                        <button type="submit" class="admin-btn-primary" style="padding:0.4rem 0.85rem; font-size:10px;">
+                                            @(u.Roles.Contains("Worker") ? "Revoke worker" : "Make worker")
+                                        </button>
+                                    </form>
                                     @if (currentUser != null && u.Id != currentUser.Id)
                                     {
                                         <form asp-action="DeleteUser" asp-controller="Admin" method="post" class="inline" onsubmit="return confirm('Are you sure? This action cannot be undone.');">

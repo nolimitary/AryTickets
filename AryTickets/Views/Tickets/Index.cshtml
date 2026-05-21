@@ -1,0 +1,72 @@
+@model List<AryTickets.Models.BookingHistoryItem>
+@{
+    ViewData["Title"] = "My tickets";
+    Layout = "_Layout";
+    var upcoming = Model.Where(i => !i.IsPast).ToList();
+    var past = Model.Where(i => i.IsPast).ToList();
+}
+
+@section Styles {
+    <style>
+        .ticket {
+            display: flex;
+            background: rgba(43,10,10,0.65);
+            border: 1px solid rgba(212,175,55,0.25);
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 14px 40px -20px rgba(0,0,0,0.6);
+            transition: border-color 0.3s, transform 0.3s;
+        }
+        .ticket:hover { border-color: rgba(212,175,55,0.55); transform: translateY(-2px); }
+        .ticket-stub {
+            background: linear-gradient(180deg,#f5e6d3 0%,#e8d4b8 100%);
+            padding: 16px;
+            display: flex; align-items: center; justify-content: center;
+            border-right: 2px dashed rgba(212,175,55,0.45);
+            flex-shrink: 0;
+        }
+        .ticket.past { opacity: 0.55; filter: saturate(0.4); }
+        .ticket-body { padding: 22px 26px; flex: 1; min-width: 0; }
+        .ticket-eyebrow {
+            font-family: 'Inter', sans-serif; font-size: 10px;
+            letter-spacing: 0.3em; text-transform: uppercase; color: #d4af37;
+        }
+        .ticket h3 { font-family: 'Playfair Display', serif; font-size: 26px; color: #f7eede; margin: 6px 0 14px; }
+        .ticket .row { display: flex; flex-wrap: wrap; gap: 28px 36px; margin-bottom: 10px; }
+        .ticket .field-label { font-family: 'Inter', sans-serif; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: #c9a961; margin-bottom: 3px; }
+        .ticket .field-value { font-family: 'Cormorant Garamond', serif; font-size: 17px; color: #f7eede; }
+        .ticket .code { font-family: monospace; color: #e6c45a; letter-spacing: 0.18em; font-size: 14px; }
+    </style>
+}
+
+<section class="max-w-5xl mx-auto px-6 pt-32 pb-20">
+    <p class="text-center text-[11px] font-sans tracking-[0.3em] uppercase text-gold-400 mb-4">At the door</p>
+    <h1 class="text-center font-serif text-4xl md:text-5xl font-semibold text-ivory-100 mb-3">My tickets</h1>
+    <p class="text-center font-garamond italic text-ivory-300/70 mb-12">Show the QR code at the theatre entrance for admission.</p>
+
+    @if (!upcoming.Any() && !past.Any())
+    {
+        <div class="text-center py-16 border border-dashed border-gold-500/20 rounded-sm max-w-md mx-auto">
+            <p class="font-serif text-ivory-100 text-lg mb-1">No tickets yet</p>
+            <p class="font-garamond italic text-ivory-300/60 mb-6">Browse the playbill and book your first show.</p>
+            <a asp-controller="Home" asp-action="Index" class="btn-gold">Browse productions</a>
+        </div>
+    }
+    else
+    {
+        @if (upcoming.Any())
+        {
+            <h2 class="font-serif text-2xl text-ivory-100 mb-5">Upcoming</h2>
+            <div class="space-y-5 mb-12">
+                @foreach (var item in upcoming) { @await Html.PartialAsync("_TicketCard", item) }
+            </div>
+        }
+        @if (past.Any())
+        {
+            <h2 class="font-serif text-2xl text-ivory-100/70 mb-5">Past</h2>
+            <div class="space-y-5">
+                @foreach (var item in past) { @await Html.PartialAsync("_TicketCard", item) }
+            </div>
+        }
+    }
+</section>

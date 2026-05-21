@@ -1,0 +1,198 @@
+@{
+    ViewData["Title"] = "Ticket validator";
+    Layout = "_Layout";
+}
+
+@section Styles {
+    <style>
+        .scan-panel {
+            background: rgba(43,10,10,0.65);
+            border: 1px solid rgba(212,175,55,0.22);
+            border-radius: 6px;
+            padding: 24px;
+        }
+        #reader { width: 100%; max-width: 480px; margin: 0 auto; border-radius: 6px; overflow: hidden; }
+        #reader video { width: 100% !important; height: auto !important; }
+        .scan-result {
+            margin-top: 20px;
+            padding: 20px 24px;
+            border-radius: 6px;
+            border: 1px solid rgba(212,175,55,0.3);
+            background: rgba(26,10,12,0.7);
+            font-family: 'Cormorant Garamond', serif;
+            color: #f7eede;
+            display: none;
+        }
+        .scan-result.show { display: block; }
+        .scan-result.error { border-color: rgba(168,56,56,0.6); background: rgba(139,26,26,0.18); }
+        .scan-result .pill {
+            display: inline-block; padding: 3px 11px; border-radius: 999px;
+            font-family: 'Inter', sans-serif; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+        }
+        .pill-ok    { background: rgba(212,175,55,0.18); color: #d4af37; border: 1px solid rgba(212,175,55,0.4); }
+        .pill-past  { background: rgba(139,26,26,0.22); color: #ef9a9a; border: 1px solid rgba(168,56,56,0.5); }
+        .pill-early { background: rgba(212,175,55,0.08); color: #c9a961; border: 1px solid rgba(212,175,55,0.25); }
+        .kv { display: grid; grid-template-columns: 130px 1fr; gap: 6px 16px; margin-top: 14px; }
+        .kv dt { font-family: 'Inter', sans-serif; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: #c9a961; align-self: center; }
+        .kv dd { font-family: 'Cormorant Garamond', serif; font-size: 17px; color: #f7eede; }
+        .mode-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 10px 16px;
+            font-family: 'Inter', sans-serif; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+            border: 1px solid rgba(212,175,55,0.3); border-radius: 2px;
+            color: #c9a961; background: rgba(255,255,255,0.02);
+            cursor: pointer; transition: all 0.25s;
+        }
+        .mode-btn:hover { border-color: rgba(212,175,55,0.6); color: #f7eede; }
+        .mode-btn.active { background: linear-gradient(135deg,#d4af37,#b8860b); color: #1a0606; border-color: #d4af37; }
+    </style>
+}
+
+<section class="max-w-3xl mx-auto px-6 pt-32 pb-20">
+    <p class="text-center text-[11px] font-sans tracking-[0.3em] uppercase text-gold-400 mb-4">Box office</p>
+    <h1 class="text-center font-serif text-4xl md:text-5xl font-semibold text-ivory-100 mb-3">Ticket validator</h1>
+    <p class="text-center font-garamond italic text-ivory-300/70 mb-10">Scan a QR code with the camera, or upload a screenshot.</p>
+
+    <div class="scan-panel">
+        <div class="flex justify-center gap-3 mb-6">
+            <button id="modeCamera" class="mode-btn active" type="button">Camera</button>
+            <button id="modeUpload" class="mode-btn"        type="button">Upload image</button>
+        </div>
+
+        <div id="cameraMode">
+            <div id="reader"></div>
+            <p class="text-center mt-3 font-garamond italic text-ivory-300/60 text-sm">Hold the QR steady inside the box.</p>
+        </div>
+
+        <div id="uploadMode" style="display:none">
+            <label class="block">
+                <span class="block text-[11px] font-sans tracking-[0.22em] uppercase text-gold-400 mb-2 text-center">Choose ticket screenshot</span>
+                <input id="qrFile" type="file" accept="image/*" class="block w-full text-sm text-ivory-200 file:mr-4 file:py-2 file:px-4 file:rounded-sm file:border-0 file:font-sans file:tracking-widest file:uppercase file:text-xs file:bg-gold-400 file:text-burgundy-950 hover:file:bg-gold-300" />
+            </label>
+        </div>
+
+        <div id="result" class="scan-result"></div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="https://unpkg.com/html5-qrcode" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]') ||
+                               document.createElement('input');
+            // Build an antiforgery token via a hidden form because the page itself has no form.
+            const form = document.createElement('form');
+            form.style.display = 'none';
+            form.innerHTML = '@Html.AntiForgeryToken()';
+            document.body.appendChild(form);
+            const csrfToken = form.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            const resultEl   = document.getElementById('result');
+            const cameraMode = document.getElementById('cameraMode');
+            const uploadMode = document.getElementById('uploadMode');
+            const modeCam    = document.getElementById('modeCamera');
+            const modeUp     = document.getElementById('modeUpload');
+            const fileInput  = document.getElementById('qrFile');
+
+            let scanner = null;
+            let lastSent = '';
+            let lastSentAt = 0;
+
+            function setMode(mode) {
+                if (mode === 'camera') {
+                    cameraMode.style.display = ''; uploadMode.style.display = 'none';
+                    modeCam.classList.add('active'); modeUp.classList.remove('active');
+                    startCamera();
+                } else {
+                    cameraMode.style.display = 'none'; uploadMode.style.display = '';
+                    modeCam.classList.remove('active'); modeUp.classList.add('active');
+                    stopCamera();
+                }
+            }
+            modeCam.addEventListener('click', () => setMode('camera'));
+            modeUp.addEventListener('click', () => setMode('upload'));
+
+            async function startCamera() {
+                if (!window.Html5Qrcode) { setTimeout(startCamera, 200); return; }
+                if (scanner) return;
+                scanner = new Html5Qrcode("reader");
+                try {
+                    await scanner.start(
+                        { facingMode: "environment" },
+                        { fps: 10, qrbox: { width: 240, height: 240 } },
+                        onScan,
+                        () => {}
+                    );
+                } catch (err) {
+                    renderError("Could not access camera: " + (err.message || err));
+                }
+            }
+            async function stopCamera() {
+                if (scanner) { try { await scanner.stop(); } catch {} await scanner.clear(); scanner = null; }
+            }
+
+            fileInput.addEventListener('change', async () => {
+                if (!fileInput.files || fileInput.files.length === 0) return;
+                if (!window.Html5Qrcode) { renderError("QR library still loading."); return; }
+                const tmp = new Html5Qrcode("reader");
+                try {
+                    const text = await tmp.scanFile(fileInput.files[0], false);
+                    onScan(text);
+                } catch (err) {
+                    renderError("Could not read a QR code from that image.");
+                }
+            });
+
+            async function onScan(decodedText) {
+                // Debounce: don't hammer the server if the camera keeps re-reading.
+                const now = Date.now();
+                if (decodedText === lastSent && now - lastSentAt < 2500) return;
+                lastSent = decodedText; lastSentAt = now;
+
+                const fd = new FormData();
+                fd.set('qrData', decodedText);
+                fd.set('__RequestVerificationToken', csrfToken);
+                try {
+                    const r = await fetch('@Url.Action("Validate", "Validator")', { method: 'POST', body: fd });
+                    const data = await r.json();
+                    render(data);
+                } catch (e) {
+                    renderError("Network error validating the ticket.");
+                }
+            }
+
+            function renderError(msg) {
+                resultEl.classList.add('show', 'error');
+                resultEl.innerHTML = `<span class="pill pill-past">Invalid</span><p class="mt-3">${msg}</p>`;
+            }
+
+            function render(data) {
+                resultEl.classList.add('show');
+                resultEl.classList.remove('error');
+                if (!data.ok) {
+                    resultEl.classList.add('error');
+                    resultEl.innerHTML = `<span class="pill pill-past">Invalid</span><p class="mt-3">${data.message || 'Unknown error.'}</p>`;
+                    return;
+                }
+                const pill = data.status === 'past'  ? '<span class="pill pill-past">Past show</span>'
+                          : data.status === 'early' ? '<span class="pill pill-early">Not yet</span>'
+                          :                            '<span class="pill pill-ok">Valid</span>';
+                resultEl.innerHTML = `
+                    ${pill}
+                    <p class="mt-2 font-garamond italic text-sm" style="color:#c9a961">${data.note}</p>
+                    <dl class="kv">
+                        <dt>Production</dt><dd>${data.production}</dd>
+                        <dt>Performance</dt><dd>${data.performance}</dd>
+                        <dt>Stage</dt><dd>${data.stage || '—'}</dd>
+                        <dt>Seats</dt><dd>${data.seats}</dd>
+                        <dt>Holder</dt><dd>${data.holder} <span style="color:#c9a961">(${data.email})</span></dd>
+                        <dt>Code</dt><dd style="font-family:monospace;letter-spacing:.18em;color:#e6c45a">${data.code}</dd>
+                        <dt>Booked</dt><dd>${data.bookedAt}</dd>
+                    </dl>`;
+            }
+
+            setMode('camera');
+        });
+    </script>
+}

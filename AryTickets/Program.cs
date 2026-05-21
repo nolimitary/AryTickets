@@ -136,6 +136,8 @@ using (var scope = app.Services.CreateScope())
         await roleManager.CreateAsync(new IdentityRole("Admin"));
     if (!await roleManager.RoleExistsAsync("User"))
         await roleManager.CreateAsync(new IdentityRole("User"));
+    if (!await roleManager.RoleExistsAsync("Worker"))
+        await roleManager.CreateAsync(new IdentityRole("Worker"));
 
     var adminEmail = "admin@arytix.com";
     var adminUser = await userManager.FindByEmailAsync(adminEmail);
@@ -291,7 +293,7 @@ app.Use(async (context, next) =>
     context.Response.Headers["X-Frame-Options"] = "DENY";
     context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
     context.Response.Headers["X-XSS-Protection"] = "1; mode=block";
-    context.Response.Headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()";
+    context.Response.Headers["Permissions-Policy"] = "camera=(self), microphone=(), geolocation=()";
     await next();
 });
 
