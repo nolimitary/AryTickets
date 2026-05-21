@@ -131,9 +131,9 @@ namespace AryTickets.Controllers
                 var service = new Stripe.PaymentIntentService();
                 var intent = await service.CreateAsync(new Stripe.PaymentIntentCreateOptions
                 {
-                    // Stripe wants the amount in the smallest currency unit (stotinki for BGN).
+                    // Stripe wants the amount in the smallest currency unit (stotinki for EUR).
                     Amount = (long)(amount * 100m),
-                    Currency = "bgn",
+                    Currency = "eur",
                     AutomaticPaymentMethods = new Stripe.PaymentIntentAutomaticPaymentMethodsOptions
                     {
                         Enabled = true,
@@ -332,7 +332,7 @@ namespace AryTickets.Controllers
                 sb.AppendFormat("<tr><td style='padding: 8px 0; color: #c9a961; font-size: 12px; letter-spacing: 0.1em;'>STAGE</td><td style='padding: 8px 0; color: #f5e6d3; font-size: 14px; text-align: right;'>{0}</td></tr>", model.Stage);
             sb.AppendFormat("<tr><td style='padding: 8px 0; color: #c9a961; font-size: 12px; letter-spacing: 0.1em;'>SEATS</td><td style='padding: 8px 0; color: #f5e6d3; font-size: 14px; text-align: right;'>{0}</td></tr>", model.SelectedSeats);
             sb.Append("<tr><td colspan='2' style='padding: 12px 0 0 0;'><div style='border-top: 1px solid rgba(212,175,55,0.15);'></div></td></tr>");
-            sb.AppendFormat("<tr><td style='padding: 12px 0 0 0; color: #c9a961; font-size: 12px; letter-spacing: 0.1em;'>TOTAL</td><td style='padding: 12px 0 0 0; color: #d4af37; font-size: 20px; font-weight: 700; text-align: right;'>{0:F2} BGN</td></tr>", model.TotalPrice);
+            sb.AppendFormat("<tr><td style='padding: 12px 0 0 0; color: #c9a961; font-size: 12px; letter-spacing: 0.1em;'>TOTAL</td><td style='padding: 12px 0 0 0; color: #d4af37; font-size: 20px; font-weight: 700; text-align: right;'>{0:F2} EUR</td></tr>", model.TotalPrice);
             sb.Append("</table></div>");
             var qrUrl = $"https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=ARYTIX-{confirmCode}|{model.ProductionTitle}|{model.PerformanceDateTime}|{model.SelectedSeats}";
             sb.Append("<div style='text-align: center; margin: 24px 0 16px;'>");

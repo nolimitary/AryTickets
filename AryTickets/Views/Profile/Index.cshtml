@@ -37,7 +37,7 @@
             <p class="font-garamond italic text-ivory-300/70 mt-2">Reviews written</p>
         </div>
         <div class="panel p-6">
-            <p class="stat-number font-serif text-4xl font-semibold text-gold-400" data-target="@((int)Model.TotalSpent)" data-suffix=" BGN" data-decimals="@Model.TotalSpent.ToString("F2").Split('.')[1]">0.00 BGN</p>
+            <p class="stat-number font-serif text-4xl font-semibold text-gold-400" data-target="@((int)Model.TotalSpent)" data-suffix=" EUR" data-decimals="@Model.TotalSpent.ToString("F2").Split('.')[1]">0.00 EUR</p>
             <p class="font-garamond italic text-ivory-300/70 mt-2">Total spent</p>
         </div>
     </div>
@@ -66,7 +66,7 @@
                                 <td class="py-4 font-serif text-ivory-100">@booking.ProductionTitle</td>
                                 <td class="py-4 font-garamond italic text-ivory-200/80">@booking.PerformanceDateTime</td>
                                 <td class="py-4 font-mono text-sm text-gold-300">@booking.Seats</td>
-                                <td class="py-4 font-serif text-gold-400">@booking.TotalPrice.ToString("F2") BGN</td>
+                                <td class="py-4 font-serif text-gold-400">@booking.TotalPrice.ToString("F2") EUR</td>
                                 <td class="py-4 text-xs text-gold-500/70">@booking.BookedAt.ToString("dd MMM yyyy")</td>
                             </tr>
                         }
@@ -90,7 +90,7 @@
                             </div>
                             <div>
                                 <span class="text-[10px] font-sans uppercase tracking-widest text-gold-400">Total</span>
-                                <p class="font-serif text-gold-400">@booking.TotalPrice.ToString("F2") BGN</p>
+                                <p class="font-serif text-gold-400">@booking.TotalPrice.ToString("F2") EUR</p>
                             </div>
                             <div>
                                 <span class="text-[10px] font-sans uppercase tracking-widest text-gold-400">Date</span>

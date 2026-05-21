@@ -142,7 +142,7 @@
         <p class="font-garamond italic text-gold-400 text-xl">@Model.PerformanceDateTime</p>
         @if (!string.IsNullOrEmpty(Model.Stage))
         {
-            <p class="mt-2 font-garamond italic text-ivory-300/70">@Model.Stage · <span class="text-gold-500">@Model.TicketPrice.ToString("F2") BGN per seat</span></p>
+            <p class="mt-2 font-garamond italic text-ivory-300/70">@Model.Stage · <span class="text-gold-500">@Model.TicketPrice.ToString("F2") EUR per seat</span></p>
         }
     </div>
 
@@ -213,7 +213,7 @@
             </div>
             <div class="text-right">
                 <p class="text-[10px] font-sans tracking-[0.3em] uppercase text-gold-400 mb-1">Total</p>
-                <p id="total-price" class="font-serif text-2xl font-semibold text-gold-400">0.00 BGN</p>
+                <p id="total-price" class="font-serif text-2xl font-semibold text-gold-400">0.00 EUR</p>
             </div>
             <button id="checkout-button" type="submit" class="btn-gold opacity-40 cursor-not-allowed" disabled>
                 <span>Proceed to payment</span>
@@ -306,7 +306,7 @@
                     hiddenPriceInput.value = 0;
                 }
 
-                totalPriceEl.innerText = `${totalPrice.toFixed(2)} BGN`;
+                totalPriceEl.innerText = `${totalPrice.toFixed(2)} EUR`;
             }
         });
     </script>
