@@ -52,12 +52,12 @@ namespace AryTickets.Models
         public string FullPosterUrl =>
             !string.IsNullOrEmpty(PosterUrl)
                 ? PosterUrl
-                : "https://placehold.co/500x750/2b0a0a/d4af37?text=No+Poster";
+                : $"/posters/poster?title={Uri.EscapeDataString(Title)}";
 
         public string FullBackdropUrl =>
             !string.IsNullOrEmpty(BackdropUrl)
                 ? BackdropUrl
-                : "https://images.unsplash.com/photo-1503095396549-807759245b35?q=80&w=2400&auto=format&fit=crop";
+                : $"/posters/backdrop?title={Uri.EscapeDataString(Title)}";
 
         public string FormattedDuration =>
             DurationMinutes > 0
