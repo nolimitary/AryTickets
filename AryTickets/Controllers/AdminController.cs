@@ -61,6 +61,7 @@ namespace AryTickets.Controllers
                     Email = user.Email,
                     EmailConfirmed = user.EmailConfirmed,
                     Roles = string.Join(", ", roles),
+                    IsCritic = user.IsCritic,
                     BookingCount = await _db.Bookings.CountAsync(b => b.UserId == user.Id)
                 });
             }
@@ -436,6 +437,7 @@ namespace AryTickets.Controllers
         public string Email { get; set; }
         public bool EmailConfirmed { get; set; }
         public string Roles { get; set; }
+        public bool IsCritic { get; set; }
         public int BookingCount { get; set; }
     }
 }
