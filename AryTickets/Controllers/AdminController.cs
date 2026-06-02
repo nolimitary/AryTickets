@@ -98,6 +98,15 @@ namespace AryTickets.Controllers
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return NotFound();
 
+            // Admins shouldn't be able to assign themselves the Worker role —
+            // it makes no sense semantically and could confuse downstream UI.
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser != null && currentUser.Id == userId)
+            {
+                TempData["ErrorMessage"] = "You can't change your own worker status.";
+                return RedirectToAction(nameof(Users));
+            }
+
             if (await _userManager.IsInRoleAsync(user, "Worker"))
                 await _userManager.RemoveFromRoleAsync(user, "Worker");
             else
