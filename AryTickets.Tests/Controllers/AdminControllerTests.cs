@@ -275,12 +275,12 @@ namespace AryTickets.Tests.Controllers
         [Fact]
         public async Task EditProduction_Post_UpdatesFields()
         {
-            var p = new Production { Title = "Old", Genre = "G", IsActive = true, Director = "D1" };
+            var p = new Production { Title = "Old", Synopsis = "S1", Genre = "G", IsActive = true, Director = "D1" };
             _db.Productions.Add(p);
             await _db.SaveChangesAsync();
 
             var controller = CreateController();
-            var updated = new Production { Id = p.Id, Title = "New", Genre = "G2", Director = "D2" };
+            var updated = new Production { Id = p.Id, Title = "New", Synopsis = "S2", Genre = "G2", Director = "D2" };
             var result = await controller.EditProduction(updated);
 
             Assert.IsType<RedirectToActionResult>(result);
