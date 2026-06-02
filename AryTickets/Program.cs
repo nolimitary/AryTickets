@@ -234,27 +234,42 @@ using (var scope = app.Services.CreateScope())
         };
         var rng = new Random(7);
 
+        // Top up performances: every active production should have at least one
+        // show on each of today + next 9 days. Existing future performances are
+        // preserved; we only add the days that are missing.
         var nowDate = DateTime.UtcNow.Date;
-        var productionsMissingPerformances = await db.Productions
-            .Where(p => p.IsActive && !db.Performances.Any(perf => perf.ProductionId == p.Id && perf.ShowDateTime > nowDate))
-            .ToListAsync();
+        const int scheduleDays = 10; // today + 9 ahead
+        var activeProductions = await db.Productions.Where(p => p.IsActive).ToListAsync();
+        var existingFutureByProduction = await db.Performances
+            .Where(p => p.IsActive && p.ShowDateTime >= nowDate)
+            .GroupBy(p => p.ProductionId)
+            .Select(g => new { ProductionId = g.Key, Dates = g.Select(p => p.ShowDateTime).ToList() })
+            .ToDictionaryAsync(x => x.ProductionId, x => x.Dates);
 
-        foreach (var production in productionsMissingPerformances)
+        foreach (var production in activeProductions)
         {
             var stage = stages[rng.Next(stages.Length)];
             var price = prices[rng.Next(prices.Length)];
-            var daysToSchedule = rng.Next(4, 9);
+            var existingDates = existingFutureByProduction.TryGetValue(production.Id, out var dts)
+                ? dts.Select(d => d.Date).ToHashSet()
+                : new HashSet<DateTime>();
 
-            for (int d = 0; d < daysToSchedule; d++)
+            for (int d = 0; d < scheduleDays; d++)
             {
-                if (rng.Next(10) < 3 && d > 0) continue;
-                var date = DateTime.UtcNow.Date.AddDays(d + 1);
+                var date = nowDate.AddDays(d);
+                if (existingDates.Contains(date)) continue;
+
                 var slot = timeSlots[rng.Next(timeSlots.Length)];
+                var showDateTime = date.Add(slot);
+                // If today's slot has already passed, push it forward by a few hours
+                // so there's still something bookable tonight.
+                if (showDateTime <= DateTime.UtcNow)
+                    showDateTime = DateTime.UtcNow.AddHours(2);
 
                 db.Performances.Add(new Performance
                 {
                     ProductionId = production.Id,
-                    ShowDateTime = date.Add(slot),
+                    ShowDateTime = showDateTime,
                     Stage = stage,
                     Price = price,
                     IsActive = true
