@@ -47,6 +47,10 @@
                                 {
                                     <span class="badge-confirmed">Administrator</span>
                                 }
+                                else if (u.Roles.Contains("Worker"))
+                                {
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-sm font-sans text-[10px] tracking-widest uppercase bg-gold-500/15 text-gold-300 border border-gold-500/30">Worker</span>
+                                }
                                 else
                                 {
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-sm font-sans text-[10px] tracking-widest uppercase bg-burgundy-800/50 text-ivory-300/70 border border-gold-500/15">Viewer</span>
