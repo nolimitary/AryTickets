@@ -43,15 +43,22 @@ namespace AryTickets.Tests.Data
         }
 
         [Fact]
-        public void GetProductions_PosterUrlsPointAtPosterEndpoint()
+        public void GetProductions_PosterUrlsAreValidEndpointsOrExternalImages()
         {
             var productions = TheaterSeedData.GetProductions();
             Assert.All(productions, p =>
             {
-                Assert.StartsWith("/posters/poster?title=", p.PosterUrl);
-                Assert.StartsWith("/posters/backdrop?title=", p.BackdropUrl);
-                // The Bulgarian Title must be in the URL — not the English label.
-                Assert.Contains(Uri.EscapeDataString(p.Title), p.PosterUrl);
+                // Either the in-process SVG endpoint (fallback) or an absolute
+                // https URL to a real public-domain image.
+                bool IsValid(string url) =>
+                    url.StartsWith("/posters/", StringComparison.Ordinal) ||
+                    url.StartsWith("https://", StringComparison.Ordinal);
+                Assert.True(IsValid(p.PosterUrl), $"PosterUrl invalid: {p.PosterUrl}");
+                Assert.True(IsValid(p.BackdropUrl), $"BackdropUrl invalid: {p.BackdropUrl}");
+
+                // When the URL is the SVG fallback, the Title must be embedded.
+                if (p.PosterUrl.StartsWith("/posters/", StringComparison.Ordinal))
+                    Assert.Contains(Uri.EscapeDataString(p.Title), p.PosterUrl);
             });
         }
 
