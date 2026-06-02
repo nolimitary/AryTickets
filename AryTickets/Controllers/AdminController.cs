@@ -243,30 +243,46 @@ namespace AryTickets.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditProduction(Production model)
         {
-            if (!ModelState.IsValid)
-                return View(model);
-
             var existing = await _db.Productions.FindAsync(model.Id);
             if (existing == null) return NotFound();
 
-            existing.Title = model.Title;
-            existing.TitleOriginal = model.TitleOriginal;
-            existing.Synopsis = model.Synopsis;
-            existing.Playwright = model.Playwright;
-            existing.Director = model.Director;
-            existing.Cast = model.Cast;
-            existing.Genre = model.Genre;
+            // Only Title and Synopsis are genuinely required; other ModelState
+            // errors (e.g. hidden CreatedAt round-tripping with a culture-specific
+            // format) shouldn't block the save.
+            if (string.IsNullOrWhiteSpace(model.Title))
+                ModelState.AddModelError(nameof(Production.Title), "Title is required.");
+            if (string.IsNullOrWhiteSpace(model.Synopsis))
+                ModelState.AddModelError(nameof(Production.Synopsis), "Synopsis is required.");
+            if (ModelState[nameof(Production.Title)]?.Errors.Count > 0 ||
+                ModelState[nameof(Production.Synopsis)]?.Errors.Count > 0)
+                return View(model);
+
+            existing.Title = model.Title ?? string.Empty;
+            existing.TitleOriginal = model.TitleOriginal ?? string.Empty;
+            existing.Synopsis = model.Synopsis ?? string.Empty;
+            existing.Playwright = model.Playwright ?? string.Empty;
+            existing.Director = model.Director ?? string.Empty;
+            existing.Cast = model.Cast ?? string.Empty;
+            existing.Genre = model.Genre ?? string.Empty;
             existing.DurationMinutes = model.DurationMinutes;
-            existing.PosterUrl = model.PosterUrl;
-            existing.BackdropUrl = model.BackdropUrl;
-            existing.TrailerUrl = model.TrailerUrl;
+            existing.PosterUrl = model.PosterUrl ?? string.Empty;
+            existing.BackdropUrl = model.BackdropUrl ?? string.Empty;
+            existing.TrailerUrl = model.TrailerUrl ?? string.Empty;
             // Npgsql requires DateTimeKind.Utc; model binding yields Unspecified.
             existing.PremiereDate = model.PremiereDate.Kind == DateTimeKind.Utc
                 ? model.PremiereDate
                 : DateTime.SpecifyKind(model.PremiereDate, DateTimeKind.Utc);
             existing.Rating = model.Rating;
 
-            await _db.SaveChangesAsync();
+            try
+            {
+                await _db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"Save failed: {ex.GetBaseException().Message}");
+                return View(model);
+            }
             return RedirectToAction(nameof(Productions));
         }
 

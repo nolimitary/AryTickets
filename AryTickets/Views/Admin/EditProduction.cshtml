@@ -23,6 +23,8 @@
         <input type="hidden" asp-for="CreatedAt" />
         <input type="hidden" asp-for="IsActive" />
 
+        <div asp-validation-summary="All" class="text-red-400 text-sm mb-4 empty:hidden"></div>
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
                 <label asp-for="Title" class="admin-label">Title</label>
